@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="DongonResidentialsRental.Domain/DongonResidentialsRental.Domain.csproj" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="DongonResidentialsRental.Tests/DongonResidentialsRental.Tests.csproj" Id="d6a5dc51-a874-4a9d-9898-74570c334f50" />
+  </Folder>
+</Solution>
