@@ -1,10 +1,7 @@
-﻿using DongonResidentialsRental.Domain.Lease;
+﻿using DongonResidentialsRental.Domain.CreditNote;
+using DongonResidentialsRental.Domain.Lease;
 using DongonResidentialsRental.Domain.Payment;
 using DongonResidentialsRental.Domain.Shared;
-using System;
-using System.Collections.Generic;
-using System.Reflection.Emit;
-using System.Text;
 
 namespace DongonResidentialsRental.Domain.Invoice;
 
@@ -15,7 +12,10 @@ public sealed class Invoice
     public BillingPeriod BillingPeriod { get; }
     private readonly List<InvoiceLine> _lines = new();
     private readonly List<InvoiceAllocation> _allocations = new();
+    private readonly List<InvoiceCreditAllocation> _creditAllocations = new();
     public IReadOnlyCollection<InvoiceLine> Lines => _lines.AsReadOnly();
+    public IReadOnlyCollection<InvoiceAllocation> Allocations => _allocations.AsReadOnly();
+    public IReadOnlyCollection<InvoiceCreditAllocation> CreditAllocations => _creditAllocations.AsReadOnly();
     public DateOnly? IssuedOn { get; private set; }
     public string Currency { get; }
     public Money Total =>
@@ -26,21 +26,15 @@ public sealed class Invoice
         _allocations.Select(a => a.Amount)
                     .DefaultIfEmpty(Money.Zero(Currency))
                     .Aggregate((a, b) => a.Add(b));
+    public Money AmountCredited => _creditAllocations.Select(c => c.Amount)
+                    .DefaultIfEmpty(Money.Zero(Currency))
+                    .Aggregate((a, b) => a.Add(b));
 
-    public Money Balance => Total.Subtract(AmountPaid);
-    private InvoiceStatus _status;
-    public InvoiceStatus Status =>
-    _status switch
-    {
-        InvoiceStatus.Draft => InvoiceStatus.Draft,
-        InvoiceStatus.Cancelled => InvoiceStatus.Cancelled,
-        _ => (Balance.Amount, AmountPaid.Amount) switch
-        {
-            (0, _) => InvoiceStatus.Paid,
-            ( > 0, > 0) => InvoiceStatus.PartiallyPaid,
-            _ => InvoiceStatus.Issued
-        }
-    };
+    public Money Balance => 
+        Total
+            .Subtract(AmountPaid)
+            .Subtract(AmountCredited);
+    public InvoiceStatus Status { get; private set;  }
 
     private Invoice() { }
     private Invoice(LeaseId leaseId, BillingPeriod billingPeriod, string currency)
@@ -49,7 +43,7 @@ public sealed class Invoice
         LeaseId = leaseId;
         BillingPeriod = billingPeriod;
         Currency = currency;
-        _status = InvoiceStatus.Draft;
+        Status = InvoiceStatus.Draft;
     }
 
     private void EnsureIsDraft() 
@@ -61,14 +55,6 @@ public sealed class Invoice
 
     }
 
-    private void EnsureIsIssued()
-    {
-        if (Status is InvoiceStatus.Issued)
-            return;
-        
-        throw new DomainException("Operation allowed only when invoice is in Issued state.");
-    }
-
     private void EnsureCanAcceptPayment()
     {
         if (Status is InvoiceStatus.Draft or InvoiceStatus.Cancelled)
@@ -78,13 +64,22 @@ public sealed class Invoice
             throw new DomainException("Invoice is already fully paid.");
     }
 
+    private void EnsureCanApplyCredit()
+    {
+        if (Status is InvoiceStatus.Draft or InvoiceStatus.Cancelled)
+            throw new DomainException("Operation is not allowed when invoice is in Draft or Cancelled state.");
+        if (Balance.Amount == 0)
+            throw new DomainException("Invoice is already fully paid.");
+    }
+
+
     public void Issue(DateOnly issuedOn)
     {
         EnsureIsDraft();
         if (_lines.Count == 0)
             throw new DomainException("Cannot issue an invoice with no lines.");
 
-        _status = InvoiceStatus.Issued;
+        Status = InvoiceStatus.Issued;
         IssuedOn = issuedOn;
     }
 
@@ -130,6 +125,20 @@ public sealed class Invoice
         _allocations.Add(allocation);
     }
 
+    public void ApplyCredit(CreditNoteId creditNoteId, Money amount, DateOnly appliedOn)
+    {
+        EnsureCanApplyCredit();
+
+        if (amount.Currency != Currency)
+            throw new DomainException("Credit currency must match invoice currency.");
+
+        if (amount.Amount > Balance.Amount)
+            throw new DomainException("Credit amount cannot exceed invoice balance.");
+
+        _creditAllocations.Add(
+            InvoiceCreditAllocation.Create(creditNoteId, amount, appliedOn));
+    }
+
     public void RemoveAllocation(PaymentId paymentId)
     {
         Ensure.NotNull(paymentId);
@@ -147,12 +156,27 @@ public sealed class Invoice
         }
     }
 
+    public void RemoveCreditAllocation(CreditNoteId creditNoteId)
+    {
+        Ensure.NotNull(creditNoteId);
+
+        var allocationsToRemove = _creditAllocations
+            .Where(c => c.CreditNoteId == creditNoteId)
+            .ToList();
+        if (allocationsToRemove.Count == 0)
+            throw new DomainException("No allocation exists for this credit note.");
+        foreach (var allocation in allocationsToRemove)
+        {
+            _creditAllocations.Remove(allocation);
+        }
+    }
+
     public void Cancel()
     {
-        if (Status == InvoiceStatus.Paid || Status == InvoiceStatus.PartiallyPaid)
+        if (AmountPaid.Amount > 0)
             throw new DomainException("Cannot cancel an invoice that has been paid.");
 
-        _status = InvoiceStatus.Cancelled;
+        Status = InvoiceStatus.Cancelled;
     }
 
 }

@@ -1,5 +1,6 @@
 ﻿using AwesomeAssertions;
 using DongonResidentialsRental.Domain.Shared;
+using DomainBuilding = DongonResidentialsRental.Domain.Building.Building;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -18,9 +19,9 @@ public class BuildingSpecifications
     {
         // Arrange
         var address = Address.Create(street, city, province, postalCode);
-        var result = Domain.Building.Building.Create(buildingName, address);
+        var result =  DomainBuilding.Create(buildingName, address);
         result.Should().NotBeNull();
-        result.Should().BeOfType<Domain.Building.Building>();
+        result.Should().BeOfType<DomainBuilding>();
         result.Name.Should().Be(buildingName);
         result.Address.Should().Be(address);
     }

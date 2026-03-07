@@ -61,6 +61,11 @@ public sealed record Money
             throw new DomainException("Cannot operate on money with different currencies");
     }
 
+    public Money Negate()
+    {
+       return new Money(Currency, -Amount);
+    }
+
     //public bool Equals(Money? other)
     //    => other is not null &&
     //       Currency == other.Currency &&

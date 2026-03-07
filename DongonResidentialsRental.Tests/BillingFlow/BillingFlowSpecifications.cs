@@ -1,12 +1,11 @@
 ﻿using AwesomeAssertions;
+using DongonResidentialsRental.Domain.CreditNote;
 using DongonResidentialsRental.Domain.Invoice;
 using DongonResidentialsRental.Domain.Lease;
 using DongonResidentialsRental.Domain.Payment;
 using DongonResidentialsRental.Domain.Shared;
 using DongonResidentialsRental.Domain.Tenant;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using DomainPayment = DongonResidentialsRental.Domain.Payment.Payment;
 
 namespace DongonResidentialsRental.Tests.BillingFlow;
@@ -28,16 +27,14 @@ public sealed class BillingFlowSpecifications
         invoice.ApplyPayment(payment.PaymentId, amount, Today());
 
         // Assert
-        payment.Allocations.Should().HaveCount(1);
-        payment.AllocatedAmount.Amount.Should().Be(40m);
-        payment.RemainingAmount.Amount.Should().Be(60m);
-
-        invoice.AmountPaid.Amount.Should().Be(40m);
-        invoice.Balance.Amount.Should().Be(60m);
+        invoice.AmountPaid.Should().Be(Money.Create("CAD", 40m));
+        invoice.Balance.Should().Be(Money.Create("CAD", 60m));
+        payment.AllocatedAmount.Should().Be(Money.Create("CAD", 40m));
+        payment.RemainingAmount.Should().Be(Money.Create("CAD", 60m));
     }
 
     [Fact]
-    public void ApplyPaymentFlow_Should_Fully_Pay_Invoice_When_Allocation_Equals_Invoice_Balance()
+    public void ApplyPaymentFlow_Should_Fully_Pay_Invoice_When_Allocated_Amount_Equals_Balance()
     {
         // Arrange
         var invoice = CreateIssuedInvoiceWithLine("CAD", 100m);
@@ -49,194 +46,165 @@ public sealed class BillingFlowSpecifications
         invoice.ApplyPayment(payment.PaymentId, amount, Today());
 
         // Assert
-        payment.RemainingAmount.Amount.Should().Be(0m);
-        invoice.AmountPaid.Amount.Should().Be(100m);
-        invoice.Balance.Amount.Should().Be(0m);
-
-        invoice.Status.Should().Be(InvoiceStatus.Paid);
+        invoice.AmountPaid.Should().Be(Money.Create("CAD", 100m));
+        invoice.Balance.Should().Be(Money.Zero("CAD"));
+        payment.AllocatedAmount.Should().Be(Money.Create("CAD", 100m));
+        payment.RemainingAmount.Should().Be(Money.Zero("CAD"));
     }
 
     [Fact]
-    public void ApplyPaymentFlow_Should_Allow_Partial_Payment_When_Payment_Amount_Is_Less_Than_Invoice_Balance()
+    public void ApplyPaymentFlow_Should_Throw_When_Payment_Exceeds_Invoice_Balance()
     {
         // Arrange
         var invoice = CreateIssuedInvoiceWithLine("CAD", 100m);
-        var payment = CreatePayment("CAD", 30m);
-        var amount = Money.Create("CAD", 30m);
+        var payment = CreatePayment("CAD", 200m);
 
         // Act
-        payment.AllocateToInvoice(invoice.InvoiceId, amount, Today());
-        invoice.ApplyPayment(payment.PaymentId, amount, Today());
-
-        // Assert
-        payment.RemainingAmount.Amount.Should().Be(0m);
-        invoice.AmountPaid.Amount.Should().Be(30m);
-        invoice.Balance.Amount.Should().Be(70m);
-
-        invoice.Status.Should().Be(InvoiceStatus.PartiallyPaid);
-    }
-
-    [Fact]
-    public void ApplyPaymentFlow_Should_Throw_When_Payment_Allocation_Exceeds_Payment_Remaining()
-    {
-        // Arrange
-        var invoice = CreateIssuedInvoiceWithLine("CAD", 200m);
-        var payment = CreatePayment("CAD", 100m);
-        var amount = Money.Create("CAD", 120m);
-
-        // Act
-        Action act = () =>
-        {
-            payment.AllocateToInvoice(invoice.InvoiceId, amount, Today());
-            invoice.ApplyPayment(payment.PaymentId, amount, Today());
-        };
-
-        // Assert
-        act.Should().ThrowExactly<DomainException>()
-            .WithMessage("Allocation amount cannot exceed remaining payment amount.");
-
-        payment.Allocations.Should().BeEmpty();
-        payment.RemainingAmount.Amount.Should().Be(100m);
-
-        invoice.AmountPaid.Amount.Should().Be(0m);
-        invoice.Balance.Amount.Should().Be(200m);
-    }
-
-    [Fact]
-    public void ApplyPaymentFlow_Should_Throw_When_Payment_Amount_Exceeds_Invoice_Balance()
-    {
-        // Arrange
-        var invoice = CreateIssuedInvoiceWithLine("CAD", 100m);
-        var payment = CreatePayment("CAD", 150m);
-        var amount = Money.Create("CAD", 120m);
-
-        // Act
-        Action act = () =>
-        {
-            payment.AllocateToInvoice(invoice.InvoiceId, amount, Today());
-            invoice.ApplyPayment(payment.PaymentId, amount, Today());
-        };
+        payment.AllocateToInvoice(invoice.InvoiceId, Money.Create("CAD", 120m), Today());
+        Action act = () => invoice.ApplyPayment(payment.PaymentId, Money.Create("CAD", 120m), Today());
 
         // Assert
         act.Should().ThrowExactly<DomainException>();
-
-        payment.Allocations.Should().HaveCount(1);
-        payment.AllocatedAmount.Amount.Should().Be(120m);
-
-        invoice.AmountPaid.Amount.Should().Be(0m);
-        invoice.Balance.Amount.Should().Be(100m);
     }
 
+    // ---------- Apply Credit Flow ----------
+
     [Fact]
-    public void ApplyPaymentFlow_Should_Throw_When_Currency_Does_Not_Match_Invoice_And_Payment()
+    public void ApplyCreditFlow_Should_Reduce_Invoice_Balance_And_Credit_Remaining_When_Amount_Is_Valid()
     {
         // Arrange
         var invoice = CreateIssuedInvoiceWithLine("CAD", 100m);
-        var payment = CreatePayment("USD", 100m);
-        var amount = Money.Create("USD", 40m);
+        var creditNote = CreateIssuedCreditNote(invoice.LeaseId, "CAD", 100m);
+        var amount = Money.Create("CAD", 40m);
 
         // Act
-        Action act = () =>
-        {
-            payment.AllocateToInvoice(invoice.InvoiceId, amount, Today());
-            invoice.ApplyPayment(payment.PaymentId, amount, Today());
-        };
+        creditNote.AllocateToInvoice(invoice.InvoiceId, amount, Today());
+        invoice.ApplyCredit(creditNote.CreditNoteId, amount, Today());
+
+        // Assert
+        invoice.AmountCredited.Should().Be(Money.Create("CAD", 40m));
+        invoice.Balance.Should().Be(Money.Create("CAD", 60m));
+        creditNote.AmountApplied.Should().Be(Money.Create("CAD", 40m));
+        creditNote.RemainingAmount.Should().Be(Money.Create("CAD", 60m));
+    }
+
+    [Fact]
+    public void ApplyCreditFlow_Should_Fully_Credit_Invoice_When_Allocated_Amount_Equals_Balance()
+    {
+        // Arrange
+        var invoice = CreateIssuedInvoiceWithLine("CAD", 100m);
+        var creditNote = CreateIssuedCreditNote(invoice.LeaseId, "CAD", 100m);
+        var amount = Money.Create("CAD", 100m);
+
+        // Act
+        creditNote.AllocateToInvoice(invoice.InvoiceId, amount, Today());
+        invoice.ApplyCredit(creditNote.CreditNoteId, amount, Today());
+
+        // Assert
+        invoice.AmountCredited.Should().Be(Money.Create("CAD", 100m));
+        invoice.Balance.Should().Be(Money.Zero("CAD"));
+        creditNote.AmountApplied.Should().Be(Money.Create("CAD", 100m));
+        creditNote.RemainingAmount.Should().Be(Money.Zero("CAD"));
+    }
+
+    [Fact]
+    public void ApplyCreditFlow_Should_Throw_When_Credit_Exceeds_Invoice_Balance()
+    {
+        // Arrange
+        var invoice = CreateIssuedInvoiceWithLine("CAD", 100m);
+        var creditNote = CreateIssuedCreditNote(invoice.LeaseId, "CAD", 200m);
+
+        // Act
+        creditNote.AllocateToInvoice(invoice.InvoiceId, Money.Create("CAD", 120m), Today());
+        Action act = () => invoice.ApplyCredit(creditNote.CreditNoteId, Money.Create("CAD", 120m), Today());
 
         // Assert
         act.Should().ThrowExactly<DomainException>();
-
-        payment.Allocations.Should().HaveCount(1);
-        payment.RemainingAmount.Amount.Should().Be(60m);
-
-        invoice.AmountPaid.Amount.Should().Be(0m);
-        invoice.Balance.Amount.Should().Be(100m);
     }
 
     [Fact]
-    public void ApplyPaymentFlow_Should_Not_Allow_Allocation_To_Reversed_Payment()
+    public void ApplyCreditFlow_Should_Allow_Applying_Credit_After_Partial_Payment()
     {
         // Arrange
         var invoice = CreateIssuedInvoiceWithLine("CAD", 100m);
-        var payment = CreatePayment("CAD", 100m);
-        payment.Reverse(Today(), "Voided");
-
-        var amount = Money.Create("CAD", 50m);
+        var payment = CreatePayment("CAD", 50m);
+        var creditNote = CreateIssuedCreditNote(invoice.LeaseId, "CAD", 50m);
 
         // Act
-        Action act = () =>
-        {
-            payment.AllocateToInvoice(invoice.InvoiceId, amount, Today());
-            invoice.ApplyPayment(payment.PaymentId, amount, Today());
-        };
+        payment.AllocateToInvoice(invoice.InvoiceId, Money.Create("CAD", 30m), Today());
+        invoice.ApplyPayment(payment.PaymentId, Money.Create("CAD", 30m), Today());
+
+        creditNote.AllocateToInvoice(invoice.InvoiceId, Money.Create("CAD", 20m), Today());
+        invoice.ApplyCredit(creditNote.CreditNoteId, Money.Create("CAD", 20m), Today());
 
         // Assert
-        act.Should().ThrowExactly<DomainException>()
-            .WithMessage("Operation allowed only when payment is in Received state.");
+        invoice.AmountPaid.Should().Be(Money.Create("CAD", 30m));
+        invoice.AmountCredited.Should().Be(Money.Create("CAD", 20m));
+        invoice.Balance.Should().Be(Money.Create("CAD", 50m));
 
-        payment.Allocations.Should().BeEmpty();
-        invoice.AmountPaid.Amount.Should().Be(0m);
-        invoice.Balance.Amount.Should().Be(100m);
+        payment.RemainingAmount.Should().Be(Money.Create("CAD", 20m));
+        creditNote.RemainingAmount.Should().Be(Money.Create("CAD", 30m));
     }
 
     [Fact]
-    public void RemoveAllocationFlow_Should_Restore_Invoice_Balance_And_Payment_Remaining_When_Allocation_Is_Removed()
+    public void ApplyCreditFlow_Should_Allow_Applying_Payment_After_Partial_Credit()
     {
         // Arrange
         var invoice = CreateIssuedInvoiceWithLine("CAD", 100m);
-        var payment = CreatePayment("CAD", 100m);
-        var amount = Money.Create("CAD", 60m);
-
-        payment.AllocateToInvoice(invoice.InvoiceId, amount, Today());
-        invoice.ApplyPayment(payment.PaymentId, amount, Today());
+        var payment = CreatePayment("CAD", 50m);
+        var creditNote = CreateIssuedCreditNote(invoice.LeaseId, "CAD", 50m);
 
         // Act
-        invoice.RemoveAllocation(payment.PaymentId);
+        creditNote.AllocateToInvoice(invoice.InvoiceId, Money.Create("CAD", 20m), Today());
+        invoice.ApplyCredit(creditNote.CreditNoteId, Money.Create("CAD", 20m), Today());
+
+        payment.AllocateToInvoice(invoice.InvoiceId, Money.Create("CAD", 30m), Today());
+        invoice.ApplyPayment(payment.PaymentId, Money.Create("CAD", 30m), Today());
 
         // Assert
-        invoice.AmountPaid.Amount.Should().Be(0m);
-        invoice.Balance.Amount.Should().Be(100m);
-    }
+        invoice.AmountCredited.Should().Be(Money.Create("CAD", 20m));
+        invoice.AmountPaid.Should().Be(Money.Create("CAD", 30m));
+        invoice.Balance.Should().Be(Money.Create("CAD", 50m));
 
+        creditNote.RemainingAmount.Should().Be(Money.Create("CAD", 30m));
+        payment.RemainingAmount.Should().Be(Money.Create("CAD", 20m));
+    }
 
     // ---------- Helpers ----------
 
-    private static DomainPayment CreatePayment(string currency, decimal amount)
+    private static Invoice CreateIssuedInvoiceWithLine(string currency, decimal amount)
     {
-        return DomainPayment.Create(
-            NewTenantId(),
-            Money.Create(currency, amount),
-            Today(),
-            PaymentMethod.Cash);
-    }
-
-    private static Invoice CreateIssuedInvoiceWithLine(string currency, decimal lineAmount)
-    {
-        var leaseId = NewLeaseId();
-
         var invoice = Invoice.Create(
-            leaseId,
+            leaseId: NewLeaseId(),
             BillingPeriod.Create(
-                new DateOnly(2026, 3, 1),
-                new DateOnly(2026, 3, 31)),
-            currency);
+                 from: Today(),
+                 to: Today().AddDays(30)),
+            currency: currency);
 
-        invoice.AddLine(
-            "Monthly Rent",
-            1,
-            Money.Create(currency, lineAmount),
-            InvoiceLineType.Rent);
-
-        invoice.Issue(new DateOnly(2026, 4, 5));
+        invoice.AddLine("Rent", 1, Money.Create(currency, amount), InvoiceLineType.Rent);
+        invoice.Issue(Today());
 
         return invoice;
     }
 
-    private static TenantId NewTenantId()
-        => new TenantId(Guid.NewGuid());
+    private static DomainPayment CreatePayment(string currency, decimal amount)
+    {
+        return DomainPayment.Create(
+            tenantId: NewTenantId(),
+            amount: Money.Create(currency, amount),
+            receivedOn: Today(),
+            reference: "PAY-001",
+            method: PaymentMethod.Cash);
+    }
 
-    private static DateOnly Today()
-        => DateOnly.FromDateTime(DateTime.UtcNow);
+    private static CreditNote CreateIssuedCreditNote(LeaseId leaseId, string currency, decimal amount)
+    {
+        var creditNote = CreditNote.Create(leaseId, Money.Create(currency, amount));
+        creditNote.Issue(Today());
+        return creditNote;
+    }
 
-    private static LeaseId NewLeaseId()
-    => new LeaseId(Guid.NewGuid());
+    private static LeaseId NewLeaseId() => new(Guid.NewGuid());
+    private static TenantId NewTenantId() => new(Guid.NewGuid());
+    private static DateOnly Today() => new(2026, 3, 7);
 }

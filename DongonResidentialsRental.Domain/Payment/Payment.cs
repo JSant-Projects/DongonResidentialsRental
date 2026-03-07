@@ -86,7 +86,7 @@ public sealed class Payment
 
     public void Reverse(DateOnly reversedOn, string reason)
     {
-        if (Status == PaymentStatus.Reversed)
+        if (Status is PaymentStatus.Reversed)
             throw new DomainException("Payment is already reversed.");
 
         Ensure.NotNullOrWhiteSpace(reason);

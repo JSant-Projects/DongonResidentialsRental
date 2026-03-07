@@ -16,7 +16,7 @@ public class AddressSpecifications
     public void Create_Should_Return_Address_When_Address_Is_Valid(string street, string city, string province, string postalCode)
     {
         var result = Address.Create(street, city, province, postalCode);
-        result.Should().BeOfType<Domain.Shared.Address>();
+        result.Should().BeOfType<Address>();
         result.Should().NotBeNull();
         result.Street.Should().Be(street);
         result.City.Should().Be(city);

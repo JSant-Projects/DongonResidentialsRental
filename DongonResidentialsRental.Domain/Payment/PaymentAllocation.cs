@@ -27,9 +27,7 @@ public sealed class PaymentAllocation
     {
         Ensure.NotNull(invoiceId);
         Ensure.NotNull(amount);
-
-        if (amount.Amount <= 0)
-            throw new DomainException("Allocation amount must be greater than zero.");
+        Ensure.NonNegativeDecimal(amount.Amount, "Allocation amount must be greater than zero.");
 
         if (allocatedOn == default)
             throw new DomainException("AllocatedOn is required.");

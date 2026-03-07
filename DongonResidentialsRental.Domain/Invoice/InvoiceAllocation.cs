@@ -10,6 +10,8 @@ public sealed class InvoiceAllocation
     public Money Amount { get; } 
     public DateOnly AppliedOn { get; }
 
+    private InvoiceAllocation() { } // For EF Core
+
     private InvoiceAllocation(PaymentId paymentId, Money amount, DateOnly appliedOn)
     {
         Id = new InvoiceAllocationId(Guid.NewGuid());

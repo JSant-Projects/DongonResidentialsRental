@@ -55,7 +55,8 @@ public sealed class InvoiceTests
         Action act = () => AddLine(invoice, "Rent", qty: 0, unitPrice: 100m, type: InvoiceLineType.Rent);
 
         // Assert
-        act.Should().ThrowExactly<ArgumentOutOfRangeException>().WithMessage("Quantity must be at least 1.*");
+        act.Should().ThrowExactly<ArgumentOutOfRangeException>()
+            .WithMessage("Quantity must be at least 1.*");
     }
 
     [Fact]
@@ -65,7 +66,7 @@ public sealed class InvoiceTests
         var invoice = CreateDraftInvoice("CAD");
 
         // Act
-        Action act = () => invoice.AddLine("Rent"  , 1, null!, InvoiceLineType.Rent);
+        Action act = () => invoice.AddLine("Rent", 1, null!, InvoiceLineType.Rent);
 
         // Assert
         act.Should().ThrowExactly<ArgumentException>()
@@ -197,7 +198,7 @@ public sealed class InvoiceTests
 
         // Act
         var act = () => invoice.ApplyPayment(paymentId, CreateMoney("CAD", 50m), AppliedOn());
-         act += () => invoice.ApplyPayment(paymentId, CreateMoney("CAD", 30m), AppliedOn());
+        act += () => invoice.ApplyPayment(paymentId, CreateMoney("CAD", 30m), AppliedOn());
 
         // Assert
         act.Should().Throw<DomainException>()
@@ -205,7 +206,7 @@ public sealed class InvoiceTests
     }
 
     [Fact]
-    public void ApplyPayment_Should_Reduce_Balance_When_Partial()
+    public void ApplyPayment_Should_Reduce_Balance_When_Payment_Is_Less_Than_Total()
     {
         // Arrange
         var invoice = CreateIssuedInvoiceWithLine("CAD", 100m);
@@ -216,11 +217,11 @@ public sealed class InvoiceTests
         // Assert
         invoice.AmountPaid.Should().Be(CreateMoney("CAD", 40m));
         invoice.Balance.Should().Be(CreateMoney("CAD", 60m));
-        invoice.Status.Should().Be(InvoiceStatus.PartiallyPaid);
+        invoice.Status.Should().Be(InvoiceStatus.Issued);
     }
 
     [Fact]
-    public void ApplyPayment_Should_Set_Status_To_Paid_When_Fully_Paid()
+    public void ApplyPayment_Should_Zero_Balance_When_Invoice_Is_Fully_Paid()
     {
         // Arrange
         var invoice = CreateIssuedInvoiceWithLine("CAD", 100m);
@@ -231,7 +232,7 @@ public sealed class InvoiceTests
         // Assert
         invoice.AmountPaid.Should().Be(CreateMoney("CAD", 100m));
         invoice.Balance.Should().Be(Zero("CAD"));
-        invoice.Status.Should().Be(InvoiceStatus.Paid);
+        invoice.Status.Should().Be(InvoiceStatus.Issued);
     }
 
     // ---------- Total ----------
@@ -241,8 +242,8 @@ public sealed class InvoiceTests
         // Arrange
         var invoice = CreateDraftInvoice("CAD");
         AddLine(invoice, "Rent", 1, 1000m, InvoiceLineType.Rent);
-        AddLine(invoice, "Water", 2, 25m, InvoiceLineType.Water);      // 50
-        AddLine(invoice, "Electricity", 1, 75m, InvoiceLineType.Electricity); // 75
+        AddLine(invoice, "Water", 2, 25m, InvoiceLineType.Water);
+        AddLine(invoice, "Electricity", 1, 75m, InvoiceLineType.Electricity);
 
         // Assert
         invoice.Total.Should().Be(CreateMoney("CAD", 1125m));
@@ -275,18 +276,18 @@ public sealed class InvoiceTests
 
         // Act
         ApplyPayment(invoice, amount: 30m);
-        var paymentId = NewPaymentId(); 
+        var paymentId = NewPaymentId();
         ApplyPaymentWithPaymentId(invoice, paymentId, amount: 60m);
         invoice.RemoveAllocation(paymentId);
 
         // Assert
         invoice.AmountPaid.Should().Be(CreateMoney("CAD", 30m));
         invoice.Balance.Should().Be(CreateMoney("CAD", 70m));
-        invoice.Status.Should().Be(InvoiceStatus.PartiallyPaid);
+        invoice.Status.Should().Be(InvoiceStatus.Issued);
     }
 
     [Fact]
-    public void RemoveAllocation_Should_Keep_Status_As_PartiallyPaid_When_Other_Allocations_Still_Exist()
+    public void RemoveAllocation_Should_Keep_Invoice_As_Issued_When_Other_Allocations_Still_Exist()
     {
         // Arrange
         var invoice = CreateIssuedInvoiceWithLine("CAD", 100m);
@@ -302,11 +303,11 @@ public sealed class InvoiceTests
         // Assert
         invoice.AmountPaid.Should().Be(CreateMoney("CAD", 30m));
         invoice.Balance.Should().Be(CreateMoney("CAD", 70m));
-        invoice.Status.Should().Be(InvoiceStatus.PartiallyPaid);
+        invoice.Status.Should().Be(InvoiceStatus.Issued);
     }
 
     [Fact]
-    public void RemoveAllocation_Should_Set_Status_To_Issued_When_Last_Allocation_Is_Removed()
+    public void RemoveAllocation_Should_Keep_Status_As_Issued_When_Last_Allocation_Is_Removed()
     {
         // Arrange
         var invoice = CreateIssuedInvoiceWithLine("CAD", 100m);
@@ -343,27 +344,31 @@ public sealed class InvoiceTests
     {
         // Arrange
         var invoice = CreateIssuedInvoiceWithLine("CAD", 100m);
+
         // Act
         invoice.Cancel();
+
         // Assert
         invoice.Status.Should().Be(InvoiceStatus.Cancelled);
     }
 
     [Fact]
-    public void Cancel_Should_Throw_DomainException_When_Status_Is_Already_Paid_Or_PartiallyPaid()
+    public void Cancel_Should_Throw_DomainException_When_Invoice_Has_Payments_Applied()
     {
         // Arrange
         var invoice = CreateIssuedInvoiceWithLine("CAD", 100m);
-        ApplyPayment(invoice, amount: 50m); // Partially paid
+        ApplyPayment(invoice, amount: 50m);
+
         // Act
         var act = () => invoice.Cancel();
+
         // Assert
         act.Should().ThrowExactly<DomainException>()
             .WithMessage("Cannot cancel an invoice that has been paid.");
     }
 
     // -------------------------
-    // Helpers (same style as Lease tests)
+    // Helpers
     // -------------------------
 
     private static DomainInvoice CreateDraftInvoice(string currency = "CAD")
@@ -393,9 +398,7 @@ public sealed class InvoiceTests
         => invoice.ApplyPayment(NewPaymentId(), CreateMoney(invoice.Currency, amount), AppliedOn());
 
     private static void ApplyPaymentWithPaymentId(DomainInvoice invoice, PaymentId paymentId, decimal amount)
-       => invoice.ApplyPayment(paymentId, CreateMoney(invoice.Currency, amount), AppliedOn());
-
-    private static void RemoveAllocation(DomainInvoice invoice, PaymentId paymentId) => invoice.RemoveAllocation(paymentId);
+        => invoice.ApplyPayment(paymentId, CreateMoney(invoice.Currency, amount), AppliedOn());
 
     private static Money CreateMoney(string currency, decimal amount) => Money.Create(currency, amount);
 
