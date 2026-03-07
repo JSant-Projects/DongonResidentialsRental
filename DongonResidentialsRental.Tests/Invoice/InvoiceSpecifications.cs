@@ -372,7 +372,7 @@ public sealed class InvoiceTests
     // -------------------------
 
     private static DomainInvoice CreateDraftInvoice(string currency = "CAD")
-        => DomainInvoice.Create(NewLeaseId(), DefaultBillingPeriod(), currency);
+        => DomainInvoice.Create(NewLeaseId(), DefaultBillingPeriod(), DueDate(), currency);
 
     private static DomainInvoice CreateIssuedInvoiceWithLine(string currency, decimal lineTotal)
     {
@@ -414,4 +414,6 @@ public sealed class InvoiceTests
     private static DateOnly IssuedOn() => new DateOnly(2026, 3, 4);
 
     private static DateOnly AppliedOn() => new DateOnly(2026, 3, 4);
+    
+    private static DateOnly DueDate() => new DateOnly(2026, 4, 15);
 }

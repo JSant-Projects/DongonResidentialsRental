@@ -16,6 +16,7 @@ public sealed class Invoice
     public IReadOnlyCollection<InvoiceLine> Lines => _lines.AsReadOnly();
     public IReadOnlyCollection<InvoiceAllocation> Allocations => _allocations.AsReadOnly();
     public IReadOnlyCollection<InvoiceCreditAllocation> CreditAllocations => _creditAllocations.AsReadOnly();
+    public DateOnly DueDate { get; }
     public DateOnly? IssuedOn { get; private set; }
     public string Currency { get; }
     public Money Total =>
@@ -37,11 +38,12 @@ public sealed class Invoice
     public InvoiceStatus Status { get; private set;  }
 
     private Invoice() { }
-    private Invoice(LeaseId leaseId, BillingPeriod billingPeriod, string currency)
+    private Invoice(LeaseId leaseId, BillingPeriod billingPeriod, DateOnly dueDate, string currency)
     {
         InvoiceId = new InvoiceId(Guid.NewGuid());
         LeaseId = leaseId;
         BillingPeriod = billingPeriod;
+        DueDate = dueDate;
         Currency = currency;
         Status = InvoiceStatus.Draft;
     }
@@ -83,16 +85,19 @@ public sealed class Invoice
         IssuedOn = issuedOn;
     }
 
-    public static Invoice Create(LeaseId leaseId, BillingPeriod billingPeriod, string currency)
+    public static Invoice Create(LeaseId leaseId, BillingPeriod billingPeriod, DateOnly dueDate, string currency)
     {
         Ensure.NotNull(leaseId);
         Ensure.NotNull(billingPeriod);
         Ensure.NotNullOrWhiteSpace(currency);
         currency = currency.Trim().ToUpperInvariant();
         Ensure.CharactersExactLength(currency, 3, "Currency must be a 3-letter ISO code.");
+        Ensure.NotNull(dueDate);
+        if (dueDate == default)
+            throw new DomainException("Due date is required.");
 
 
-        return new Invoice(leaseId, billingPeriod, currency);
+        return new Invoice(leaseId, billingPeriod, dueDate, currency);
     }
 
     public void AddLine(string description, int quantity, Money unitPrice, InvoiceLineType type)

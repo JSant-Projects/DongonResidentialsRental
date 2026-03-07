@@ -180,6 +180,7 @@ public sealed class BillingFlowSpecifications
             BillingPeriod.Create(
                  from: Today(),
                  to: Today().AddDays(30)),
+            dueDate: Today().AddDays(45),
             currency: currency);
 
         invoice.AddLine("Rent", 1, Money.Create(currency, amount), InvoiceLineType.Rent);
