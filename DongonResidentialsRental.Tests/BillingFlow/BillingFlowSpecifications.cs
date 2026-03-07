@@ -12,6 +12,7 @@ namespace DongonResidentialsRental.Tests.BillingFlow;
 
 public sealed class BillingFlowSpecifications
 {
+    // This test class focuses on the core billing flows of applying payments and credits to invoices.
     // ---------- Apply Payment Flow ----------
 
     [Fact]
