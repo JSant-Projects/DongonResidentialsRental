@@ -18,7 +18,7 @@ public sealed class Lease: AggregateRoot
     public LeaseTerm Term { get; private set; }
     public BillingSettings? BillingSettings { get; private set; }
     public UtilityResponsibility? UtilityResponsibility { get; private set; }
-    public MeterBinding? MeterBinding { get; private set; }
+    //public MeterBinding? MeterBinding { get; private set; }
     public LeaseStatus Status { get; private set; }
 
     private Lease() { }
@@ -70,7 +70,6 @@ public sealed class Lease: AggregateRoot
     {
         Ensure.NotNull(BillingSettings, "Billing settings must be set before activating the lease.");
         Ensure.NotNull(UtilityResponsibility, "Utility responsibility must be set before activating the lease.");
-        Ensure.NotNull(MeterBinding, "Meter binding must be set before activating the lease.");
     }
 
     public void ChangeLeaseTerm(LeaseTerm newTerm, DateOnly today)
@@ -110,30 +109,6 @@ public sealed class Lease: AggregateRoot
         }
 
         BillingSettings = newSettings;
-    }
-
-    public void BindMeters(MeterBinding meterBinding)
-    {
-        EnsureIsDraft();
-        Ensure.NotNull(UtilityResponsibility, "Utility responsibility must be set before binding meters.");
-
-        if (meterBinding.ElectricityMeterId is null && meterBinding.WaterMeterId is null)
-            throw new DomainException("At least one meter (electricity or water) must be bound to the lease.");
-
-        if (meterBinding.ElectricityMeterId is not null 
-            && meterBinding.WaterMeterId is not null 
-            && meterBinding.ElectricityMeterId.Id == meterBinding.WaterMeterId.Id)
-            throw new DomainException("Electricity and water meters cannot be the same.");
-
-        if (UtilityResponsibility!.TenantPaysElectricity 
-            && meterBinding.ElectricityMeterId is null)
-            throw new DomainException("Electricity meter must be bound if tenant is responsible for electricity.");
-
-        if (UtilityResponsibility!.TenantPaysWater 
-            && meterBinding.WaterMeterId is null)
-            throw new DomainException("Water meter must be bound if tenant is responsible for water.");
-
-        MeterBinding = meterBinding;
     }
 
     public void ChangeUtilityResponsibility(UtilityResponsibility responsibility)
