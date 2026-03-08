@@ -161,6 +161,23 @@ public class LeaseSpecifications
             .WithMessage("Monthly rate cannot be null*");
     }
 
+    [Fact]
+    public void Create_Should_Throw_ArgumentException_When_MonthlyRate_Is_Zero()
+    {
+        // Arrange
+        var occupancy = AnyTenantId();
+        var unitId = AnyUnitId();
+        var term = TermStarting(new DateOnly(2026, 01, 01));
+        Money rate = AnyMonthlyRate(0m);
+
+        // Act
+        Action act = () => DomainLease.Create(occupancy, unitId, term, rate);
+
+        // Assert
+        act.Should().ThrowExactly<DomainException>()
+           .WithMessage("Monthly rate must be greater than zero.");
+    }
+
     // ---------- Activate ----------
     [Fact]
     public void Activate_Should_Set_Status_To_Active_When_All_Required_Fields_Are_Present()

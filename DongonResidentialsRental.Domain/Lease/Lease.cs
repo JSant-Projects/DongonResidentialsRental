@@ -1,4 +1,5 @@
-﻿using DongonResidentialsRental.Domain.Meter;
+﻿using DongonResidentialsRental.Domain.Lease.Events;
+using DongonResidentialsRental.Domain.Meter;
 using DongonResidentialsRental.Domain.Shared;
 using DongonResidentialsRental.Domain.Tenant;
 using DongonResidentialsRental.Domain.Unit;
@@ -8,7 +9,7 @@ using System.Text;
 
 namespace DongonResidentialsRental.Domain.Lease;
 
-public sealed class Lease
+public sealed class Lease: AggregateRoot
 {
     public LeaseId LeaseId { get; }
     public TenantId Occupancy { get; }
@@ -38,7 +39,21 @@ public sealed class Lease
         Ensure.NotNull(unitId, "Unit ID cannot be null");
         Ensure.NotNull(leaseTerm, "Lease term cannot be null");
         Ensure.NotNull(monthlyRate, "Monthly rate cannot be null");
-        return new Lease(occupancy, unitId, leaseTerm, monthlyRate);
+
+        if (monthlyRate.Amount <= 0)
+            throw new DomainException("Monthly rate must be greater than zero.");
+        
+        var lease = new Lease(occupancy, unitId, leaseTerm, monthlyRate);
+
+        // Add domain event for lease creation
+        lease.AddDomainEvent(
+            new LeaseCreatedDomainEvent(
+                lease.LeaseId, 
+                occupancy, 
+                unitId, 
+                leaseTerm.StartDate));
+
+        return lease;
     }
 
     public void Activate()
@@ -46,6 +61,9 @@ public sealed class Lease
         EnsureIsDraft();
         EnsureAllRequiredFieldsPresent();
         Status = LeaseStatus.Active;
+
+        // Add domain event for lease activation
+        AddDomainEvent(new LeaseActivatedDomainEvent(LeaseId, Occupancy, UnitId));   
     }
 
     private void EnsureAllRequiredFieldsPresent()
@@ -165,6 +183,9 @@ public sealed class Lease
 
 
         Status = LeaseStatus.Terminated;
+
+        // Add domain event for lease termination
+        AddDomainEvent(new LeaseTerminatedDomainEvent(LeaseId, Occupancy, UnitId, terminationDate));
     }
 
     private void EnsureIsActive(DateOnly dateNow)
