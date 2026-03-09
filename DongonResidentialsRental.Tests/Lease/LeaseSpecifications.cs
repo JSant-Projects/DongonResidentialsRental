@@ -46,7 +46,6 @@ public class LeaseSpecifications
         DateOnly? end,
         DateOnly today,
         UtilityResponsibility responsibility,
-        MeterBinding binding,
         BillingSettings? billing = null,
         decimal rate = 1000m)
     {
@@ -59,7 +58,6 @@ public class LeaseSpecifications
 
         lease.ChangeUtilityResponsibility(responsibility);
         lease.ChangeBillingSettings(billing ?? AnyBillingSettings(), today);
-        lease.BindMeters(binding);
         lease.Activate();
 
         lease.Status.Should().Be(LeaseStatus.Active);
@@ -161,6 +159,23 @@ public class LeaseSpecifications
             .WithMessage("Monthly rate cannot be null*");
     }
 
+    [Fact]
+    public void Create_Should_Throw_ArgumentException_When_MonthlyRate_Is_Zero()
+    {
+        // Arrange
+        var occupancy = AnyTenantId();
+        var unitId = AnyUnitId();
+        var term = TermStarting(new DateOnly(2026, 01, 01));
+        Money rate = AnyMonthlyRate(0m);
+
+        // Act
+        Action act = () => DomainLease.Create(occupancy, unitId, term, rate);
+
+        // Assert
+        act.Should().ThrowExactly<DomainException>()
+           .WithMessage("Monthly rate must be greater than zero.");
+    }
+
     // ---------- Activate ----------
     [Fact]
     public void Activate_Should_Set_Status_To_Active_When_All_Required_Fields_Are_Present()
@@ -171,7 +186,6 @@ public class LeaseSpecifications
 
         lease.ChangeUtilityResponsibility(Responsibility(tenantPaysElectricity: true, tenantPaysWater: false));
         lease.ChangeBillingSettings(AnyBillingSettings(), today);
-        lease.BindMeters(Binding(electricityMeterId : new ElectricityMeterId(Guid.NewGuid()), waterMeterId: null));
 
         // Act
         lease.Activate();
@@ -186,7 +200,6 @@ public class LeaseSpecifications
         // Arrange
         var lease = CreateDraftLease(start: new DateOnly(2026, 01, 01), end: new DateOnly(2026, 12, 31));
         lease.ChangeUtilityResponsibility(Responsibility(true, false));
-        lease.BindMeters(Binding(new ElectricityMeterId(Guid.NewGuid()), null));
 
         // Act
         Action act = () => lease.Activate();
@@ -194,23 +207,6 @@ public class LeaseSpecifications
         // Assert
         act.Should().ThrowExactly<ArgumentException>()
             .WithMessage("Billing settings must be set before activating the lease*");
-    }
-
-    [Fact]
-    public void Activate_Should_Throw_ArgumentException_When_MeterBinding_Is_Missing()
-    {
-        // Arrange
-        var today = new DateOnly(2026, 01, 10);
-        var lease = CreateDraftLease(start: new DateOnly(2026, 01, 01), end: new DateOnly(2026, 12, 31));
-        lease.ChangeUtilityResponsibility(Responsibility(true, false));
-        lease.ChangeBillingSettings(AnyBillingSettings(), today);
-
-        // Act
-        Action act = () => lease.Activate();
-
-        // Assert
-        act.Should().ThrowExactly<ArgumentException>()
-            .WithMessage("Meter binding must be set before activating the lease*");
     }
 
     // ---------- ChangeLeaseTerm ----------
@@ -240,8 +236,7 @@ public class LeaseSpecifications
             start: start,
             end: new DateOnly(2026, 12, 31),
             today: today,
-            responsibility: Responsibility(true, false),
-            binding: Binding(new ElectricityMeterId(Guid.NewGuid()), null));
+            responsibility: Responsibility(true, false));
 
         var changedStart = TermStarting(new DateOnly(2026, 01, 02), new DateOnly(2026, 12, 31));
 
@@ -264,8 +259,7 @@ public class LeaseSpecifications
             start: start,
             end: new DateOnly(2026, 12, 31),
             today: today,
-            responsibility: Responsibility(true, false),
-            binding: Binding(new ElectricityMeterId(Guid.NewGuid()), null));
+            responsibility: Responsibility(true, false));
 
         var newTerm = TermStarting(start, end: new DateOnly(2026, 01, 05)); // < today
 
@@ -306,7 +300,6 @@ public class LeaseSpecifications
             end: new DateOnly(2026, 12, 31),
             today: today,
             responsibility: Responsibility(true, false),
-            binding: Binding(new ElectricityMeterId(Guid.NewGuid()), null),
             billing: AnyBillingSettings(dueDay: 5, graceDays: 3));
 
         var newSettings = AnyBillingSettings(dueDay: 10, graceDays: 3);
@@ -331,7 +324,6 @@ public class LeaseSpecifications
             end: new DateOnly(2026, 12, 31),
             today: today,
             responsibility: Responsibility(true, false),
-            binding: Binding(new ElectricityMeterId(Guid.NewGuid()), null),
             billing: AnyBillingSettings(dueDay: 5, graceDays: 3));
 
         var newSettings = AnyBillingSettings(dueDay: 10, graceDays: 3);
@@ -399,8 +391,7 @@ public class LeaseSpecifications
             start: new DateOnly(2026, 01, 01),
             end: new DateOnly(2026, 12, 31),
             today: today,
-            responsibility: Responsibility(true, false),
-            binding: Binding(new ElectricityMeterId(Guid.NewGuid()), null));
+            responsibility: Responsibility(true, false));
 
         // Act
         Action act = () => lease.ChangeUtilityResponsibility(Responsibility(false, false));
@@ -408,104 +399,6 @@ public class LeaseSpecifications
         // Assert
         act.Should().ThrowExactly<DomainException>()
             .WithMessage("Operation allowed only when lease is in Draft state.");
-    }
-
-    // ---------- BindMeters ----------
-    [Fact]
-    public void BindMeters_Should_Set_MeterBinding_When_Draft_And_Valid()
-    {
-        // Arrange
-        var lease = CreateDraftLease(start: new DateOnly(2026, 01, 01));
-        lease.ChangeUtilityResponsibility(Responsibility(true, false));
-        var binding = Binding(new ElectricityMeterId(Guid.NewGuid()), null);
-
-        // Act
-        lease.BindMeters(binding);
-
-        // Assert
-        lease.MeterBinding.Should().Be(binding);
-    }
-
-    [Fact]
-    public void BindMeters_Should_Throw_ArgumentException_When_UtilityResponsibility_Is_Not_Set()
-    {
-        // Arrange
-        var today = new DateOnly(2026, 01, 10);
-        var lease = CreateDraftLease(start: new DateOnly(2026, 01, 01), end: new DateOnly(2026, 12, 31));
-        lease.ChangeBillingSettings(AnyBillingSettings(), today);
-
-
-        // Act
-        Action act = () => lease.BindMeters(Binding(new ElectricityMeterId(Guid.NewGuid()), null)); // will fail earlier if UtilityResponsibility is required before binding
-
-        // Assert
-        act.Should().ThrowExactly<ArgumentException>()
-            .WithMessage("Utility responsibility must be set before binding meters*");
-    }
-
-    [Fact]
-    public void BindMeters_Should_Throw_DomainException_When_Both_Meters_Are_Null()
-    {
-        // Arrange
-        var lease = CreateDraftLease(start: new DateOnly(2026, 01, 01));
-        lease.ChangeUtilityResponsibility(Responsibility(false, false));
-        var binding = Binding(null, null);
-
-        // Act
-        Action act = () => lease.BindMeters(binding);
-
-        // Assert
-        act.Should().ThrowExactly<DomainException>()
-            .WithMessage("At least one meter (electricity or water) must be bound to the lease.");
-    }
-
-    [Fact]
-    public void BindMeters_Should_Throw_DomainException_When_Electricity_And_Water_Meters_Are_Same()
-    {
-        // Arrange
-        var sameId = Guid.NewGuid();
-        var lease = CreateDraftLease(start: new DateOnly(2026, 01, 01));
-        lease.ChangeUtilityResponsibility(Responsibility(true, true));
-        var binding = Binding(new ElectricityMeterId(sameId), new WaterMeterId(sameId));
-
-        // Act
-        Action act = () => lease.BindMeters(binding);
-
-        // Assert
-        act.Should().ThrowExactly<DomainException>()
-            .WithMessage("Electricity and water meters cannot be the same.");
-    }
-
-    [Fact]
-    public void BindMeters_Should_Throw_DomainException_When_TenantPaysElectricity_But_ElectricityMeter_Is_Null()
-    {
-        // Arrange
-        var lease = CreateDraftLease(start: new DateOnly(2026, 01, 01));
-        lease.ChangeUtilityResponsibility(Responsibility(true, false));
-        var binding = Binding(null, new WaterMeterId(Guid.NewGuid()));
-
-        // Act
-        Action act = () => lease.BindMeters(binding);
-
-        // Assert
-        act.Should().ThrowExactly<DomainException>()
-            .WithMessage("Electricity meter must be bound if tenant is responsible for electricity.");
-    }
-
-    [Fact]
-    public void BindMeters_Should_Throw_DomainException_When_TenantPaysWater_But_WaterMeter_Is_Null()
-    {
-        // Arrange
-        var lease = CreateDraftLease(start: new DateOnly(2026, 01, 01));
-        lease.ChangeUtilityResponsibility(Responsibility(false, true));
-        var binding = Binding(new ElectricityMeterId(Guid.NewGuid()), null);
-
-        // Act
-        Action act = () => lease.BindMeters(binding);
-
-        // Assert
-        act.Should().ThrowExactly<DomainException>()
-            .WithMessage("Water meter must be bound if tenant is responsible for water.");
     }
 
     // ---------- Terminate ----------
@@ -521,8 +414,7 @@ public class LeaseSpecifications
             start: start,
             end: originalEnd,
             today: today,
-            responsibility: Responsibility(true, false),
-            binding: Binding(new ElectricityMeterId(Guid.NewGuid()), null));
+            responsibility: Responsibility(true, false));
 
         var terminationDate = new DateOnly(2026, 02, 01);
 
@@ -563,8 +455,7 @@ public class LeaseSpecifications
             start: start,
             end: end,
             today: today,
-            responsibility: Responsibility(true, false),
-            binding: Binding(new ElectricityMeterId(Guid.NewGuid()), null));
+            responsibility: Responsibility(true, false));
 
         var terminationDate = new DateOnly(2026, 02, 02);
 
@@ -586,8 +477,7 @@ public class LeaseSpecifications
             start: new DateOnly(2026, 01, 01),
             end: new DateOnly(2026, 12, 31),
             today: today,
-            responsibility: Responsibility(true, false),
-            binding: Binding(new ElectricityMeterId(Guid.NewGuid()), null));
+            responsibility: Responsibility(true, false));
 
         // Act
         var result = lease.IsActive(today);
@@ -608,8 +498,7 @@ public class LeaseSpecifications
             start: start,
             end: end,
             today: activationDay,
-            responsibility: Responsibility(true, false),
-            binding: Binding(new ElectricityMeterId(Guid.NewGuid()), null));
+            responsibility: Responsibility(true, false));
 
         var afterEnd = new DateOnly(2026, 01, 16);
 

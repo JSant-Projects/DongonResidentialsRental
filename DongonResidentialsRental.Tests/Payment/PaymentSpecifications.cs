@@ -7,6 +7,7 @@ using DongonResidentialsRental.Domain.Tenant;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using DongonResidentialsRental.Domain.Payment.Events;
 
 namespace DongonResidentialsRental.Tests.Payment;
 
@@ -56,18 +57,46 @@ public class PaymentSpecifications
             .WithMessage("Payment amount must be greater than zero.");
     }
 
+    [Fact]
+    public void Create_Should_Add_DomainEvent()
+    {
+        // Arrange
+        var tenantId = NewTenantId();
+        var amount = Money.Create("CAD", 100m);
+        var receivedOn = DateOnly.FromDateTime(DateTime.UtcNow);
 
-    // ---------- AllocateToInvoice ----------
+        // Act
+        var payment = DomainPayment.Create(
+            tenantId,
+            amount,
+            receivedOn,
+            PaymentMethod.Cash);
+
+        // Assert
+        var domainEvent = payment.DomainEvents
+            .OfType<PaymentReceivedDomainEvent>()
+            .Single();
+
+        domainEvent.PaymentId.Should().Be(payment.PaymentId);
+        domainEvent.TenantId.Should().Be(tenantId);
+        domainEvent.Amount.Should().Be(amount);
+        domainEvent.ReceivedOn.Should().Be(receivedOn);
+        domainEvent.Method.Should().Be(PaymentMethod.Cash);
+
+    }
+
+
+    // ---------- ApplyToInvoice ----------
 
     [Fact]
-    public void AllocateToInvoice_Should_Add_Allocation_When_Valid()
+    public void ApplyToInvoice_Should_Add_Allocation_When_Valid()
     {
         // Arrange
         var payment = CreatePayment(100m);
         var invoiceId = NewInvoiceId();
 
         // Act
-        payment.AllocateToInvoice(
+        payment.ApplyToInvoice(
             invoiceId,
             Money.Create("CAD", 40m),
             Today());
@@ -80,14 +109,14 @@ public class PaymentSpecifications
 
 
     [Fact]
-    public void AllocateToInvoice_Should_Throw_DomainException_When_Allocation_Exceeds_Remaining()
+    public void ApplyToInvoice_Should_Throw_DomainException_When_Allocation_Exceeds_Remaining()
     {
         // Arrange
         var payment = CreatePayment(100m);
         var invoiceId = NewInvoiceId();
 
         // Act
-        Action act = () => payment.AllocateToInvoice(
+        Action act = () => payment.ApplyToInvoice(
             invoiceId,
             Money.Create("CAD", 150m),
             Today());
@@ -99,14 +128,14 @@ public class PaymentSpecifications
 
 
     [Fact]
-    public void AllocateToInvoice_Should_Throw_DomainException_When_Currency_Does_Not_Match()
+    public void ApplyToInvoice_Should_Throw_DomainException_When_Currency_Does_Not_Match()
     {
         // Arrange
         var payment = CreatePayment(100m);
         var invoiceId = NewInvoiceId();
 
         // Act
-        Action act = () => payment.AllocateToInvoice(
+        Action act = () => payment.ApplyToInvoice(
             invoiceId,
             Money.Create("USD", 50m),
             Today());
@@ -118,7 +147,7 @@ public class PaymentSpecifications
 
 
     [Fact]
-    public void AllocateToInvoice_Should_Throw_DomainException_When_Payment_Is_Reversed()
+    public void ApplyToInvoice_Should_Throw_DomainException_When_Payment_Is_Reversed()
     {
         // Arrange
         var payment = CreatePayment(100m);
@@ -127,7 +156,7 @@ public class PaymentSpecifications
         payment.Reverse(Today(), "Refunded");
 
         // Act
-        Action act = () => payment.AllocateToInvoice(
+        Action act = () => payment.ApplyToInvoice(
             invoiceId,
             Money.Create("CAD", 20m),
             Today());
@@ -135,6 +164,29 @@ public class PaymentSpecifications
         // Assert
         act.Should().ThrowExactly<DomainException>()
             .WithMessage("Operation allowed only when payment is in Received state.");
+    }
+
+    [Fact]
+    public void ApplyToInvoice_Should_Add_DomainEvent()
+    {
+        // Arrange
+        var payment = CreatePayment(100m);
+        var invoiceId = NewInvoiceId();
+
+        // Act
+        payment.ApplyToInvoice(
+            invoiceId,
+            Money.Create("CAD", 40m),
+            Today());
+
+        // Assert
+        var domainEvent = payment.DomainEvents
+            .OfType<PaymentAppliedToInvoiceDomainEvent>()
+            .Single();
+        domainEvent.PaymentId.Should().Be(payment.PaymentId);
+        domainEvent.InvoiceId.Should().Be(invoiceId);
+        domainEvent.Amount.Should().Be(Money.Create("CAD", 40m));
+        domainEvent.AppliedOn.Should().Be(Today());
     }
 
 
@@ -169,6 +221,24 @@ public class PaymentSpecifications
         // Assert
         act.Should().ThrowExactly<DomainException>()
             .WithMessage("Payment is already reversed.");
+    }
+
+    [Fact]
+    public void Reverse_Should_Add_DomainEvent()
+    {
+        // Arrange
+        var payment = CreatePayment(100m);
+
+        // Act
+        payment.Reverse(Today(), "Refunded");
+
+        // Assert
+        var domainEvent = payment.DomainEvents
+            .OfType<PaymentReversedDomainEvent>()
+            .Single();
+        domainEvent.PaymentId.Should().Be(payment.PaymentId);
+        domainEvent.ReversedOn.Should().Be(Today());
+        domainEvent.ReversalReason.Should().Be("Refunded");
     }
 
 

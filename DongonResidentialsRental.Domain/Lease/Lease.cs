@@ -1,4 +1,5 @@
-﻿using DongonResidentialsRental.Domain.Meter;
+﻿using DongonResidentialsRental.Domain.Lease.Events;
+using DongonResidentialsRental.Domain.Meter;
 using DongonResidentialsRental.Domain.Shared;
 using DongonResidentialsRental.Domain.Tenant;
 using DongonResidentialsRental.Domain.Unit;
@@ -8,7 +9,7 @@ using System.Text;
 
 namespace DongonResidentialsRental.Domain.Lease;
 
-public sealed class Lease
+public sealed class Lease: AggregateRoot
 {
     public LeaseId LeaseId { get; }
     public TenantId Occupancy { get; }
@@ -17,7 +18,7 @@ public sealed class Lease
     public LeaseTerm Term { get; private set; }
     public BillingSettings? BillingSettings { get; private set; }
     public UtilityResponsibility? UtilityResponsibility { get; private set; }
-    public MeterBinding? MeterBinding { get; private set; }
+    //public MeterBinding? MeterBinding { get; private set; }
     public LeaseStatus Status { get; private set; }
 
     private Lease() { }
@@ -38,7 +39,21 @@ public sealed class Lease
         Ensure.NotNull(unitId, "Unit ID cannot be null");
         Ensure.NotNull(leaseTerm, "Lease term cannot be null");
         Ensure.NotNull(monthlyRate, "Monthly rate cannot be null");
-        return new Lease(occupancy, unitId, leaseTerm, monthlyRate);
+
+        if (monthlyRate.Amount <= 0)
+            throw new DomainException("Monthly rate must be greater than zero.");
+        
+        var lease = new Lease(occupancy, unitId, leaseTerm, monthlyRate);
+
+        // Add domain event for lease creation
+        lease.AddDomainEvent(
+            new LeaseCreatedDomainEvent(
+                lease.LeaseId, 
+                occupancy, 
+                unitId, 
+                leaseTerm.StartDate));
+
+        return lease;
     }
 
     public void Activate()
@@ -46,13 +61,15 @@ public sealed class Lease
         EnsureIsDraft();
         EnsureAllRequiredFieldsPresent();
         Status = LeaseStatus.Active;
+
+        // Add domain event for lease activation
+        AddDomainEvent(new LeaseActivatedDomainEvent(LeaseId, Occupancy, UnitId));   
     }
 
     private void EnsureAllRequiredFieldsPresent()
     {
         Ensure.NotNull(BillingSettings, "Billing settings must be set before activating the lease.");
         Ensure.NotNull(UtilityResponsibility, "Utility responsibility must be set before activating the lease.");
-        Ensure.NotNull(MeterBinding, "Meter binding must be set before activating the lease.");
     }
 
     public void ChangeLeaseTerm(LeaseTerm newTerm, DateOnly today)
@@ -92,30 +109,6 @@ public sealed class Lease
         }
 
         BillingSettings = newSettings;
-    }
-
-    public void BindMeters(MeterBinding meterBinding)
-    {
-        EnsureIsDraft();
-        Ensure.NotNull(UtilityResponsibility, "Utility responsibility must be set before binding meters.");
-
-        if (meterBinding.ElectricityMeterId is null && meterBinding.WaterMeterId is null)
-            throw new DomainException("At least one meter (electricity or water) must be bound to the lease.");
-
-        if (meterBinding.ElectricityMeterId is not null 
-            && meterBinding.WaterMeterId is not null 
-            && meterBinding.ElectricityMeterId.Id == meterBinding.WaterMeterId.Id)
-            throw new DomainException("Electricity and water meters cannot be the same.");
-
-        if (UtilityResponsibility!.TenantPaysElectricity 
-            && meterBinding.ElectricityMeterId is null)
-            throw new DomainException("Electricity meter must be bound if tenant is responsible for electricity.");
-
-        if (UtilityResponsibility!.TenantPaysWater 
-            && meterBinding.WaterMeterId is null)
-            throw new DomainException("Water meter must be bound if tenant is responsible for water.");
-
-        MeterBinding = meterBinding;
     }
 
     public void ChangeUtilityResponsibility(UtilityResponsibility responsibility)
@@ -165,6 +158,9 @@ public sealed class Lease
 
 
         Status = LeaseStatus.Terminated;
+
+        // Add domain event for lease termination
+        AddDomainEvent(new LeaseTerminatedDomainEvent(LeaseId, Occupancy, UnitId, terminationDate));
     }
 
     private void EnsureIsActive(DateOnly dateNow)

@@ -1,4 +1,5 @@
-﻿using DongonResidentialsRental.Domain.Invoice;
+﻿using DongonResidentialsRental.Domain.CreditNote.Events;
+using DongonResidentialsRental.Domain.Invoice;
 using DongonResidentialsRental.Domain.Lease;
 using DongonResidentialsRental.Domain.Payment;
 using DongonResidentialsRental.Domain.Shared;
@@ -9,7 +10,7 @@ using System.Text;
 
 namespace DongonResidentialsRental.Domain.CreditNote;
 
-public sealed class CreditNote
+public sealed class CreditNote: AggregateRoot
 {
     public CreditNoteId CreditNoteId { get; }
     public LeaseId LeaseId { get; }
@@ -39,7 +40,11 @@ public sealed class CreditNote
         if (amount.Amount <= 0)
             throw new DomainException("Credit note amount must be greater than zero.");
 
-        return new CreditNote(leaseId, amount);
+        var creditNote = new CreditNote(leaseId, amount);
+
+        //creditNote.AddDomainEvent(new CreditNoteCreatedDomainEvent(creditNote.CreditNoteId, creditNote.LeaseId, creditNote.Amount));
+
+        return creditNote;
     }
     private void EnsureIsDraft()
     {
@@ -63,6 +68,8 @@ public sealed class CreditNote
 
         Status = CreditNoteStatus.Issued;
         IssuedOn = issuedOn;
+
+        AddDomainEvent(new CreditNoteIssuedDomainEvent(CreditNoteId, LeaseId, Amount, issuedOn));
     }
 
     public void Void()
@@ -72,6 +79,8 @@ public sealed class CreditNote
             throw new DomainException("Cannot void a credit note that has been applied to invoices.");
 
         Status = CreditNoteStatus.Voided;
+
+        AddDomainEvent(new CreditNoteVoidedDomainEvent(CreditNoteId, LeaseId));
     }
 
     public void RemoveAllocation(InvoiceId invoiceId)
@@ -89,9 +98,11 @@ public sealed class CreditNote
         {
             _allocations.Remove(allocation);
         }
+
+        AddDomainEvent(new CreditNoteAllocationRemovedDomainEvent(CreditNoteId, invoiceId));
     }
 
-    public void AllocateToInvoice(InvoiceId invoiceId, Money amount, DateOnly allocatedOn)
+    public void ApplyToInvoice(InvoiceId invoiceId, Money amount, DateOnly appliedOn)
     {
         Ensure.NotNull(invoiceId);
         Ensure.NotNull(amount);
@@ -101,8 +112,10 @@ public sealed class CreditNote
         if (amount.Amount > RemainingAmount.Amount)
             throw new DomainException("Cannot allocate more than remaining credit.");
 
-        var allocation = CreditAllocation.Create(invoiceId, amount, allocatedOn);
+        var allocation = CreditAllocation.Create(invoiceId, amount, appliedOn);
 
         _allocations.Add(allocation);
+
+        AddDomainEvent(new CreditNoteAppliedToInvoiceDomainEvent(CreditNoteId, invoiceId, amount, appliedOn));
     }
 }
