@@ -1,11 +1,12 @@
 ﻿using DongonResidentialsRental.Domain.CreditNote;
+using DongonResidentialsRental.Domain.Invoice.Events;
 using DongonResidentialsRental.Domain.Lease;
 using DongonResidentialsRental.Domain.Payment;
 using DongonResidentialsRental.Domain.Shared;
 
 namespace DongonResidentialsRental.Domain.Invoice;
 
-public sealed class Invoice
+public sealed class Invoice: AggregateRoot
 {
     public InvoiceId InvoiceId { get; }
     public LeaseId LeaseId { get; }
@@ -83,6 +84,8 @@ public sealed class Invoice
 
         Status = InvoiceStatus.Issued;
         IssuedOn = issuedOn;
+
+        AddDomainEvent(new InvoiceIssuedDomainEvent(InvoiceId, LeaseId, issuedOn));
     }
 
     public static Invoice Create(LeaseId leaseId, BillingPeriod billingPeriod, DateOnly dueDate, string currency)
@@ -96,8 +99,11 @@ public sealed class Invoice
         if (dueDate == default)
             throw new DomainException("Due date is required.");
 
+        var invoice = new Invoice(leaseId, billingPeriod, dueDate, currency);
 
-        return new Invoice(leaseId, billingPeriod, dueDate, currency);
+        // Add domain event for invoice creation
+        invoice.AddDomainEvent(new InvoiceDraftCreatedDomainEvent(invoice.InvoiceId, leaseId, billingPeriod));
+        return invoice;
     }
 
     public void AddLine(string description, int quantity, Money unitPrice, InvoiceLineType type)
@@ -128,6 +134,8 @@ public sealed class Invoice
         var allocation = InvoiceAllocation.Create(paymentId, amount, appliedOn);
 
         _allocations.Add(allocation);
+
+        AddDomainEvent(new InvoicePaymentAppliedDomainEvent(InvoiceId, paymentId, amount, appliedOn));
     }
 
     public void ApplyCredit(CreditNoteId creditNoteId, Money amount, DateOnly appliedOn)
@@ -142,6 +150,8 @@ public sealed class Invoice
 
         _creditAllocations.Add(
             InvoiceCreditAllocation.Create(creditNoteId, amount, appliedOn));
+
+        AddDomainEvent(new InvoiceCreditAppliedDomainEvent(InvoiceId, creditNoteId, amount, appliedOn));
     }
 
     public void RemoveAllocation(PaymentId paymentId)
@@ -159,6 +169,8 @@ public sealed class Invoice
         {
             _allocations.Remove(allocation);
         }
+
+        AddDomainEvent(new InvoicePaymentRemovedDomainEvent(InvoiceId, paymentId));
     }
 
     public void RemoveCreditAllocation(CreditNoteId creditNoteId)
@@ -173,7 +185,10 @@ public sealed class Invoice
         foreach (var allocation in allocationsToRemove)
         {
             _creditAllocations.Remove(allocation);
+
         }
+        
+        AddDomainEvent(new InvoiceCreditRemovedDomainEvent(InvoiceId, creditNoteId));
     }
 
     public void Cancel()
@@ -182,6 +197,8 @@ public sealed class Invoice
             throw new DomainException("Cannot cancel an invoice that has been paid.");
 
         Status = InvoiceStatus.Cancelled;
+
+        AddDomainEvent(new InvoiceCancelledDomainEvent(InvoiceId, LeaseId));
     }
 
 }

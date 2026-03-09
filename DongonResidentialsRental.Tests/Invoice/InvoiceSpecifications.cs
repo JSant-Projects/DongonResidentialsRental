@@ -1,11 +1,13 @@
 ﻿using AwesomeAssertions;
-using DomainInvoice = DongonResidentialsRental.Domain.Invoice.Invoice;
+using DongonResidentialsRental.Domain.CreditNote;
+using DongonResidentialsRental.Domain.Invoice;
+using DongonResidentialsRental.Domain.Invoice.Events;
 using DongonResidentialsRental.Domain.Lease;
 using DongonResidentialsRental.Domain.Payment;
 using DongonResidentialsRental.Domain.Shared;
 using System;
 using Xunit;
-using DongonResidentialsRental.Domain.Invoice;
+using DomainInvoice = DongonResidentialsRental.Domain.Invoice.Invoice;
 
 namespace DongonResidentialsRental.Domain.Tests.Invoice;
 
@@ -27,6 +29,21 @@ public sealed class InvoiceTests
         invoice.Total.Should().Be(Zero("CAD"));
         invoice.AmountPaid.Should().Be(Zero("CAD"));
         invoice.Balance.Should().Be(Zero("CAD"));
+    }
+
+    [Fact]
+    public void Create_Should_Add_DomainEvent()
+    {
+        // Act
+        var invoice = CreateDraftInvoice();
+
+        // Assert
+        var domainEvent = invoice.DomainEvents
+            .OfType<InvoiceDraftCreatedDomainEvent>()
+            .Single();
+        domainEvent.InvoiceId.Should().Be(invoice.InvoiceId);
+        domainEvent.LeaseId.Should().Be(invoice.LeaseId);
+        domainEvent.BillingPeriod.Should().Be(invoice.BillingPeriod);
     }
 
     // ---------- AddLine ----------
@@ -130,6 +147,25 @@ public sealed class InvoiceTests
         invoice.Status.Should().Be(InvoiceStatus.Issued);
         invoice.IssuedOn.Should().Be(IssuedOn());
     }
+
+    [Fact]
+    public void Issue_Should_Add_DomainEvent()
+    {
+        // Arrange
+        var invoice = CreateDraftInvoice("CAD");
+        AddLine(invoice, "Rent", 1, 100m, InvoiceLineType.Rent);
+
+        // Act
+        Issue(invoice);
+
+        // Assert
+        var domainEvent = invoice.DomainEvents
+            .OfType<InvoiceIssuedDomainEvent>()
+            .Single();
+        domainEvent.InvoiceId.Should().Be(invoice.InvoiceId);
+        domainEvent.LeaseId.Should().Be(invoice.LeaseId);
+        domainEvent.IssuedDate.Should().Be(IssuedOn());
+    }   
 
     // ---------- ApplyPayment ----------
     [Fact]
@@ -235,6 +271,26 @@ public sealed class InvoiceTests
         invoice.Status.Should().Be(InvoiceStatus.Issued);
     }
 
+    [Fact]
+    public void ApplyPayment_Should_Add_DomainEvent()
+    {
+        // Arrange
+        var invoice = CreateIssuedInvoiceWithLine("CAD", 100m);
+        var paymentId = NewPaymentId();
+
+        // Act
+        invoice.ApplyPayment(paymentId, CreateMoney("CAD", 40m), AppliedOn());
+
+        // Assert
+        var domainEvent = invoice.DomainEvents
+            .OfType<InvoicePaymentAppliedDomainEvent>()
+            .Single();
+        domainEvent.InvoiceId.Should().Be(invoice.InvoiceId);
+        domainEvent.PaymentId.Should().Be(paymentId);
+        domainEvent.Amount.Should().Be(CreateMoney("CAD", 40m));
+        domainEvent.AppliedOn.Should().Be(AppliedOn());
+    }
+
     // ---------- Total ----------
     [Fact]
     public void Total_Should_Sum_Multiple_Lines()
@@ -325,7 +381,7 @@ public sealed class InvoiceTests
     }
 
     [Fact]
-    public void RemoveAllocation_Should_Throw_DomainException_When_Invoice_Is_Draft()
+    public void RemoveAllocation_Should_Throw_DomainException_WhRemoveAllocation_Should_Throw_DomainException_When_PaymentId_Does_Not_Existen_Invoice_Is_Draft()
     {
         // Arrange
         var invoice = CreateDraftInvoiceWithLine("CAD", 100m);
@@ -335,7 +391,216 @@ public sealed class InvoiceTests
         Action act = () => invoice.RemoveAllocation(paymentId);
 
         // Assert
-        act.Should().ThrowExactly<DomainException>();
+        act.Should().ThrowExactly<DomainException>()
+            .WithMessage("No allocation exists for this payment.");
+    }
+
+    [Fact]
+    public void RemoveAllocation_Should_Add_DomainEvent()
+    {
+        // Arrange
+        var invoice = CreateIssuedInvoiceWithLine("CAD", 100m);
+        var paymentId = NewPaymentId();
+        ApplyPaymentWithPaymentId(invoice, paymentId, amount: 40m);
+
+        // Act
+        invoice.RemoveAllocation(paymentId);
+
+        // Assert
+        var domainEvent = invoice.DomainEvents
+            .OfType<InvoicePaymentRemovedDomainEvent>()
+            .Single();
+        domainEvent.InvoiceId.Should().Be(invoice.InvoiceId);
+        domainEvent.PaymentId.Should().Be(paymentId);
+    }
+
+    // ---------- ApplyCredit ----------
+    [Fact]
+    public void ApplyCredit_Should_Throw_DomainException_When_Not_Issued()
+    {
+        // Arrange
+        var invoice = CreateDraftInvoice("CAD");
+        AddLine(invoice, "Rent", 1, 100m, InvoiceLineType.Rent);
+
+        // Act
+        var act = () => ApplyCredit(invoice, amount: 50m);
+
+        // Assert
+        act.Should().ThrowExactly<DomainException>()
+            .WithMessage("Operation is not allowed when invoice is in Draft or Cancelled state.");
+    }
+
+    [Fact]
+    public void ApplyCredit_Should_Throw_DomainException_When_Credit_Currency_Does_Not_Match()
+    {
+        // Arrange
+        var invoice = CreateIssuedInvoiceWithLine("CAD", 100m);
+
+        // Act
+        var act = () => invoice.ApplyCredit(NewCreditNoteId(), CreateMoney("USD", 10m), AppliedOn());
+
+        // Assert
+        act.Should().ThrowExactly<DomainException>()
+            .WithMessage("Credit currency must match invoice currency.");
+    }
+
+    [Fact]
+    public void ApplyCredit_Should_Throw_DomainException_When_Credit_Exceeds_Balance()
+    {
+        // Arrange
+        var invoice = CreateIssuedInvoiceWithLine("CAD", 100m);
+
+        // Act
+        var act = () => ApplyCredit(invoice, amount: 101m);
+
+        // Assert
+        act.Should().ThrowExactly<DomainException>()
+            .WithMessage("Credit amount cannot exceed invoice balance.");
+    }
+
+    [Fact]
+    public void ApplyCredit_Should_Reduce_Balance_When_Credit_Is_Less_Than_Total()
+    {
+        // Arrange
+        var invoice = CreateIssuedInvoiceWithLine("CAD", 100m);
+
+        // Act
+        ApplyCredit(invoice, amount: 40m);
+
+        // Assert
+        invoice.AmountCredited.Should().Be(CreateMoney("CAD", 40m));
+        invoice.Balance.Should().Be(CreateMoney("CAD", 60m));
+        invoice.Status.Should().Be(InvoiceStatus.Issued);
+    }
+
+    [Fact]
+    public void ApplyCredit_Should_Zero_Balance_When_Invoice_Is_Fully_Credited()
+    {
+        // Arrange
+        var invoice = CreateIssuedInvoiceWithLine("CAD", 100m);
+
+        // Act
+        ApplyCredit(invoice, amount: 100m);
+
+        // Assert
+        invoice.AmountCredited.Should().Be(CreateMoney("CAD", 100m));
+        invoice.Balance.Should().Be(Zero("CAD"));
+        invoice.Status.Should().Be(InvoiceStatus.Issued);
+    }
+
+    [Fact]
+    public void ApplyCredit_Should_Add_DomainEvent()
+    {
+        // Arrange
+        var invoice = CreateIssuedInvoiceWithLine("CAD", 100m);
+        var creditNoteId = NewCreditNoteId();
+
+        // Act
+        invoice.ApplyCredit(creditNoteId, CreateMoney("CAD", 40m), AppliedOn());
+
+        // Assert
+        var domainEvent = invoice.DomainEvents
+            .OfType<InvoiceCreditAppliedDomainEvent>()
+            .Single();
+
+        domainEvent.InvoiceId.Should().Be(invoice.InvoiceId);
+        domainEvent.CreditNoteId.Should().Be(creditNoteId);
+        domainEvent.Amount.Should().Be(CreateMoney("CAD", 40m));
+        domainEvent.AppliedOn.Should().Be(AppliedOn());
+    }
+
+    // ---------- RemoveCreditAllocation ----------
+    [Fact]
+    public void RemoveCreditAllocation_Should_Throw_DomainException_When_CreditNoteId_Does_Not_Exist()
+    {
+        // Arrange
+        var invoice = CreateIssuedInvoiceWithLine("CAD", 100m);
+        ApplyCredit(invoice, amount: 30m);
+
+        var unknownCreditNoteId = NewCreditNoteId();
+
+        // Act
+        Action act = () => invoice.RemoveCreditAllocation(unknownCreditNoteId);
+
+        // Assert
+        act.Should().ThrowExactly<DomainException>()
+            .WithMessage("No allocation exists for this credit note.");
+    }
+
+    [Fact]
+    public void RemoveCreditAllocation_Should_Reduce_AmountCredited_When_Allocation_Is_Removed()
+    {
+        // Arrange
+        var invoice = CreateIssuedInvoiceWithLine("CAD", 100m);
+
+        // Act
+        ApplyCredit(invoice, amount: 30m);
+        var creditNoteId = NewCreditNoteId();
+        ApplyCreditWithCreditNoteId(invoice, creditNoteId, amount: 60m);
+        invoice.RemoveCreditAllocation(creditNoteId);
+
+        // Assert
+        invoice.AmountCredited.Should().Be(CreateMoney("CAD", 30m));
+        invoice.Balance.Should().Be(CreateMoney("CAD", 70m));
+        invoice.Status.Should().Be(InvoiceStatus.Issued);
+    }
+
+    [Fact]
+    public void RemoveCreditAllocation_Should_Keep_Invoice_As_Issued_When_Other_Credit_Allocations_Still_Exist()
+    {
+        // Arrange
+        var invoice = CreateIssuedInvoiceWithLine("CAD", 100m);
+
+        ApplyCredit(invoice, amount: 30m);
+
+        var creditNoteId = NewCreditNoteId();
+        ApplyCreditWithCreditNoteId(invoice, creditNoteId, amount: 60m);
+
+        // Act
+        invoice.RemoveCreditAllocation(creditNoteId);
+
+        // Assert
+        invoice.AmountCredited.Should().Be(CreateMoney("CAD", 30m));
+        invoice.Balance.Should().Be(CreateMoney("CAD", 70m));
+        invoice.Status.Should().Be(InvoiceStatus.Issued);
+    }
+
+    [Fact]
+    public void RemoveCreditAllocation_Should_Keep_Status_As_Issued_When_Last_Credit_Allocation_Is_Removed()
+    {
+        // Arrange
+        var invoice = CreateIssuedInvoiceWithLine("CAD", 100m);
+
+        var creditNoteId = NewCreditNoteId();
+        ApplyCreditWithCreditNoteId(invoice, creditNoteId, amount: 100m);
+
+        // Act
+        invoice.RemoveCreditAllocation(creditNoteId);
+
+        // Assert
+        invoice.AmountCredited.Should().Be(Zero("CAD"));
+        invoice.Balance.Should().Be(CreateMoney("CAD", 100m));
+        invoice.Status.Should().Be(InvoiceStatus.Issued);
+    }
+
+    [Fact]
+    public void RemoveCreditAllocation_Should_Add_DomainEvent()
+    {
+        // Arrange
+        var invoice = CreateIssuedInvoiceWithLine("CAD", 100m);
+        var creditNoteId = NewCreditNoteId();
+        ApplyCreditWithCreditNoteId(invoice, creditNoteId, amount: 40m);
+
+        // Act
+        invoice.RemoveCreditAllocation(creditNoteId);
+
+        // Assert
+        var domainEvent = invoice.DomainEvents
+            .OfType<InvoiceCreditRemovedDomainEvent>()
+            .Single();
+
+        domainEvent.InvoiceId.Should().Be(invoice.InvoiceId);
+        domainEvent.CreditNoteId.Should().Be(creditNoteId);
     }
 
     // ---------- Cancel ----------
@@ -365,6 +630,22 @@ public sealed class InvoiceTests
         // Assert
         act.Should().ThrowExactly<DomainException>()
             .WithMessage("Cannot cancel an invoice that has been paid.");
+    }
+
+    [Fact]
+    public void Cancel_Should_Add_DomainEvent()
+    {
+        // Arrange
+        var invoice = CreateIssuedInvoiceWithLine("CAD", 100m);
+
+        // Act
+        invoice.Cancel();
+
+        // Assert
+        var domainEvent = invoice.DomainEvents
+            .OfType<InvoiceCancelledDomainEvent>()
+            .Single();
+        domainEvent.InvoiceId.Should().Be(invoice.InvoiceId);
     }
 
     // -------------------------
@@ -416,4 +697,12 @@ public sealed class InvoiceTests
     private static DateOnly AppliedOn() => new DateOnly(2026, 3, 4);
     
     private static DateOnly DueDate() => new DateOnly(2026, 4, 15);
+
+    private static void ApplyCredit(DomainInvoice invoice, decimal amount)
+    => invoice.ApplyCredit(NewCreditNoteId(), CreateMoney(invoice.Currency, amount), AppliedOn());
+
+    private static void ApplyCreditWithCreditNoteId(DomainInvoice invoice, CreditNoteId creditNoteId, decimal amount)
+        => invoice.ApplyCredit(creditNoteId, CreateMoney(invoice.Currency, amount), AppliedOn());
+
+    private static CreditNoteId NewCreditNoteId() => new CreditNoteId(Guid.NewGuid());
 }
