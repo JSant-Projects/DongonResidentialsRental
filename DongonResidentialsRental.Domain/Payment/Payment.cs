@@ -1,4 +1,5 @@
 ﻿using DongonResidentialsRental.Domain.Invoice;
+using DongonResidentialsRental.Domain.Payment.Events;
 using DongonResidentialsRental.Domain.Shared;
 using DongonResidentialsRental.Domain.Tenant;
 using System;
@@ -7,7 +8,7 @@ using System.Text;
 
 namespace DongonResidentialsRental.Domain.Payment;
 
-public sealed class Payment
+public sealed class Payment: AggregateRoot
 {
     public PaymentId PaymentId { get; }
     public TenantId TenantId { get; }
@@ -50,7 +51,11 @@ public sealed class Payment
         if (amount.Amount <= 0)
             throw new DomainException("Payment amount must be greater than zero.");
 
-        return new Payment(tenantId, amount, receivedOn, method, reference);
+        var payment = new Payment(tenantId, amount, receivedOn, method, reference);
+
+        payment.AddDomainEvent(new PaymentReceivedDomainEvent(payment.PaymentId, tenantId, amount, receivedOn, method));
+
+        return payment;
     }
 
     private void EnsureIsReceived()
@@ -82,6 +87,8 @@ public sealed class Payment
         var allocation = PaymentAllocation.Create(invoiceId, amount, allocatedOn);
 
         _allocations.Add(allocation);
+
+        AddDomainEvent(new PaymentAllocatedToInvoiceDomainEvent(PaymentId, invoiceId, amount, allocatedOn));
     }
 
     public void Reverse(DateOnly reversedOn, string reason)
@@ -94,6 +101,8 @@ public sealed class Payment
         Status = PaymentStatus.Reversed;
         ReversedOn = reversedOn;
         ReversalReason = reason;
+
+        AddDomainEvent(new PaymentReversedDomainEvent(PaymentId, reversedOn, reason));
     }
 
 }
