@@ -1,5 +1,6 @@
 ﻿using AwesomeAssertions;
 using DongonResidentialsRental.Domain.CreditNote;
+using DongonResidentialsRental.Domain.CreditNote.Events;
 using DongonResidentialsRental.Domain.Invoice;
 using DongonResidentialsRental.Domain.Lease;
 using DongonResidentialsRental.Domain.Shared;
@@ -92,6 +93,28 @@ public sealed class CreditNoteSpecifications
             .WithMessage("Operation allowed only when credit note is in Draft state.");
     }
 
+    [Fact]
+    public void Issue_Should_Add_DomainEvent()
+    {
+        // Arrange
+        var creditNote = CreateDraftCreditNote("CAD", 100m);
+        var issuedOn = Today();
+
+        // Act
+        creditNote.Issue(issuedOn);
+
+        // Assert
+        var domainEvent = creditNote.DomainEvents
+            .OfType<CreditNoteIssuedDomainEvent>()
+            .Single();
+
+        domainEvent.CreditNoteId.Should().Be(creditNote.CreditNoteId);
+        domainEvent.LeaseId.Should().Be(creditNote.LeaseId);
+        domainEvent.Amount.Should().Be(creditNote.Amount);
+        domainEvent.IssuedOn.Should().Be(issuedOn);
+
+    }
+
     // ---------- Void ----------
 
     [Fact]
@@ -126,7 +149,7 @@ public sealed class CreditNoteSpecifications
     {
         // Arrange
         var creditNote = CreateIssuedCreditNote("CAD", 100m);
-        creditNote.AllocateToInvoice(NewInvoiceId(), Money.Create("CAD", 40m), Today());
+        creditNote.ApplyToInvoice(NewInvoiceId(), Money.Create("CAD", 40m), Today());
 
         // Act
         Action act = () => creditNote.Void();
@@ -136,19 +159,36 @@ public sealed class CreditNoteSpecifications
             .WithMessage("Cannot void a credit note that has been applied to invoices.");
     }
 
-    // ---------- AllocateToInvoice ----------
+    [Fact]
+    public void Void_Should_Add_DomainEvent()
+    {
+        // Arrange
+        var creditNote = CreateIssuedCreditNote("CAD", 100m);
+
+        // Act
+        creditNote.Void();
+
+        // Assert
+        var domainEvent = creditNote.DomainEvents
+            .OfType<CreditNoteVoidedDomainEvent>()
+            .Single();
+        domainEvent.CreditNoteId.Should().Be(creditNote.CreditNoteId);
+        domainEvent.LeaseId.Should().Be(creditNote.LeaseId);
+    }   
+
+    // ---------- ApplyToInvoice ----------
 
     [Fact]
-    public void AllocateToInvoice_Should_Add_Allocation_And_Reduce_RemainingAmount_When_Amount_Is_Valid()
+    public void ApplyToInvoice_Should_Add_Allocation_And_Reduce_RemainingAmount_When_Amount_Is_Valid()
     {
         // Arrange
         var creditNote = CreateIssuedCreditNote("CAD", 100m);
         var invoiceId = NewInvoiceId();
         var amount = Money.Create("CAD", 40m);
-        var allocatedOn = Today();
+        var appliedOn = Today();
 
         // Act
-        creditNote.AllocateToInvoice(invoiceId, amount, allocatedOn);
+        creditNote.ApplyToInvoice(invoiceId, amount, appliedOn);
 
         // Assert
         creditNote.Allocations.Should().HaveCount(1);
@@ -158,18 +198,18 @@ public sealed class CreditNoteSpecifications
         var allocation = creditNote.Allocations.Should().ContainSingle().Subject;
         allocation.InvoiceId.Should().Be(invoiceId);
         allocation.Amount.Should().Be(amount);
-        allocation.AppliedOn.Should().Be(allocatedOn);
+        allocation.AppliedOn.Should().Be(appliedOn);
     }
 
     [Fact]
-    public void AllocateToInvoice_Should_Allow_Multiple_Allocations_To_Different_Invoices()
+    public void ApplyToInvoice_Should_Allow_Multiple_Allocations_To_Different_Invoices()
     {
         // Arrange
         var creditNote = CreateIssuedCreditNote("CAD", 100m);
 
         // Act
-        creditNote.AllocateToInvoice(NewInvoiceId(), Money.Create("CAD", 30m), Today());
-        creditNote.AllocateToInvoice(NewInvoiceId(), Money.Create("CAD", 20m), Today());
+        creditNote.ApplyToInvoice(NewInvoiceId(), Money.Create("CAD", 30m), Today());
+        creditNote.ApplyToInvoice(NewInvoiceId(), Money.Create("CAD", 20m), Today());
 
         // Assert
         creditNote.Allocations.Should().HaveCount(2);
@@ -178,13 +218,13 @@ public sealed class CreditNoteSpecifications
     }
 
     [Fact]
-    public void AllocateToInvoice_Should_Throw_DomainException_When_CreditNote_Is_Not_Issued()
+    public void ApplyToInvoice_Should_Throw_DomainException_When_CreditNote_Is_Not_Issued()
     {
         // Arrange
         var creditNote = CreateDraftCreditNote("CAD", 100m);
 
         // Act
-        Action act = () => creditNote.AllocateToInvoice(
+        Action act = () => creditNote.ApplyToInvoice(
             NewInvoiceId(),
             Money.Create("CAD", 10m),
             Today());
@@ -195,14 +235,14 @@ public sealed class CreditNoteSpecifications
     }
 
     [Fact]
-    public void AllocateToInvoice_Should_Throw_DomainException_When_Amount_Exceeds_RemainingAmount()
+    public void ApplyToInvoice_Should_Throw_DomainException_When_Amount_Exceeds_RemainingAmount()
     {
         // Arrange
         var creditNote = CreateIssuedCreditNote("CAD", 100m);
-        creditNote.AllocateToInvoice(NewInvoiceId(), Money.Create("CAD", 60m), Today());
+        creditNote.ApplyToInvoice(NewInvoiceId(), Money.Create("CAD", 60m), Today());
 
         // Act
-        Action act = () => creditNote.AllocateToInvoice(
+        Action act = () => creditNote.ApplyToInvoice(
             NewInvoiceId(),
             Money.Create("CAD", 50m),
             Today());
@@ -213,13 +253,13 @@ public sealed class CreditNoteSpecifications
     }
 
     [Fact]
-    public void AllocateToInvoice_Should_Throw_DomainException_When_Amount_Is_Zero()
+    public void ApplyToInvoice_Should_Throw_DomainException_When_Amount_Is_Zero()
     {
         // Arrange
         var creditNote = CreateIssuedCreditNote("CAD", 100m);
 
         // Act
-        Action act = () => creditNote.AllocateToInvoice(
+        Action act = () => creditNote.ApplyToInvoice(
             NewInvoiceId(),
             Money.Create("CAD", 0m),
             Today());
@@ -230,14 +270,14 @@ public sealed class CreditNoteSpecifications
     }
 
     [Fact]
-    public void AllocateToInvoice_Should_Throw_DomainException_When_Amount_Is_Negative()
+    public void ApplyToInvoice_Should_Throw_DomainException_When_Amount_Is_Negative()
     {
         // Arrange
         var creditNote = CreateIssuedCreditNote("CAD", 100m);
 
         // Act
         Money negativeAmount = Money.Create("CAD", 5m).Negate();
-        Action act = () => creditNote.AllocateToInvoice(
+        Action act = () => creditNote.ApplyToInvoice(
             NewInvoiceId(),
             negativeAmount,
             Today());
@@ -248,13 +288,13 @@ public sealed class CreditNoteSpecifications
     }
 
     [Fact]
-    public void AllocateToInvoice_Should_Throw_DomainException_When_AppliedOn_Is_Default()
+    public void ApplyToInvoice_Should_Throw_DomainException_When_AppliedOn_Is_Default()
     {
         // Arrange
         var creditNote = CreateIssuedCreditNote("CAD", 100m);
 
         // Act
-        Action act = () => creditNote.AllocateToInvoice(
+        Action act = () => creditNote.ApplyToInvoice(
             NewInvoiceId(),
             Money.Create("CAD", 10m),
             default);
@@ -262,6 +302,28 @@ public sealed class CreditNoteSpecifications
         // Assert
         act.Should().ThrowExactly<DomainException>()
             .WithMessage("AppliedOn is required.");
+    }
+
+    [Fact]
+    public void ApplyToInvoice_Should_Add_DomainEvent()
+    {
+        // Arrange
+        var creditNote = CreateIssuedCreditNote("CAD", 100m);
+        var invoiceId = NewInvoiceId();
+        var amount = Money.Create("CAD", 40m);
+        var appliedOn = Today();
+
+        // Act
+        creditNote.ApplyToInvoice(invoiceId, amount, appliedOn);
+
+        // Assert
+        var domainEvent = creditNote.DomainEvents
+            .OfType<CreditNoteAppliedToInvoiceDomainEvent>()
+            .Single();
+        domainEvent.CreditNoteId.Should().Be(creditNote.CreditNoteId);
+        domainEvent.InvoiceId.Should().Be(invoiceId);
+        domainEvent.Amount.Should().Be(amount);
+        domainEvent.AppliedOn.Should().Be(appliedOn);
     }
 
     // ---------- RemoveAllocation ----------
@@ -274,9 +336,9 @@ public sealed class CreditNoteSpecifications
         var invoiceId1 = NewInvoiceId();
         var invoiceId2 = NewInvoiceId();
 
-        creditNote.AllocateToInvoice(invoiceId1, Money.Create("CAD", 20m), Today());
-        creditNote.AllocateToInvoice(invoiceId1, Money.Create("CAD", 15m), Today());
-        creditNote.AllocateToInvoice(invoiceId2, Money.Create("CAD", 25m), Today());
+        creditNote.ApplyToInvoice(invoiceId1, Money.Create("CAD", 20m), Today());
+        creditNote.ApplyToInvoice(invoiceId1, Money.Create("CAD", 15m), Today());
+        creditNote.ApplyToInvoice(invoiceId2, Money.Create("CAD", 25m), Today());
 
         // Act
         creditNote.RemoveAllocation(invoiceId1);
@@ -293,7 +355,7 @@ public sealed class CreditNoteSpecifications
     {
         // Arrange
         var creditNote = CreateIssuedCreditNote("CAD", 100m);
-        creditNote.AllocateToInvoice(NewInvoiceId(), Money.Create("CAD", 25m), Today());
+        creditNote.ApplyToInvoice(NewInvoiceId(), Money.Create("CAD", 25m), Today());
 
         // Act
         Action act = () => creditNote.RemoveAllocation(NewInvoiceId());
@@ -310,7 +372,7 @@ public sealed class CreditNoteSpecifications
         var creditNote = CreateIssuedCreditNote("CAD", 100m);
         var invoiceId = NewInvoiceId();
 
-        creditNote.AllocateToInvoice(invoiceId, Money.Create("CAD", 35m), Today());
+        creditNote.ApplyToInvoice(invoiceId, Money.Create("CAD", 35m), Today());
 
         // Act
         creditNote.RemoveAllocation(invoiceId);
@@ -320,6 +382,25 @@ public sealed class CreditNoteSpecifications
         creditNote.AmountApplied.Should().Be(Money.Zero("CAD"));
         creditNote.RemainingAmount.Should().Be(Money.Create("CAD", 100m));
     }
+
+    [Fact]
+    public void RemoveAllocation_Should_Add_DomainEvent()
+    {
+        // Arrange
+        var creditNote = CreateIssuedCreditNote("CAD", 100m);
+        var invoiceId = NewInvoiceId();
+        creditNote.ApplyToInvoice(invoiceId, Money.Create("CAD", 40m), Today());
+
+        // Act
+        creditNote.RemoveAllocation(invoiceId);
+
+        // Assert
+        var domainEvent = creditNote.DomainEvents
+            .OfType<CreditNoteAllocationRemovedDomainEvent>()
+            .Single();
+        domainEvent.CreditNoteId.Should().Be(creditNote.CreditNoteId);
+        domainEvent.InvoiceId.Should().Be(invoiceId);
+    }   
 
     // ---------- Helpers ----------
 

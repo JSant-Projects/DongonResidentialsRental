@@ -79,7 +79,7 @@ public sealed class BillingFlowSpecifications
         var amount = Money.Create("CAD", 40m);
 
         // Act
-        creditNote.AllocateToInvoice(invoice.InvoiceId, amount, Today());
+        creditNote.ApplyToInvoice(invoice.InvoiceId, amount, Today());
         invoice.ApplyCredit(creditNote.CreditNoteId, amount, Today());
 
         // Assert
@@ -98,7 +98,7 @@ public sealed class BillingFlowSpecifications
         var amount = Money.Create("CAD", 100m);
 
         // Act
-        creditNote.AllocateToInvoice(invoice.InvoiceId, amount, Today());
+        creditNote.ApplyToInvoice(invoice.InvoiceId, amount, Today());
         invoice.ApplyCredit(creditNote.CreditNoteId, amount, Today());
 
         // Assert
@@ -116,7 +116,7 @@ public sealed class BillingFlowSpecifications
         var creditNote = CreateIssuedCreditNote(invoice.LeaseId, "CAD", 200m);
 
         // Act
-        creditNote.AllocateToInvoice(invoice.InvoiceId, Money.Create("CAD", 120m), Today());
+        creditNote.ApplyToInvoice(invoice.InvoiceId, Money.Create("CAD", 120m), Today());
         Action act = () => invoice.ApplyCredit(creditNote.CreditNoteId, Money.Create("CAD", 120m), Today());
 
         // Assert
@@ -135,7 +135,7 @@ public sealed class BillingFlowSpecifications
         payment.AllocateToInvoice(invoice.InvoiceId, Money.Create("CAD", 30m), Today());
         invoice.ApplyPayment(payment.PaymentId, Money.Create("CAD", 30m), Today());
 
-        creditNote.AllocateToInvoice(invoice.InvoiceId, Money.Create("CAD", 20m), Today());
+        creditNote.ApplyToInvoice(invoice.InvoiceId, Money.Create("CAD", 20m), Today());
         invoice.ApplyCredit(creditNote.CreditNoteId, Money.Create("CAD", 20m), Today());
 
         // Assert
@@ -156,7 +156,7 @@ public sealed class BillingFlowSpecifications
         var creditNote = CreateIssuedCreditNote(invoice.LeaseId, "CAD", 50m);
 
         // Act
-        creditNote.AllocateToInvoice(invoice.InvoiceId, Money.Create("CAD", 20m), Today());
+        creditNote.ApplyToInvoice(invoice.InvoiceId, Money.Create("CAD", 20m), Today());
         invoice.ApplyCredit(creditNote.CreditNoteId, Money.Create("CAD", 20m), Today());
 
         payment.AllocateToInvoice(invoice.InvoiceId, Money.Create("CAD", 30m), Today());
