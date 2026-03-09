@@ -6,11 +6,11 @@ using System.Text;
 
 namespace DongonResidentialsRental.Domain.Payment.Events;
 
-public sealed record PaymentAllocatedToInvoiceDomainEvent(
+public sealed record PaymentAppliedToInvoiceDomainEvent(
     PaymentId PaymentId, 
     InvoiceId InvoiceId, 
     Money Amount, 
-    DateOnly AllocatedOn): IDomainEvent
+    DateOnly AppliedOn): IDomainEvent
 {
     public DateTime OccurredOnUtc { get; } = DateTime.UtcNow;
 }

@@ -24,7 +24,7 @@ public sealed class BillingFlowSpecifications
         var amount = Money.Create("CAD", 40m);
 
         // Act
-        payment.AllocateToInvoice(invoice.InvoiceId, amount, Today());
+        payment.ApplyToInvoice(invoice.InvoiceId, amount, Today());
         invoice.ApplyPayment(payment.PaymentId, amount, Today());
 
         // Assert
@@ -43,7 +43,7 @@ public sealed class BillingFlowSpecifications
         var amount = Money.Create("CAD", 100m);
 
         // Act
-        payment.AllocateToInvoice(invoice.InvoiceId, amount, Today());
+        payment.ApplyToInvoice(invoice.InvoiceId, amount, Today());
         invoice.ApplyPayment(payment.PaymentId, amount, Today());
 
         // Assert
@@ -61,7 +61,7 @@ public sealed class BillingFlowSpecifications
         var payment = CreatePayment("CAD", 200m);
 
         // Act
-        payment.AllocateToInvoice(invoice.InvoiceId, Money.Create("CAD", 120m), Today());
+        payment.ApplyToInvoice(invoice.InvoiceId, Money.Create("CAD", 120m), Today());
         Action act = () => invoice.ApplyPayment(payment.PaymentId, Money.Create("CAD", 120m), Today());
 
         // Assert
@@ -132,7 +132,7 @@ public sealed class BillingFlowSpecifications
         var creditNote = CreateIssuedCreditNote(invoice.LeaseId, "CAD", 50m);
 
         // Act
-        payment.AllocateToInvoice(invoice.InvoiceId, Money.Create("CAD", 30m), Today());
+        payment.ApplyToInvoice(invoice.InvoiceId, Money.Create("CAD", 30m), Today());
         invoice.ApplyPayment(payment.PaymentId, Money.Create("CAD", 30m), Today());
 
         creditNote.ApplyToInvoice(invoice.InvoiceId, Money.Create("CAD", 20m), Today());
@@ -159,7 +159,7 @@ public sealed class BillingFlowSpecifications
         creditNote.ApplyToInvoice(invoice.InvoiceId, Money.Create("CAD", 20m), Today());
         invoice.ApplyCredit(creditNote.CreditNoteId, Money.Create("CAD", 20m), Today());
 
-        payment.AllocateToInvoice(invoice.InvoiceId, Money.Create("CAD", 30m), Today());
+        payment.ApplyToInvoice(invoice.InvoiceId, Money.Create("CAD", 30m), Today());
         invoice.ApplyPayment(payment.PaymentId, Money.Create("CAD", 30m), Today());
 
         // Assert

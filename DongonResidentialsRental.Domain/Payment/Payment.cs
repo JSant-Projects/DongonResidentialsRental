@@ -66,10 +66,10 @@ public sealed class Payment: AggregateRoot
         throw new DomainException("Operation allowed only when payment is in Received state.");
     }   
 
-    public void AllocateToInvoice(
+    public void ApplyToInvoice(
       InvoiceId invoiceId,
       Money amount,
-      DateOnly allocatedOn)
+      DateOnly appliedOn)
     {
         Ensure.NotNull(invoiceId);
         Ensure.NotNull(amount);
@@ -84,11 +84,11 @@ public sealed class Payment: AggregateRoot
         if (amount.Amount > RemainingAmount.Amount)
             throw new DomainException("Allocation amount cannot exceed remaining payment amount.");
 
-        var allocation = PaymentAllocation.Create(invoiceId, amount, allocatedOn);
+        var allocation = PaymentAllocation.Create(invoiceId, amount, appliedOn);
 
         _allocations.Add(allocation);
 
-        AddDomainEvent(new PaymentAllocatedToInvoiceDomainEvent(PaymentId, invoiceId, amount, allocatedOn));
+        AddDomainEvent(new PaymentAppliedToInvoiceDomainEvent(PaymentId, invoiceId, amount, appliedOn));
     }
 
     public void Reverse(DateOnly reversedOn, string reason)
