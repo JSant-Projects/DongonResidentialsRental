@@ -19,13 +19,7 @@ public class GetBuildingByIdQueryHandler : IQueryHandler<GetBuildingByIdQuery, B
             .Buildings
             .AsNoTracking()
             .Where(b => b.BuildingId == query.BuildingId)
-            .Select(b => new BuildingResponse(
-                b.BuildingId.Id,
-                b.Name,
-                b.Address.Street,
-                b.Address.City,
-                b.Address.Province,
-                b.Address.PostalCode))
+            .Select(BuildingMappings.ToResponse())
             .FirstOrDefaultAsync(cancellationToken);
 
         if (building is null)
