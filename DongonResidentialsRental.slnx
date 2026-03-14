@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="DongonResidentialsRental.Application/DongonResidentialsRental.Application.csproj" Id="1a58fc2f-8c5c-41a6-8ff0-14db261fa9a5" />
     <Project Path="DongonResidentialsRental.Domain/DongonResidentialsRental.Domain.csproj" />
   </Folder>
   <Folder Name="/test/">
