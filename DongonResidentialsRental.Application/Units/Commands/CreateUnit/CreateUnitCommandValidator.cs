@@ -6,6 +6,9 @@ public sealed class CreateUnitCommandValidator : AbstractValidator<CreateUnitCom
 {
     public CreateUnitCommandValidator()
     {
+        RuleFor(x => x.BuildingId)
+            .NotEmpty();
+
         RuleFor(x => x.UnitNumber)
             .NotEmpty()
             .MaximumLength(5);
