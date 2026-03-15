@@ -18,9 +18,9 @@ public sealed class GetUnitsQueryHandler : IQueryHandler<GetUnitsQuery, PagedRes
         var units = _dbContext.Units
             .AsNoTracking()
             .ApplyStatusFilter(request.Status)
-            .ApplySearch(
-                request.SearchTerm,
-                request.Floor);
+            .ApplyUnitNumberSearch(request.UnitNumber)
+            .ApplyBuildingFilter(request.BuildingId)
+            .ApplyFloorFilter(request.Floor);
 
         var totalCount = await units.CountAsync(cancellationToken);
 

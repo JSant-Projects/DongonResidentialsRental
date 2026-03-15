@@ -19,26 +19,39 @@ public static class UnitQueryExtensions
         return query.Where(u => u.Status == status.Value);
     }
 
-    public static IQueryable<Unit> ApplySearch(
+    public static IQueryable<Unit> ApplyUnitNumberSearch(
         this IQueryable<Unit> query,
-        string? searchTerm,
+        string? searchTerm)
+    {
+        if (string.IsNullOrWhiteSpace(searchTerm))
+            return query;
+
+        searchTerm = searchTerm.Trim();
+        var pattern = $"%{searchTerm}%";
+
+        return query.Where(u => EF.Functions.Like(u.UnitNumber, pattern));
+    }
+
+    public static IQueryable<Unit> ApplyFloorFilter(
+        this IQueryable<Unit> query,
         int? floor)
     {
-        if (!string.IsNullOrWhiteSpace(searchTerm))
-        {
-            searchTerm = searchTerm.Trim();
-            var pattern = $"%{searchTerm}%";
 
-            query = query.Where(u =>
-                EF.Functions.Like(u.UnitNumber, pattern));
-        }
+        if (floor is null && floor < 1)
+            return query;
 
-        if (floor is not null)
-        {
-            query = query.Where(u => u.Floor == floor);
-        }
+        return query.Where(u => u.Floor == floor);
+    }
 
-        return query;
+    public static IQueryable<Unit> ApplyBuildingFilter(
+        this IQueryable<Unit> query,
+        BuildingId? buildingId)
+    {
+
+        if (buildingId is null || buildingId.Id == Guid.Empty)
+            return query;
+
+        return query.Where(u => u.BuildingId == buildingId);
     }
 
     public static IQueryable<Unit> ApplyOrdering(this IQueryable<Unit> query)
