@@ -9,7 +9,7 @@ using System;
 using Xunit;
 using DomainInvoice = DongonResidentialsRental.Domain.Invoice.Invoice;
 
-namespace DongonResidentialsRental.Domain.Tests.Invoice;
+namespace DongonResidentialsRental.Tests.Domain.Invoice;
 
 public sealed class InvoiceTests
 {

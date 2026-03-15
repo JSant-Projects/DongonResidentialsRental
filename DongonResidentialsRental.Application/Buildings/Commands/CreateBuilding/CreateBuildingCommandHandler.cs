@@ -12,15 +12,15 @@ public class CreateBuildingCommandHandler : ICommandHandler<CreateBuildingComman
     {
         _buildingRepository = buildingRepository;
     }
-    public async Task<BuildingId> Handle(CreateBuildingCommand command, CancellationToken cancellationToken)
+    public async Task<BuildingId> Handle(CreateBuildingCommand request, CancellationToken cancellationToken)
     {
         var address = Address.Create(
-                            command.AddressStreet, 
-                            command.AddressCity, 
-                            command.AddressProvince, 
-                            command.AddressPostalCode);
+                            request.AddressStreet,
+                            request.AddressCity,
+                            request.AddressProvince,
+                            request.AddressPostalCode);
 
-        var building = Building.Create(command.Name, address);
+        var building = Building.Create(request.Name, address);
 
         await _buildingRepository.AddAsync(building, cancellationToken);
 

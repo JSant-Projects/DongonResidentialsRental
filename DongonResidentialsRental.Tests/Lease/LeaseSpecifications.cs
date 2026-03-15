@@ -7,7 +7,7 @@ using DongonResidentialsRental.Domain.Unit;
 using System;
 using DongonResidentialsRental.Domain.Lease;
 
-namespace DongonResidentialsRental.Domain.Tests.Lease;
+namespace DongonResidentialsRental.Tests.Domain.Lease;
 
 public class LeaseSpecifications
 {

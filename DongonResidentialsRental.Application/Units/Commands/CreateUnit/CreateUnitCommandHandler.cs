@@ -18,16 +18,16 @@ public class CreateUnitCommandHandler : ICommandHandler<CreateUnitCommand, UnitI
         _buildingRepository = buildingRepository;
     }
 
-    public async Task<UnitId> Handle(CreateUnitCommand command, CancellationToken cancellationToken)
+    public async Task<UnitId> Handle(CreateUnitCommand request, CancellationToken cancellationToken)
     {
-        bool buildingExists = await _buildingRepository.ExistsAsync(command.BuildingId, cancellationToken);
+        bool buildingExists = await _buildingRepository.ExistsAsync(request.BuildingId, cancellationToken);
 
         if (buildingExists) 
         {
-            throw new NotFoundException(nameof(Building), command.BuildingId.Id);
+            throw new NotFoundException(nameof(Building), request.BuildingId.Id);
         }
 
-        var unit = DomainUnit.Create(command.BuildingId, command.UnitNumber, command.Floor);
+        var unit = DomainUnit.Create(request.BuildingId, request.UnitNumber, request.Floor);
 
         return unit.UnitId;
     }

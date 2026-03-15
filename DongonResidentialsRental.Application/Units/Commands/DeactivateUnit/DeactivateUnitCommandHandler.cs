@@ -14,17 +14,17 @@ public sealed class DeactivateUnitCommandHandler : ICommandHandler<DeactivateUni
     {
         _unitRepository = unitRepository;
     }
-    public async Task<Unit> Handle(DeactivateUnitCommand command, CancellationToken cancellationToken)
+    public async Task<Unit> Handle(DeactivateUnitCommand request, CancellationToken cancellationToken)
     {
 
 
         var unit = await _unitRepository.GetByIdAsync(
-                                    command.UnitId,
+                                    request.UnitId,
                                     cancellationToken);
 
         if (unit is null)
         {
-            throw new NotFoundException(nameof(Domain.Unit), command.UnitId);
+            throw new NotFoundException(nameof(Domain.Unit), request.UnitId);
         }
 
         // Update status to Inactive

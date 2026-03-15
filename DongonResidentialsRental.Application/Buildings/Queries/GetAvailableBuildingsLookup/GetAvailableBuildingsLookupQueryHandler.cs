@@ -12,7 +12,7 @@ public sealed class GetAvailableBuildingsLookupQueryHandler : IQueryHandler<GetA
     {
         _dbContext = dbContext;
     }
-    public async Task<IReadOnlyList<BuildingLookupResponse>> Handle(GetAvailableBuildingsLookupQuery query, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<BuildingLookupResponse>> Handle(GetAvailableBuildingsLookupQuery request, CancellationToken cancellationToken)
     {
         var lookup = await _dbContext.Buildings
             .AsNoTracking()

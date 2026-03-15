@@ -7,8 +7,9 @@ using DongonResidentialsRental.Domain.Shared;
 using DongonResidentialsRental.Domain.Tenant;
 using System;
 using DomainPayment = DongonResidentialsRental.Domain.Payment.Payment;
+using DomainInvoice = DongonResidentialsRental.Domain.Invoice.Invoice;
 
-namespace DongonResidentialsRental.Tests.BillingFlow;
+namespace DongonResidentialsRental.Tests.Domain.BillingFlow;
 
 public sealed class BillingFlowSpecifications
 {
@@ -173,9 +174,9 @@ public sealed class BillingFlowSpecifications
 
     // ---------- Helpers ----------
 
-    private static Invoice CreateIssuedInvoiceWithLine(string currency, decimal amount)
+    private static DomainInvoice CreateIssuedInvoiceWithLine(string currency, decimal amount)
     {
-        var invoice = Invoice.Create(
+        var invoice = DomainInvoice.Create(
             leaseId: NewLeaseId(),
             BillingPeriod.Create(
                  from: Today(),

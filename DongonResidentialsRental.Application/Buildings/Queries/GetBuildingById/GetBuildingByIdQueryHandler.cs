@@ -13,18 +13,18 @@ public class GetBuildingByIdQueryHandler : IQueryHandler<GetBuildingByIdQuery, B
     {
         _dbContext = dbContext;
     }
-    public async Task<BuildingResponse> Handle(GetBuildingByIdQuery query, CancellationToken cancellationToken)
+    public async Task<BuildingResponse> Handle(GetBuildingByIdQuery request, CancellationToken cancellationToken)
     {
         var building = await _dbContext
             .Buildings
             .AsNoTracking()
-            .Where(b => b.BuildingId == query.BuildingId)
+            .Where(b => b.BuildingId == request.BuildingId)
             .Select(BuildingMappings.ToResponse())
             .FirstOrDefaultAsync(cancellationToken);
 
         if (building is null)
         {
-            throw new NotFoundException(nameof(Building), query.BuildingId);
+            throw new NotFoundException(nameof(Building), request.BuildingId);
         }
 
         return building;
