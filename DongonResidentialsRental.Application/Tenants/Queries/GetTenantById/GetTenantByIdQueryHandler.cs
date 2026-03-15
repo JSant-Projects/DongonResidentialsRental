@@ -23,7 +23,7 @@ public sealed class GetTenantByIdQueryHandler : IQueryHandler<GetTenantByIdQuery
 
         if (tenant is null)
         {
-            throw new NotFoundException(nameof(Tenant), tenant.TenantId);
+            throw new NotFoundException(nameof(Tenant), request.TenantId);
         }
 
         return tenant;
