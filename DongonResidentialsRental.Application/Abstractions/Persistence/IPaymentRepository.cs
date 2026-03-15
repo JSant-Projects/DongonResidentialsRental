@@ -4,7 +4,7 @@ namespace DongonResidentialsRental.Application.Abstractions.Persistence;
 
 public interface IPaymentRepository
 {
-    Task AddAsync(Payment payment, CancellationToken cancellationToken = default);
+    void Add(Payment payment);
     Task<Payment?> GetByIdAsync(PaymentId paymentId, CancellationToken cancellationToken = default);
-    Task RemoveAsync(Payment payment, CancellationToken cancellationToken = default);
+    void Remove(Payment payment);
 }

@@ -12,7 +12,7 @@ public class CreateBuildingCommandHandler : ICommandHandler<CreateBuildingComman
     {
         _buildingRepository = buildingRepository;
     }
-    public async Task<BuildingId> Handle(CreateBuildingCommand request, CancellationToken cancellationToken)
+    public Task<BuildingId> Handle(CreateBuildingCommand request, CancellationToken cancellationToken)
     {
         var address = Address.Create(
                             request.AddressStreet,
@@ -22,8 +22,8 @@ public class CreateBuildingCommandHandler : ICommandHandler<CreateBuildingComman
 
         var building = Building.Create(request.Name, address);
 
-        await _buildingRepository.AddAsync(building, cancellationToken);
+        _buildingRepository.Add(building);
 
-        return building.BuildingId;
+        return Task.FromResult(building.BuildingId);
     }
 }

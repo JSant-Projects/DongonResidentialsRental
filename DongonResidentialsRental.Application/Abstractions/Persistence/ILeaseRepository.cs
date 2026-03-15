@@ -10,7 +10,7 @@ namespace DongonResidentialsRental.Application.Abstractions.Persistence;
 public interface ILeaseRepository
 {
 
-    Task AddAsync(Lease lease, CancellationToken cancellationToken = default);
+    void Add(Lease lease);
     Task<Lease?> GetByIdAsync(LeaseId leaseId, CancellationToken cancellationToken = default);
     Task<bool> ExistsActiveLeaseForUnitAsync(
         UnitId unitId, 
@@ -20,5 +20,5 @@ public interface ILeaseRepository
         TenantId tenantId, 
         DateOnly date, 
         CancellationToken cancellationToken = default);
-    Task RemoveAsync(Lease lease, CancellationToken cancellationToken = default);
+    void Remove(Lease lease);
 }

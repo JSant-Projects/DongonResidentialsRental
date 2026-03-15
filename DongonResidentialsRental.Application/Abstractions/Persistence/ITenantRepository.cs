@@ -7,8 +7,8 @@ namespace DongonResidentialsRental.Application.Abstractions.Persistence;
 
 public interface ITenantRepository
 {
-    Task AddAsync(Tenant tenant, CancellationToken cancellationToken = default);
+    void Add(Tenant tenant);
     Task<Tenant?> GetByIdAsync(TenantId tenantId, CancellationToken cancellationToken = default);
-    Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken);
-    Task RemoveAsync(Tenant tenant, CancellationToken cancellationToken = default);
+    Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken = default);
+    void Remove(Tenant tenant);
 }

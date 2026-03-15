@@ -9,7 +9,7 @@ namespace DongonResidentialsRental.Application.Abstractions.Persistence;
 
 public interface IUnitRepository
 {
-    Task AddAsync(Unit unit, CancellationToken cancellationToken = default);
+    void Add(Unit unit);
     Task<Unit?> GetByIdAsync(UnitId unitId, CancellationToken cancellationToken = default);
-    Task RemoveAsync(Unit unit, CancellationToken cancellationToken = default);
+    void Remove(Unit unit);
 }

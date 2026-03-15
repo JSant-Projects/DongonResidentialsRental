@@ -5,8 +5,8 @@ namespace DongonResidentialsRental.Application.Abstractions.Persistence;
 
 public interface IBuildingRepository
 {
-    Task AddAsync(Building building, CancellationToken cancellationToken = default);
+    void Add(Building building);
     Task<BuildingId?> GetByIdAsync(BuildingId building, CancellationToken cancellationToken = default);
     Task<bool> ExistsAsync(BuildingId buildingId, CancellationToken cancellationToken);
-    Task RemoveAsync(Building building, CancellationToken cancellationToken = default);
+    void Remove(Building building);
 }

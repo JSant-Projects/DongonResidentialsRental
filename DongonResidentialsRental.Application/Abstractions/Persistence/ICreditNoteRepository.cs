@@ -4,7 +4,7 @@ namespace DongonResidentialsRental.Application.Abstractions.Persistence;
 
 public interface ICreditNoteRepository
 {
-    Task AddAsync(CreditNote creditNote, CancellationToken cancellationToken = default);
+    void Add(CreditNote creditNote);
     Task<CreditNote?> GetByIdAsync(CreditNoteId creditNoteId, CancellationToken cancellationToken = default);
-    Task RemoveAsync(CreditNote creditNote, CancellationToken cancellationToken = default);
+    void Remove(CreditNote creditNote);
 }
