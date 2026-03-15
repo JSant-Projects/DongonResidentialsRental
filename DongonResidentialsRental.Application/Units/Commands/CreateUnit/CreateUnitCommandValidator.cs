@@ -11,6 +11,6 @@ public sealed class CreateUnitCommandValidator : AbstractValidator<CreateUnitCom
 
         RuleFor(x => x.UnitNumber)
             .NotEmpty()
-            .MaximumLength(5);
+            .MaximumLength(20);
     }
 }

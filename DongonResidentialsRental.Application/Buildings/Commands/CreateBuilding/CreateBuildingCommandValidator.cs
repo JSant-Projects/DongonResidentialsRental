@@ -8,7 +8,7 @@ public sealed class CreateBuildingCommandValidator : AbstractValidator<CreateBui
     {
         RuleFor(x => x.Name)
             .NotEmpty()
-            .MaximumLength(200);
+            .MaximumLength(100);
 
         RuleFor(x => x.AddressStreet)
             .NotEmpty()
@@ -16,14 +16,14 @@ public sealed class CreateBuildingCommandValidator : AbstractValidator<CreateBui
 
         RuleFor(x => x.AddressCity)
             .NotEmpty()
-            .MaximumLength(200);
+            .MaximumLength(100);
 
         RuleFor(x => x.AddressProvince)
             .NotEmpty()
-            .MaximumLength(200);
+            .MaximumLength(100);
 
         RuleFor(x => x.AddressPostalCode)
             .NotEmpty()
-            .MaximumLength(200);
+            .MaximumLength(100);
     }
 }

@@ -5,7 +5,7 @@ using DongonResidentialsRental.Domain.Shared;
 
 namespace DongonResidentialsRental.Application.Buildings.Commands.CreateBuilding;
 
-public class CreateBuildingCommandHandler : ICommandHandler<CreateBuildingCommand, BuildingId>
+public sealed class CreateBuildingCommandHandler : ICommandHandler<CreateBuildingCommand, BuildingId>
 {
     private readonly IBuildingRepository _buildingRepository;
     public CreateBuildingCommandHandler(IBuildingRepository buildingRepository)

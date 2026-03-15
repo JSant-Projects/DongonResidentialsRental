@@ -29,6 +29,8 @@ public class CreateUnitCommandHandler : ICommandHandler<CreateUnitCommand, UnitI
 
         var unit = DomainUnit.Create(request.BuildingId, request.UnitNumber, request.Floor);
 
+        _unitRepository.Add(unit);
+
         return unit.UnitId;
     }
 }
