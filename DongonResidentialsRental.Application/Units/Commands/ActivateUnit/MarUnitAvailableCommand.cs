@@ -5,6 +5,6 @@ using System.Collections.Generic;
 using System.Text;
 using Unit = DongonResidentialsRental.Application.Abstractions.Messaging.Unit;
 
-namespace DongonResidentialsRental.Application.Units.Commands.MarkUnitAvailable;
+namespace DongonResidentialsRental.Application.Units.Commands.ActivateUnit;
 
-public sealed record MarUnitAvailableCommand(UnitId UnitId) : ICommand<Unit>;
+public sealed record ActivateUnitCommand(UnitId UnitId) : ICommand<Unit>;

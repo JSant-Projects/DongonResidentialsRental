@@ -5,17 +5,17 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace DongonResidentialsRental.Application.Units.Commands.MarkUnitAvailable;
+namespace DongonResidentialsRental.Application.Units.Commands.ActivateUnit;
 
-public sealed class MarUnitAvailableCommandHandler : ICommandHandler<MarUnitAvailableCommand, Unit>
+public sealed class ActivateUnitCommandHandler : ICommandHandler<ActivateUnitCommand, Unit>
 {
 
     private readonly IUnitRepository _unitRepository;
-    public MarUnitAvailableCommandHandler(IUnitRepository unitRepository)
+    public ActivateUnitCommandHandler(IUnitRepository unitRepository)
     {
         _unitRepository = unitRepository;
     }
-    public async Task<Unit> Handle(MarUnitAvailableCommand request, CancellationToken cancellationToken)
+    public async Task<Unit> Handle(ActivateUnitCommand request, CancellationToken cancellationToken)
     {
 
         var unit = await _unitRepository.GetByIdAsync(
