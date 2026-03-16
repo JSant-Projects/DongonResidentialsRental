@@ -28,7 +28,7 @@ public sealed class MarUnitAvailableCommandHandler : ICommandHandler<MarUnitAvai
         }
 
         // Update status to Available
-        unit.MarkAvailable();
+        unit.Activate();
 
         return Unit.Value;
     }

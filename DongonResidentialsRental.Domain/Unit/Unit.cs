@@ -21,7 +21,7 @@ public sealed class Unit
         BuildingId = buildingId;
         UnitNumber = unitNumber;
         Floor = floor;
-        Status = UnitStatus.Available;
+        Status = UnitStatus.Active;
     }
 
     public void PutUnderMaintenance() 
@@ -31,7 +31,7 @@ public sealed class Unit
 
         Status = UnitStatus.Maintenance; 
     }
-    public void MarkAvailable() => Status = UnitStatus.Available;
+    public void Activate() => Status = UnitStatus.Active;
     public void Deactivate() => Status = UnitStatus.Inactive;
 
 
