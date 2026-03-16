@@ -9,11 +9,11 @@ using System.Text;
 
 namespace DongonResidentialsRental.Application.Units.Queries.GetAvailableUnitsLookupByBuilding;
 
-public sealed class GetAvailableUnitsLookupQueryHandler : IQueryHandler<GetAvailableUnitsLookupByBuildingQuery, IReadOnlyList<UnitLookupResponse>>
+public sealed class GetAvailableUnitsLookupByBuildingQueryHandler : IQueryHandler<GetAvailableUnitsLookupByBuildingQuery, IReadOnlyList<UnitLookupResponse>>
 {
     private readonly IApplicationDBContext _dbContext;
     private readonly IDateTimeProvider _dateTimeProvider;    
-    public GetAvailableUnitsLookupQueryHandler(
+    public GetAvailableUnitsLookupByBuildingQueryHandler(
         IApplicationDBContext dbContext,
         IDateTimeProvider dateTimeProvider)
     {
