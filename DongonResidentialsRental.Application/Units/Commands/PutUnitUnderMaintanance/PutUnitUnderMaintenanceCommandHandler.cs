@@ -1,4 +1,5 @@
-﻿using DongonResidentialsRental.Application.Abstractions.Messaging;
+﻿using DongonResidentialsRental.Application.Abstractions.Clock;
+using DongonResidentialsRental.Application.Abstractions.Messaging;
 using DongonResidentialsRental.Application.Abstractions.Persistence;
 using DongonResidentialsRental.Application.Exceptions;
 using DongonResidentialsRental.Domain.Unit;
@@ -12,9 +13,16 @@ namespace DongonResidentialsRental.Application.Units.Commands.PutUnitUnderMainta
 public sealed class PutUnitUnderMaintenanceCommandHandler : ICommandHandler<PutUnitUnderMaintenanceCommand, Unit>
 {
     private readonly IUnitRepository _unitRepository;
-    public PutUnitUnderMaintenanceCommandHandler(IUnitRepository unitRepository)
+    private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly ILeaseRepository _leaseRepository;
+    public PutUnitUnderMaintenanceCommandHandler(
+        IUnitRepository unitRepository,
+        IDateTimeProvider dateTimeProvider,
+        ILeaseRepository leaseRepository)
     {
         _unitRepository = unitRepository;
+        _dateTimeProvider = dateTimeProvider;
+        _leaseRepository = leaseRepository;
     }
     public async Task<Unit> Handle(PutUnitUnderMaintenanceCommand request, CancellationToken cancellationToken)
     {
@@ -25,6 +33,18 @@ public sealed class PutUnitUnderMaintenanceCommandHandler : ICommandHandler<PutU
         if (unit is null)
         {
             throw new NotFoundException(nameof(Domain.Unit), request.UnitId);
+        }
+
+        var today = DateOnly.FromDateTime(_dateTimeProvider.Today);
+
+        bool hasActiveLease = await _leaseRepository.ExistsActiveLeaseForUnitAsync(
+            unit.UnitId,
+            today,
+            cancellationToken);
+
+        if (hasActiveLease)
+        {
+            throw new ConflictException($"{unit.UnitNumber} has an active lease. PutUnderMaintenance operation is not allowed");
         }
 
         // Update status to UnderMaintenance

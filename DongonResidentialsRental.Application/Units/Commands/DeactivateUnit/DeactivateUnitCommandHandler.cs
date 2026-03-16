@@ -1,4 +1,5 @@
-﻿using DongonResidentialsRental.Application.Abstractions.Messaging;
+﻿using DongonResidentialsRental.Application.Abstractions.Clock;
+using DongonResidentialsRental.Application.Abstractions.Messaging;
 using DongonResidentialsRental.Application.Abstractions.Persistence;
 using DongonResidentialsRental.Application.Exceptions;
 using System;
@@ -10,9 +11,16 @@ namespace DongonResidentialsRental.Application.Units.Commands.DeactivateUnit;
 public sealed class DeactivateUnitCommandHandler : ICommandHandler<DeactivateUnitCommand, Unit>
 {
     private readonly IUnitRepository _unitRepository;
-    public DeactivateUnitCommandHandler(IUnitRepository unitRepository)
+    private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly ILeaseRepository _leaseRepository;
+    public DeactivateUnitCommandHandler(
+        IUnitRepository unitRepository,
+        IDateTimeProvider dateTimeProvider,
+        ILeaseRepository leaseRepository)
     {
         _unitRepository = unitRepository;
+        _dateTimeProvider = dateTimeProvider;
+        _leaseRepository = leaseRepository;
     }
     public async Task<Unit> Handle(DeactivateUnitCommand request, CancellationToken cancellationToken)
     {
@@ -25,6 +33,18 @@ public sealed class DeactivateUnitCommandHandler : ICommandHandler<DeactivateUni
         if (unit is null)
         {
             throw new NotFoundException(nameof(Domain.Unit), request.UnitId);
+        }
+
+        var today = DateOnly.FromDateTime(_dateTimeProvider.Today);
+
+        bool hasActiveLease = await _leaseRepository.ExistsActiveLeaseForUnitAsync(
+            unit.UnitId,
+            today,
+            cancellationToken);
+
+        if (hasActiveLease)
+        {
+            throw new ConflictException($"{unit.UnitNumber} has an active lease. Deactivate operation is not allowed");
         }
 
         // Update status to Inactive
