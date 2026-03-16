@@ -22,11 +22,7 @@ public sealed class GetTenantLookupQueryHandler : IQueryHandler<GetTenantLookupQ
         var today = DateOnly.FromDateTime(_dateTimeProvider.Today);
         // Fetch tenants that doesn't have active lease
         var lookup = await _dbContext.Tenants
-            .Where(t => 
-                !_dbContext.Leases.Any(
-                    l => l.Occupancy == t.TenantId && 
-                    l.Term.StartDate <= today &&
-                    l.Term.EndDate >= today))
+            .WithoutActiveLease(_dbContext.Leases, today)
             .Select(TenantMappings.ToLookupResponse())
             .ToListAsync(cancellationToken);
 

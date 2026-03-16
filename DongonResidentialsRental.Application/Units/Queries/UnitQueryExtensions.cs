@@ -1,11 +1,13 @@
 ﻿using DongonResidentialsRental.Domain.Building;
+using DongonResidentialsRental.Domain.Lease;
+using DongonResidentialsRental.Domain.Tenant;
 using DongonResidentialsRental.Domain.Unit;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace DongonResidentialsRental.Application.Units.Queries.GetUnits;
+namespace DongonResidentialsRental.Application.Units.Queries;
 
 public static class UnitQueryExtensions
 {
@@ -52,6 +54,18 @@ public static class UnitQueryExtensions
             return query;
 
         return query.Where(u => u.BuildingId == buildingId);
+    }
+
+    public static IQueryable<Unit> WithoutActiveLease(
+        this IQueryable<Unit> query,
+        IQueryable<Lease> leases,
+        DateOnly today)
+    {
+        return query.Where(u =>
+                !leases.Any(
+                    l => l.UnitId == u.UnitId &&
+                    l.Term.StartDate <= today &&
+                    l.Term.EndDate >= today));
     }
 
     public static IQueryable<Unit> ApplyOrdering(this IQueryable<Unit> query)

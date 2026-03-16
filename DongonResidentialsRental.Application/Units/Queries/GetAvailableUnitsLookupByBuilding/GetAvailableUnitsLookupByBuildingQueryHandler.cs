@@ -26,13 +26,9 @@ public sealed class GetAvailableUnitsLookupByBuildingQueryHandler : IQueryHandle
         // Fetch only units that is available and doesn't have an active lease
         var lookup = await _dbContext.Units
             .AsNoTracking()
-            .Where(u => 
-                u.BuildingId == request.BuildingId &&
-                u.Status == Domain.Unit.UnitStatus.Active && 
-                !_dbContext.Leases.Any(
-                        l => l.UnitId == u.UnitId && 
-                        l.Term.StartDate <= today && 
-                        l.Term.EndDate >= today))
+            .ApplyBuildingFilter(request.BuildingId)
+            .ApplyStatusFilter(Domain.Unit.UnitStatus.Active)
+            .WithoutActiveLease(_dbContext.Leases, today)
             .Select(UnitMappings.ToLookupResponse())
             .ToListAsync(cancellationToken);
 
