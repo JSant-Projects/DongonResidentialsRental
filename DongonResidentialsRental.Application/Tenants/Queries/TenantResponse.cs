@@ -6,6 +6,7 @@ namespace DongonResidentialsRental.Application.Tenants.Queries;
 
 public sealed record TenantResponse(
     Guid TenantId, 
-    string FullName, 
+    string FirstName,
+    string LastName,
     string Email, 
     string PhoneNumber);
