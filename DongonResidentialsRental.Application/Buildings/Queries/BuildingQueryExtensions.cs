@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace DongonResidentialsRental.Application.Buildings.Queries.GetBuildings;
+namespace DongonResidentialsRental.Application.Buildings.Queries;
 
 public static class BuildingQueryExtensions
 {
@@ -38,7 +38,6 @@ public static class BuildingQueryExtensions
     public static IQueryable<Building> ApplyOrdering(this IQueryable<Building> query)
     {
         return query
-            .OrderBy(b => b.Address.City)
-            .ThenBy(b => b.Name);
+            .OrderBy(b => b.Name);
     }
 }

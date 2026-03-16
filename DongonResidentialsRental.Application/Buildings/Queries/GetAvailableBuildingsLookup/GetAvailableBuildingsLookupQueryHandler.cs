@@ -16,8 +16,8 @@ public sealed class GetAvailableBuildingsLookupQueryHandler : IQueryHandler<GetA
     {
         var lookup = await _dbContext.Buildings
             .AsNoTracking()
-            .OrderBy(b => b.Name)
-            .Where(b => b.Status == BuildingStatus.Active)
+            .ApplyStatusFilter(BuildingStatus.Active)
+            .ApplyOrdering()
             .Select(BuildingMappings.ToLookupResponse())
             .ToListAsync(cancellationToken);
 
