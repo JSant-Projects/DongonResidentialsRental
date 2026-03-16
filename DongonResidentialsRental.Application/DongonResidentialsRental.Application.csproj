@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <Folder Include="Behaviors\" />
+    <Folder Include="Leases\Queries\" />
   </ItemGroup>
 
   <ItemGroup>
