@@ -6,6 +6,9 @@ public sealed class ChangeMonthlyRateCommandValidator : AbstractValidator<Change
 {
     public ChangeMonthlyRateCommandValidator()
     {
+        RuleFor(x => x.LeaseId.Id)
+            .NotEmpty();
+
         RuleFor(x => x.NewMonthlyRate)
             .NotNull()
             .GreaterThan(0m);

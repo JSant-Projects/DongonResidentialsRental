@@ -6,6 +6,9 @@ public sealed class ChangeLeaseTermCommandValidator : AbstractValidator<ChangeLe
 {
     public ChangeLeaseTermCommandValidator()
     {
+        RuleFor(x => x.LeaseId.Id)
+            .NotEmpty();
+
         RuleFor(x => x.NewStartDate)
             .NotEqual(default(DateOnly));
     }

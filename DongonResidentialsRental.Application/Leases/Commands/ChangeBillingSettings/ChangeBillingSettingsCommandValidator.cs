@@ -6,6 +6,9 @@ public sealed class ChangeBillingSettingsCommandValidator : AbstractValidator<Ch
 {
     public ChangeBillingSettingsCommandValidator()
     {
+        RuleFor(x => x.LeaseId.Id)
+            .NotEmpty();
+
         RuleFor(x => x.NewDueDayOfMonth)
             .NotNull()
             .GreaterThan(0);

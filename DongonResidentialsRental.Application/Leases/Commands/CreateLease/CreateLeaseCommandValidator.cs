@@ -10,10 +10,10 @@ public sealed class CreateLeaseCommandValidator : AbstractValidator<CreateLeaseC
     public CreateLeaseCommandValidator()
     {
         RuleFor(x => x.Occupancy.Id)
-            .NotNull();
+            .NotEmpty();
 
         RuleFor(x => x.UnitId.Id)
-            .NotNull();
+            .NotEmpty();
 
         RuleFor(x => x.StartDate)
             .NotEqual(default(DateOnly));
