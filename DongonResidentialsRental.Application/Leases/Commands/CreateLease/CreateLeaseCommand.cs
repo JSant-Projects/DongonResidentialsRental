@@ -12,6 +12,6 @@ public sealed record CreateLeaseCommand(
     TenantId Occupancy, 
     UnitId UnitId,
     DateOnly StartDate,
-    DateOnly EndDate,
+    DateOnly? EndDate,
     Decimal MonthlyRate,
     string Currency) : ICommand<LeaseId>;

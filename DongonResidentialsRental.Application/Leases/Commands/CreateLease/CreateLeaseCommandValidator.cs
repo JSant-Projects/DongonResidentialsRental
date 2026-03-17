@@ -18,9 +18,6 @@ public sealed class CreateLeaseCommandValidator : AbstractValidator<CreateLeaseC
         RuleFor(x => x.StartDate)
             .NotEqual(default(DateOnly));
 
-        RuleFor(x => x.EndDate)
-            .NotEqual(default(DateOnly));
-
         RuleFor(x => x.MonthlyRate)
             .NotNull()
             .GreaterThan(0m);
