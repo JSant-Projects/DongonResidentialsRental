@@ -6,7 +6,7 @@ public sealed class CreateUnitCommandValidator : AbstractValidator<CreateUnitCom
 {
     public CreateUnitCommandValidator()
     {
-        RuleFor(x => x.BuildingId)
+        RuleFor(x => x.BuildingId.Id)
             .NotEmpty();
 
         RuleFor(x => x.UnitNumber)
