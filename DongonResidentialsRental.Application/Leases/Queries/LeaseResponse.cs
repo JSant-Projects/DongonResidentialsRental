@@ -7,7 +7,11 @@ namespace DongonResidentialsRental.Application.Leases.Queries;
 
 public sealed record LeaseResponse(
     LeaseId LeaseId,
-    string Building,
+    string BuildingName,
     string UnitNumber,
-    string TenantName,
-    decimal MonthlyRate);
+    string TenantFullName,
+    DateOnly StartDate,
+    DateOnly? EndDate,
+    decimal RentAmount,
+    string Currency,
+    bool IsActive);
