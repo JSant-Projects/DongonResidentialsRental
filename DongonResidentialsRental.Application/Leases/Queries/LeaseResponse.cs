@@ -6,7 +6,7 @@ using System.Text;
 namespace DongonResidentialsRental.Application.Leases.Queries;
 
 public sealed record LeaseResponse(
-    LeaseId LeaseId,
+    Guid LeaseId,
     string BuildingName,
     string UnitNumber,
     string TenantFullName,

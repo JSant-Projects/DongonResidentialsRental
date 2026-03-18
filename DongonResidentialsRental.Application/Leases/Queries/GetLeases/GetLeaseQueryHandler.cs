@@ -73,7 +73,7 @@ public sealed record GetLeaseQueryHandler : IQueryHandler<GetLeasesQuery, PagedR
                 x => x.unit.BuildingId,
                 building => building.BuildingId,
                 (x, building) => new LeaseListItem(
-                    x.lease.LeaseId,
+                    x.lease.LeaseId.Id,
                     x.tenant.PersonalInfo.FirstName + " " + x.tenant.PersonalInfo.LastName,
                     x.unit.UnitNumber,
                     building.Name,
@@ -116,7 +116,7 @@ public sealed record GetLeaseQueryHandler : IQueryHandler<GetLeasesQuery, PagedR
     }
 
     private sealed record LeaseListItem(
-        LeaseId LeaseId,
+        Guid LeaseId,
         string TenantFullName,
         string UnitNumber,
         string BuildingName,

@@ -29,7 +29,7 @@ public sealed class GetLeaseByIdQueryHandler : IQueryHandler<GetLeaseByIdQuery, 
             join b in _dbContext.Buildings.AsNoTracking() on u.BuildingId equals b.BuildingId
             where l.LeaseId == request.LeaseId
             select new LeaseResponse(
-                l.LeaseId,
+                l.LeaseId.Id,
                 b.Name,
                 u.UnitNumber,
                 t.PersonalInfo.FirstName + " " + t.PersonalInfo.LastName,
