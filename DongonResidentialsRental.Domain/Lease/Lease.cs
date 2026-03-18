@@ -16,34 +16,56 @@ public sealed class Lease: AggregateRoot
     public UnitId UnitId { get; }
     public Money MonthlyRate { get; private set; }
     public LeaseTerm Term { get; private set; }
-    public BillingSettings? BillingSettings { get; private set; }
-    public UtilityResponsibility? UtilityResponsibility { get; private set; }
+    public BillingSettings BillingSettings { get; private set; }
+    public UtilityResponsibility UtilityResponsibility { get; private set; }
     //public MeterBinding? MeterBinding { get; private set; }
     public LeaseStatus Status { get; private set; }
 
     private Lease() { }
     
-    private Lease(TenantId occupancy, UnitId unitId, LeaseTerm leaseTerm, Money monthlyRate)
+    private Lease(
+        TenantId occupancy, 
+        UnitId unitId, 
+        LeaseTerm leaseTerm, 
+        Money monthlyRate,
+        BillingSettings billingSettings,
+        UtilityResponsibility utilityResponsibility)
     {
         LeaseId = new LeaseId(Guid.NewGuid());
         Occupancy = occupancy;
         UnitId = unitId;
         Term = leaseTerm;
         MonthlyRate = monthlyRate;
+        BillingSettings = billingSettings;
+        UtilityResponsibility = utilityResponsibility;
         Status = LeaseStatus.Draft;
     }
 
-    public static Lease Create(TenantId occupancy, UnitId unitId, LeaseTerm leaseTerm, Money monthlyRate)
+    public static Lease Create(
+        TenantId occupancy, 
+        UnitId unitId, 
+        LeaseTerm leaseTerm, 
+        Money monthlyRate,
+        BillingSettings billingSettings,
+        UtilityResponsibility utilityResponsibility)
     {
         Ensure.NotNull(occupancy, "Occupancy cannot be null");
         Ensure.NotNull(unitId, "Unit ID cannot be null");
         Ensure.NotNull(leaseTerm, "Lease term cannot be null");
         Ensure.NotNull(monthlyRate, "Monthly rate cannot be null");
+        Ensure.NotNull(billingSettings, "Billing settings cannot be null");
+        Ensure.NotNull(utilityResponsibility, "Utility responsibility rate cannot be null");
 
         if (monthlyRate.Amount <= 0)
             throw new DomainException("Monthly rate must be greater than zero.");
         
-        var lease = new Lease(occupancy, unitId, leaseTerm, monthlyRate);
+        var lease = new Lease(
+            occupancy, 
+            unitId, 
+            leaseTerm, 
+            monthlyRate, 
+            billingSettings, 
+            utilityResponsibility);
 
         // Add domain event for lease creation
         lease.AddDomainEvent(
@@ -59,17 +81,10 @@ public sealed class Lease: AggregateRoot
     public void Activate()
     {
         EnsureIsDraft();
-        EnsureAllRequiredFieldsPresent();
         Status = LeaseStatus.Active;
 
         // Add domain event for lease activation
         AddDomainEvent(new LeaseActivatedDomainEvent(LeaseId, Occupancy, UnitId));   
-    }
-
-    private void EnsureAllRequiredFieldsPresent()
-    {
-        Ensure.NotNull(BillingSettings, "Billing settings must be set before activating the lease.");
-        Ensure.NotNull(UtilityResponsibility, "Utility responsibility must be set before activating the lease.");
     }
 
     public void ChangeLeaseTerm(LeaseTerm newTerm, DateOnly today)

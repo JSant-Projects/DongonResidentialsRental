@@ -14,4 +14,8 @@ public sealed record CreateLeaseCommand(
     DateOnly StartDate,
     DateOnly? EndDate,
     Decimal MonthlyRate,
+    int DueDayOfMonth,
+    int GracePeridoDays,
+    bool tenantPaysElectricity,
+    bool tenantPaysWater,
     string Currency) : ICommand<LeaseId>;

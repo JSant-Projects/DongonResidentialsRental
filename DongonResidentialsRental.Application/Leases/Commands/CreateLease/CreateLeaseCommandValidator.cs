@@ -26,6 +26,14 @@ public sealed class CreateLeaseCommandValidator : AbstractValidator<CreateLeaseC
             .NotEmpty()
             .MaximumLength(3);
 
+        RuleFor(x => x.DueDayOfMonth)
+            .NotNull()
+            .GreaterThan(0);
+
+        RuleFor(x => x.GracePeridoDays)
+            .NotNull()
+            .GreaterThan(0);
+
     }
 }
 

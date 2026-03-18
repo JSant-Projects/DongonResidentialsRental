@@ -42,10 +42,22 @@ public sealed class CreateLeaseCommandHandler : ICommandHandler<CreateLeaseComma
             throw new ConflictException($"Tenant ({request.Occupancy}) has an active lease. CreateLease Operation is not allowed");
         }
 
+        // Term
         var term = LeaseTerm.Create(request.StartDate, request.EndDate);
+        // MonthlyRate
         var monthlyRate = Money.Create(request.Currency, request.MonthlyRate);
+        // BillingSettings
+        var billingSettings = BillingSettings.Create(request.DueDayOfMonth, request.GracePeridoDays);
+        // UtilityResponsibility
+        var utilityResponsibility = UtilityResponsibility.Create(request.tenantPaysElectricity, request.tenantPaysWater);
 
-        var lease = Lease.Create(request.Occupancy, request.UnitId, term, monthlyRate);
+        var lease = Lease.Create(
+            request.Occupancy, 
+            request.UnitId, 
+            term, 
+            monthlyRate, 
+            billingSettings, 
+            utilityResponsibility);
 
         _leaseRepository.Add(lease);
 
