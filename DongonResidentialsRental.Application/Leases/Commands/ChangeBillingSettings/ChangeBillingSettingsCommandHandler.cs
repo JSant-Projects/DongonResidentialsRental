@@ -3,6 +3,7 @@ using DongonResidentialsRental.Application.Abstractions.Messaging;
 using DongonResidentialsRental.Application.Abstractions.Persistence;
 using DongonResidentialsRental.Application.Exceptions;
 using DongonResidentialsRental.Domain.Lease;
+using DongonResidentialsRental.Domain.Shared;
 
 namespace DongonResidentialsRental.Application.Leases.Commands.ChangeBillingSettings;
 

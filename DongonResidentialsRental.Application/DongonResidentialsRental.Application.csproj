@@ -12,6 +12,8 @@
 
   <ItemGroup>
     <Folder Include="Behaviors\" />
+    <Folder Include="Invoices\Commands\CreateInvoice\" />
+    <Folder Include="Invoices\Queries\" />
   </ItemGroup>
 
   <ItemGroup>

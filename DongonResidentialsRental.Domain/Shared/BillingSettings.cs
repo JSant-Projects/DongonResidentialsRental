@@ -1,6 +1,6 @@
-﻿using DongonResidentialsRental.Domain.Shared;
+﻿using DongonResidentialsRental.Domain.Invoice;
 
-namespace DongonResidentialsRental.Domain.Lease;
+namespace DongonResidentialsRental.Domain.Shared;
 
 public sealed record BillingSettings
 {
@@ -18,5 +18,18 @@ public sealed record BillingSettings
         Ensure.InRangeInteger(dueDayOfMonth, 1, 28, "Due day of month must be between 1 and 28");
         Ensure.NonNegativeInteger(gracePeriodDays, "Grace period days cannot be negative");
         return new BillingSettings(dueDayOfMonth, gracePeriodDays);
+    }
+
+    public DateOnly CalculateDueDate(BillingPeriod billingPeriod)
+    {
+        return new DateOnly(
+            billingPeriod.From.Year,
+            billingPeriod.From.Month,
+            DueDayOfMonth);
+    }
+
+    public DateOnly CalculateLateAfterDate(BillingPeriod billingPeriod)
+    {
+        return CalculateDueDate(billingPeriod).AddDays(GracePeriodDays);
     }
 }
