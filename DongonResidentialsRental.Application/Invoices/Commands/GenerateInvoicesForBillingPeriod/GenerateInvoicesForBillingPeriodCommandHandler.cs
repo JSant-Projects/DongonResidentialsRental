@@ -36,30 +36,18 @@ public sealed class GenerateInvoicesForBillingPeriodCommandHandler :
         var monthEnd = monthStart.AddMonths(1).AddDays(-1);
 
         // Get leases active for at least part of that month. 
-        var candidatesLeaseIds = await _dbContext.Leases
-            .AsNoTracking()
-            .Where(l =>
-                l.Status == Domain.Lease.LeaseStatus.Active &&
-                l.Term.StartDate <= monthEnd &&
-                (l.Term.EndDate == null || l.Term.EndDate >= monthStart) &&
-                l.Status == Domain.Lease.LeaseStatus.Active)
-            .Select(l => l.LeaseId)
-            .ToListAsync(cancellationToken);
+        var leases = await _leaseRepository.GetLeasesOverlappingPeriodAsync(
+                                                monthStart, 
+                                                monthEnd, 
+                                                cancellationToken);
 
         int totalEvaluated = 0;
         int totalCreated = 0;
         int totalSkipped = 0;
 
-        foreach (var leaseId in candidatesLeaseIds)
+        foreach (var lease in leases)
         {
             totalEvaluated++;
-
-            var lease = await _leaseRepository.GetByIdAsync(leaseId, cancellationToken);
-            if (lease is null)
-            {
-                totalSkipped++;
-                continue;
-            }
 
             var billingFrom = lease.Term.StartDate > monthStart
                 ? lease.Term.StartDate
@@ -73,7 +61,7 @@ public sealed class GenerateInvoicesForBillingPeriodCommandHandler :
 
             // Check if issued invoice for the lease and current billing period exists
             var issuedInvoiceExists = await _invoiceRepository.ExistsIssuedAsync(
-                                                leaseId, 
+                                                lease.LeaseId, 
                                                 billingPeriod, 
                                                 cancellationToken);
 
@@ -87,7 +75,7 @@ public sealed class GenerateInvoicesForBillingPeriodCommandHandler :
             var monthlyRent = lease.MonthlyRate;
 
             var invoice = Invoice.Create(
-                leaseId, 
+                lease.LeaseId, 
                 billingPeriod, 
                 dueDate, 
                 lease.MonthlyRate.Currency);
