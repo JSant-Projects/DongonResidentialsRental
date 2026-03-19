@@ -26,7 +26,7 @@ public interface ILeaseRepository
         DateOnly start,
         DateOnly end,
         CancellationToken cancellationToken);
-    Task<IReadOnlyList<LeaseId>> GetActiveLeases(
+    Task<IReadOnlyList<Lease>> GetActiveLeases(
         DateOnly today, 
         CancellationToken cancellationToken = default);
     void Remove(Lease lease);

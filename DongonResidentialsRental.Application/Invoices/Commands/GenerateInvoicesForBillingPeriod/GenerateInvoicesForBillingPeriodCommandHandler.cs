@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 namespace DongonResidentialsRental.Application.Invoices.Commands.GenerateInvoicesForBillingPeriod;
 
 public sealed class GenerateInvoicesForBillingPeriodCommandHandler : 
-    ICommandHandler<GenerateInvoicesForBillingPeriodCommand, GenerateInvoicesResult>
+    ICommandHandler<GenerateInvoicesForBillingPeriodCommand, GenerateInvoicesForBillingPeriodResult>
 {
     private const string RENT_LINE_DESCRIPTION = "Monthly Rent";
     private const int DEFAULT_RENT_QUANTITY = 1;
@@ -29,7 +29,7 @@ public sealed class GenerateInvoicesForBillingPeriodCommandHandler :
         _dateTimeProvider = dateTimeProvider;
         _leaseRepository = leaseRepository;
     }
-    public async Task<GenerateInvoicesResult> Handle(GenerateInvoicesForBillingPeriodCommand request, CancellationToken cancellationToken)
+    public async Task<GenerateInvoicesForBillingPeriodResult> Handle(GenerateInvoicesForBillingPeriodCommand request, CancellationToken cancellationToken)
     {
 
         var monthStart = new DateOnly(request.Year, request.Month, 1);
@@ -86,7 +86,7 @@ public sealed class GenerateInvoicesForBillingPeriodCommandHandler :
             _invoiceRepository.Add(invoice);
         }
 
-        return new GenerateInvoicesResult(
+        return new GenerateInvoicesForBillingPeriodResult(
             totalEvaluated,
             totalCreated,
             totalSkipped);

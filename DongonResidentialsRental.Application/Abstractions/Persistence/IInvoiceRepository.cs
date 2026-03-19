@@ -12,5 +12,8 @@ public interface IInvoiceRepository
         LeaseId leaseId,
         BillingPeriod billingPeriod,
         CancellationToken cancellationToken = default);
+    Task<IReadOnlyDictionary<LeaseId, BillingPeriod?>> GetLatestBillingPeriodsByLeaseIdsAsync(
+        IReadOnlyCollection<LeaseId> leaseIds,
+        CancellationToken cancellationToken = default);
     void Remove(Invoice invoice);
 }

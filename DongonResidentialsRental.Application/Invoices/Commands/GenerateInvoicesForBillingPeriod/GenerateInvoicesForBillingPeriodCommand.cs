@@ -7,4 +7,4 @@ namespace DongonResidentialsRental.Application.Invoices.Commands.GenerateInvoice
 
 public sealed record GenerateInvoicesForBillingPeriodCommand(
     int Year, 
-    int Month) : ICommand<GenerateInvoicesResult>;
+    int Month) : ICommand<GenerateInvoicesForBillingPeriodResult>;
