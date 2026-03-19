@@ -11,7 +11,9 @@ public interface ILeaseRepository
 {
 
     void Add(Lease lease);
-    Task<Lease?> GetByIdAsync(LeaseId leaseId, CancellationToken cancellationToken = default);
+    Task<Lease?> GetByIdAsync(
+        LeaseId leaseId, 
+        CancellationToken cancellationToken = default);
     Task<bool> ExistsActiveLeaseForUnitAsync(
         UnitId unitId, 
         DateOnly date, 
@@ -19,6 +21,13 @@ public interface ILeaseRepository
     Task<bool> ExistsActiveLeaseForTenantAsync(
         TenantId tenantId, 
         DateOnly date, 
+        CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<Lease>> GetLeasesOverlappingPeriodAsync(
+        DateOnly start,
+        DateOnly end,
+        CancellationToken cancellationToken);
+    Task<IReadOnlyList<LeaseId>> GetActiveLeases(
+        DateOnly today, 
         CancellationToken cancellationToken = default);
     void Remove(Lease lease);
 }
