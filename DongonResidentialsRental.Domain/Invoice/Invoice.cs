@@ -110,7 +110,7 @@ public sealed class Invoice: AggregateRoot
     {
         EnsureIsDraft();
 
-        var line = InvoiceLine.Create(description, quantity, unitPrice, type);
+        var line = InvoiceLine.Create(InvoiceId, description, quantity, unitPrice, type);
 
         if (unitPrice.Currency != Currency)
             throw new DomainException("Line currency must match invoice currency.");
@@ -131,7 +131,7 @@ public sealed class Invoice: AggregateRoot
         if (_allocations.Any(a => a.PaymentId == paymentId))
             throw new DomainException("Payment has already been applied to this invoice.");
 
-        var allocation = InvoiceAllocation.Create(paymentId, amount, appliedOn);
+        var allocation = InvoiceAllocation.Create(InvoiceId, paymentId, amount, appliedOn);
 
         _allocations.Add(allocation);
 
@@ -149,7 +149,7 @@ public sealed class Invoice: AggregateRoot
             throw new DomainException("Credit amount cannot exceed invoice balance.");
 
         _creditAllocations.Add(
-            InvoiceCreditAllocation.Create(creditNoteId, amount, appliedOn));
+            InvoiceCreditAllocation.Create(InvoiceId, creditNoteId, amount, appliedOn));
 
         AddDomainEvent(new InvoiceCreditAppliedDomainEvent(InvoiceId, creditNoteId, amount, appliedOn));
     }

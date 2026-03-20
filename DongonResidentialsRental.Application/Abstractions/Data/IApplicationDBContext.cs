@@ -1,6 +1,8 @@
 ﻿using DongonResidentialsRental.Domain.Building;
+using DongonResidentialsRental.Domain.CreditNote;
 using DongonResidentialsRental.Domain.Invoice;
 using DongonResidentialsRental.Domain.Lease;
+using DongonResidentialsRental.Domain.Payment;
 using DongonResidentialsRental.Domain.Tenant;
 using DongonResidentialsRental.Domain.Unit;
 using Microsoft.EntityFrameworkCore;
@@ -17,4 +19,7 @@ public interface IApplicationDBContext
     DbSet<Lease> Leases { get; }
     DbSet<Invoice> Invoices { get; }
     DbSet<Tenant> Tenants { get; }
+    DbSet<InvoiceLine> InvoiceLines { get; }
+    DbSet<Payment> Payments { get; }
+    DbSet<CreditNote> CreditNotes { get; }
 }
