@@ -8,12 +8,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DongonResidentialsRental.Application.Leases.Queries.GetLeases;
 
-public sealed record GetLeaseQueryHandler : IQueryHandler<GetLeasesQuery, PagedResult<LeaseResponse>>
+public sealed record GetLeasesQueryHandler : IQueryHandler<GetLeasesQuery, PagedResult<LeaseResponse>>
 {
 
     private readonly IApplicationDBContext _dbContext;
     private readonly IDateTimeProvider _dateTimeProvider;
-    public GetLeaseQueryHandler(
+    public GetLeasesQueryHandler(
         IApplicationDBContext dbContext,
         IDateTimeProvider dateTimeProvider)
     {

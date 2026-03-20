@@ -13,7 +13,6 @@ public sealed class GetLeasesQueryValidator : AbstractValidator<GetLeasesQuery>
            .GreaterThan(0);
 
         RuleFor(x => x.PageSize)
-            .GreaterThan(0)
-            .LessThanOrEqualTo(100);
+            .InclusiveBetween(1, 100);
     }
 }
