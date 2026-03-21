@@ -20,6 +20,10 @@ public interface IApplicationDBContext
     DbSet<Invoice> Invoices { get; }
     DbSet<Tenant> Tenants { get; }
     DbSet<InvoiceLine> InvoiceLines { get; }
+    DbSet<InvoiceAllocation> InvoicesAllocations { get; }
+    DbSet<InvoiceCreditAllocation> InvoicesCreditAllocations { get; }
     DbSet<Payment> Payments { get; }
+    DbSet<PaymentAllocation> PaymentsAllocations { get; }
     DbSet<CreditNote> CreditNotes { get; }
+    DbSet<CreditAllocation> CreditAllocations { get; }
 }

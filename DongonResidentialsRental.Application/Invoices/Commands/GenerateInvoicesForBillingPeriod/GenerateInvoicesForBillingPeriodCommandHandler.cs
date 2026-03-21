@@ -2,6 +2,7 @@
 using DongonResidentialsRental.Application.Abstractions.Data;
 using DongonResidentialsRental.Application.Abstractions.Messaging;
 using DongonResidentialsRental.Application.Abstractions.Persistence;
+using DongonResidentialsRental.Application.Invoices.Services;
 using DongonResidentialsRental.Domain.Invoice;
 using DongonResidentialsRental.Domain.Lease;
 using Microsoft.EntityFrameworkCore;
@@ -18,16 +19,19 @@ public sealed class GenerateInvoicesForBillingPeriodCommandHandler :
     private readonly ILeaseRepository _leaseRepository;
     private readonly IApplicationDBContext _dbContext;
     private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly IInvoiceNumberGenerator _invoiceNumberGenerator;
     public GenerateInvoicesForBillingPeriodCommandHandler(
         IInvoiceRepository invoiceRepository,
         IApplicationDBContext dbContext,
         IDateTimeProvider dateTimeProvider,
-        ILeaseRepository leaseRepository)
+        ILeaseRepository leaseRepository,
+        IInvoiceNumberGenerator invoiceNumberGenerator)
     {
         _invoiceRepository = invoiceRepository;
         _dbContext = dbContext;
         _dateTimeProvider = dateTimeProvider;
         _leaseRepository = leaseRepository;
+        _invoiceNumberGenerator = invoiceNumberGenerator;
     }
     public async Task<GenerateInvoicesForBillingPeriodResult> Handle(GenerateInvoicesForBillingPeriodCommand request, CancellationToken cancellationToken)
     {
@@ -74,7 +78,10 @@ public sealed class GenerateInvoicesForBillingPeriodCommandHandler :
             var dueDate = lease.BillingSettings.CalculateDueDate(billingPeriod);
             var monthlyRent = lease.MonthlyRate;
 
+            var invoiceNumber = await _invoiceNumberGenerator.GenerateAsync(cancellationToken);
+
             var invoice = Invoice.Create(
+                invoiceNumber,
                 lease.LeaseId, 
                 billingPeriod, 
                 dueDate, 

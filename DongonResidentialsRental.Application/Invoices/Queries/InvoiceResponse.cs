@@ -6,7 +6,7 @@ namespace DongonResidentialsRental.Application.Invoices.Queries;
 
 public sealed record InvoiceResponse(
     Guid InvoiceId,
-    //string InvoiceNumber,
+    string InvoiceNumber,
     Guid LeaseId,
     Guid TenantId,
     string TenantName,

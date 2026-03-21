@@ -2,6 +2,7 @@
 using DongonResidentialsRental.Application.Abstractions.Messaging;
 using DongonResidentialsRental.Application.Abstractions.Persistence;
 using DongonResidentialsRental.Application.Invoices.Commands.GenerateInvoicesForBillingPeriod;
+using DongonResidentialsRental.Application.Invoices.Services;
 using DongonResidentialsRental.Domain.Invoice;
 using System.ComponentModel.DataAnnotations;
 
@@ -15,14 +16,17 @@ public sealed class GenerateMissingInvoicesCommandHandler : ICommandHandler<Gene
     private readonly IInvoiceRepository _invoiceRepository;
     private readonly ILeaseRepository _leaseRepository;
     private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly IInvoiceNumberGenerator _invoiceNumberGenerator;
     public GenerateMissingInvoicesCommandHandler(
         IInvoiceRepository invoiceRepository,
         ILeaseRepository leaseRepository,
-        IDateTimeProvider dateTimeProvider)
+        IDateTimeProvider dateTimeProvider,
+        IInvoiceNumberGenerator invoiceNumberGenerator)
     {
         _invoiceRepository = invoiceRepository;
         _leaseRepository = leaseRepository;
         _dateTimeProvider = dateTimeProvider;
+        _invoiceNumberGenerator = invoiceNumberGenerator;
     }
     public async Task<GenerateMissingInvoicesResult> Handle(GenerateMissingInvoicesCommand request, CancellationToken cancellationToken)
     {
@@ -60,7 +64,10 @@ public sealed class GenerateMissingInvoicesCommandHandler : ICommandHandler<Gene
             {
                 var dueDate = lease.BillingSettings.CalculateDueDate(billingPeriod);
 
+                var invoiceNumber = await _invoiceNumberGenerator.GenerateAsync(cancellationToken);
+
                 var invoice = Invoice.Create(
+                    invoiceNumber,
                     lease.LeaseId,
                     billingPeriod,
                     dueDate,

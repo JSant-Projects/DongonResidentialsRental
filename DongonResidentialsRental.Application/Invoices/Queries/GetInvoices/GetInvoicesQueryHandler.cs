@@ -27,6 +27,7 @@ public sealed class GetInvoicesQueryHandler : IQueryHandler<GetInvoicesQuery, Pa
             .Take(request.PageSize)
             .Select(x => new InvoiceResponse(
                 x.InvoiceId,
+                x.InvoiceNumber,
                 x.LeaseId,
                 x.TenantId,
                 x.TenantName,
@@ -60,6 +61,7 @@ public sealed class GetInvoicesQueryHandler : IQueryHandler<GetInvoicesQuery, Pa
              on lease.UnitId equals unit.UnitId
          select new InvoiceListItem(
              invoice.InvoiceId.Id,
+             invoice.InvoiceNumber,
              lease.LeaseId.Id,
              tenant.TenantId.Id,
              tenant.PersonalInfo.FirstName + " " + tenant.PersonalInfo.LastName,
@@ -101,6 +103,7 @@ public sealed class GetInvoicesQueryHandler : IQueryHandler<GetInvoicesQuery, Pa
             var pattern = $"%{searchTerm}%";
 
             query = query.Where(x =>
+                EF.Functions.Like(x.InvoiceNumber, pattern) ||
                 EF.Functions.Like(x.TenantName, pattern) ||
                 EF.Functions.Like(x.UnitNumber, pattern));
         }
@@ -110,6 +113,7 @@ public sealed class GetInvoicesQueryHandler : IQueryHandler<GetInvoicesQuery, Pa
 
     private sealed record InvoiceListItem(
         Guid InvoiceId,
+        string InvoiceNumber,
         Guid LeaseId,
         Guid TenantId,
         string TenantName,

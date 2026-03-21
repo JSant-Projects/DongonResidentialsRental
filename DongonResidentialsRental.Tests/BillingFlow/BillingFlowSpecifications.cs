@@ -177,6 +177,7 @@ public sealed class BillingFlowSpecifications
     private static DomainInvoice CreateIssuedInvoiceWithLine(string currency, decimal amount)
     {
         var invoice = DomainInvoice.Create(
+            invoiceNumber: NewInvoiceNumber(),
             leaseId: NewLeaseId(),
             BillingPeriod.Create(
                  from: Today(),
@@ -210,4 +211,5 @@ public sealed class BillingFlowSpecifications
     private static LeaseId NewLeaseId() => new(Guid.NewGuid());
     private static TenantId NewTenantId() => new(Guid.NewGuid());
     private static DateOnly Today() => new(2026, 3, 7);
+    private static string NewInvoiceNumber() => "INV-2026-000123";
 }
