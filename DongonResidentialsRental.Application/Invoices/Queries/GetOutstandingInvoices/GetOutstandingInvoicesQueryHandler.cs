@@ -16,11 +16,10 @@ public sealed class GetOutstandingInvoicesQueryHandler : IQueryHandler<GetOutsta
     }
     public async Task<PagedResult<InvoiceResponse>> Handle(GetOutstandingInvoicesQuery request, CancellationToken cancellationToken)
     {
-        var listQuery = InvoiceQueryHelper.BuildListQuery(_dbContext);
-
-        listQuery = ApplyFilters(listQuery, request);
-
-        listQuery = WithOutstandingBalance(listQuery);
+        var listQuery = InvoiceQueryBuilder
+            .BuildListQuery(_dbContext)
+            .ApplyLeaseFilter(request.LeaseId)
+            .WithOutstandingBalance();
 
         var totalCount = await listQuery.CountAsync(cancellationToken);
 
@@ -33,9 +32,8 @@ public sealed class GetOutstandingInvoicesQueryHandler : IQueryHandler<GetOutsta
                 x.InvoiceId,
                 x.InvoiceNumber,
                 x.LeaseId,
-                x.TenantId,
                 x.TenantName,
-                x.UnitId,
+                x.BuildingName,
                 x.UnitNumber,
                 x.From,
                 x.To,
@@ -51,28 +49,5 @@ public sealed class GetOutstandingInvoicesQueryHandler : IQueryHandler<GetOutsta
             totalCount,
             request.Page,
             request.PageSize);
-    }
-
-    private static IQueryable<InvoiceListItem> WithOutstandingBalance(
-       IQueryable<InvoiceListItem> query)
-    {
-        return query.Where(x => x.Balance > 0m);
-    }
-
-    private static IQueryable<InvoiceListItem> ApplyFilters(
-       IQueryable<InvoiceListItem> query,
-       GetOutstandingInvoicesQuery request)
-    {
-        if (request.LeaseId is not null)
-        {
-            query = query.Where(x => x.LeaseId == request.LeaseId.Id);
-        }
-
-        if (request.TenantId is not null)
-        {
-            query = query.Where(x => x.TenantId == request.TenantId.Id);
-        }
-
-        return query;
     }
 }

@@ -24,14 +24,15 @@ public sealed class GetInvoiceDetailsQueryHandler : IQueryHandler<GetInvoiceDeta
              on l.Occupancy equals t.TenantId
          join u in _dbContext.Units.AsNoTracking()
              on l.UnitId equals u.UnitId
+         join b in _dbContext.Buildings.AsNoTracking()
+             on u.BuildingId equals b.BuildingId
          where i.InvoiceId == request.InvoiceId
          select new InvoiceResponse(
              i.InvoiceId.Id,
              i.InvoiceNumber,
              l.LeaseId.Id,
-             t.TenantId.Id,
              t.PersonalInfo.FirstName + " " + t.PersonalInfo.LastName,
-             u.UnitId.Id,
+             b.Name,
              u.UnitNumber,
              i.BillingPeriod.From,
              i.BillingPeriod.To,
@@ -60,9 +61,8 @@ public sealed class GetInvoiceDetailsQueryHandler : IQueryHandler<GetInvoiceDeta
             invoice.InvoiceId,
             invoice.InvoiceNumber,
             invoice.LeaseId,
-            invoice.TenantId,
             invoice.TenantName,
-            invoice.UnitId,
+            invoice.BuildingName,
             invoice.UnitNumber,
             invoice.From,
             invoice.To,

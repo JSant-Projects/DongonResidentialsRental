@@ -14,9 +14,12 @@ public sealed partial class GetInvoicesQueryHandler : IQueryHandler<GetInvoicesQ
     }
     public async Task<PagedResult<InvoiceResponse>> Handle(GetInvoicesQuery request, CancellationToken cancellationToken)
     {
-        var listQuery = InvoiceQueryHelper.BuildListQuery(_dbContext);
+        var listQuery = InvoiceQueryBuilder
+            .BuildListQuery(_dbContext)
+            .ApplyLeaseFilter(request.LeaseId)
+            .ApplyBillingPeriodFilter(request.Period)
+            .ApplySearchFilter(request.SearchTerm);
 
-        listQuery = ApplyFilters(listQuery, request);
 
         var totalCount = await listQuery.CountAsync(cancellationToken);
 
@@ -29,9 +32,8 @@ public sealed partial class GetInvoicesQueryHandler : IQueryHandler<GetInvoicesQ
                 x.InvoiceId,
                 x.InvoiceNumber,
                 x.LeaseId,
-                x.TenantId,
                 x.TenantName,
-                x.UnitId,
+                x.BuildingName,
                 x.UnitNumber,
                 x.From,
                 x.To,
@@ -47,41 +49,6 @@ public sealed partial class GetInvoicesQueryHandler : IQueryHandler<GetInvoicesQ
             totalCount,
             request.Page,
             request.PageSize);
-    }
-
-    private static IQueryable<InvoiceListItem> ApplyFilters(
-        IQueryable<InvoiceListItem> query,
-        GetInvoicesQuery request)
-    {
-        if (request.LeaseId is not null)
-        {
-            query = query.Where(x => x.LeaseId == request.LeaseId.Id);
-        }
-
-        if (request.TenantId is not null)
-        {
-            query = query.Where(x => x.TenantId == request.TenantId.Id);
-        }
-
-        if (request.Period is not null)
-        {
-            query = query.Where(x =>
-                x.From <= request.Period.To &&
-                x.To >= request.Period.From);
-        }
-
-        if (!string.IsNullOrWhiteSpace(request.SearchTerm))
-        {
-            var searchTerm = request.SearchTerm.Trim();
-            var pattern = $"%{searchTerm}%";
-
-            query = query.Where(x =>
-                EF.Functions.Like(x.InvoiceNumber, pattern) ||
-                EF.Functions.Like(x.TenantName, pattern) ||
-                EF.Functions.Like(x.UnitNumber, pattern));
-        }
-
-        return query;
     }
 }
 

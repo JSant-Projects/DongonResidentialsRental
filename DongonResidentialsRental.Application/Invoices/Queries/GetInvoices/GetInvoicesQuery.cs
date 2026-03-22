@@ -12,7 +12,6 @@ namespace DongonResidentialsRental.Application.Invoices.Queries.GetInvoices;
 
 public sealed record GetInvoicesQuery(
     LeaseId? LeaseId,
-    TenantId? TenantId,
     DateRange? Period,
     string? SearchTerm,
     int Page = 1,

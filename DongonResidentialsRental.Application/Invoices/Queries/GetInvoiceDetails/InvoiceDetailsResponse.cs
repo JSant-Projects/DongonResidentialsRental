@@ -3,15 +3,14 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace DongonResidentialsRental.Application.Invoices.Queries;
+namespace DongonResidentialsRental.Application.Invoices.Queries.GetInvoiceDetails;
 
 public sealed record InvoiceDetailsResponse(
     Guid InvoiceId,
     string InvoiceNumber,
     Guid LeaseId,
-    Guid TenantId,
     string TenantName,
-    Guid UnitId,
+    string BuildingName,
     string UnitNumber,
     DateOnly From,
     DateOnly To,

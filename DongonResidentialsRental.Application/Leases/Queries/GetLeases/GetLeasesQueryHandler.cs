@@ -37,9 +37,9 @@ public sealed record GetLeasesQueryHandler : IQueryHandler<GetLeasesQuery, Paged
             .Take(request.PageSize)
             .Select(x => new LeaseResponse(
                 x.LeaseId,
-                x.TenantFullName,
-                x.UnitNumber,
                 x.BuildingName,
+                x.UnitNumber,
+                x.TenantFullName,
                 x.StartDate,
                 x.EndDate,
                 x.RentAmount,
