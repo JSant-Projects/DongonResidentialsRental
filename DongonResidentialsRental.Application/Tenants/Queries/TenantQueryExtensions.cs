@@ -42,7 +42,8 @@ public static class TenantQueryExtensions
         return query.Where(t =>
                 !leases.Any(
                     l => l.Occupancy == t.TenantId &&
+                    l.Status == LeaseStatus.Active &&
                     l.Term.StartDate <= today &&
-                    l.Term.EndDate >= today));
+                    (l.Term.EndDate == null || l.Term.EndDate >= today)));
     }
 }

@@ -5,9 +5,9 @@ using System.Text;
 
 namespace DongonResidentialsRental.Application.Buildings.Queries.GetBuildings;
 
-public sealed class GetBuildingQueryValidator : AbstractValidator<GetBuildingsQuery>
+public sealed class GetBuildingsQueryValidator : AbstractValidator<GetBuildingsQuery>
 {
-    public GetBuildingQueryValidator()
+    public GetBuildingsQueryValidator()
     {
         RuleFor(x => x.Page)
            .GreaterThan(0);

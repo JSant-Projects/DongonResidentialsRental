@@ -5,4 +5,4 @@ using System.Text;
 
 namespace DongonResidentialsRental.Application.Tenants.Queries.GetTenantsLookup;
 
-public sealed record GetTenantLookupQuery() : IQuery<IReadOnlyList<TenantLookupResponse>>;
+public sealed record GetTenantWithoutLeaseLookupQuery() : IQuery<IReadOnlyList<TenantLookupResponse>>;

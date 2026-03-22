@@ -64,8 +64,9 @@ public static class UnitQueryExtensions
         return query.Where(u =>
                 !leases.Any(
                     l => l.UnitId == u.UnitId &&
+                    l.Status == LeaseStatus.Active &&
                     l.Term.StartDate <= today &&
-                    l.Term.EndDate >= today));
+                    (l.Term.EndDate == null || l.Term.EndDate >= today)));
     }
 
     public static IQueryable<Unit> ApplyOrdering(this IQueryable<Unit> query)
