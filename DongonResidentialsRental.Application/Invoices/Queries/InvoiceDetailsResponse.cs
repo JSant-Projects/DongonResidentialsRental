@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DongonResidentialsRental.Domain.Invoice;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -15,7 +16,7 @@ public sealed record InvoiceDetailsResponse(
     DateOnly From,
     DateOnly To,
     DateOnly DueDate,
-    string Status,
+    InvoiceStatus Status,
     decimal TotalAmount,
     decimal Balance,
     string Currency,

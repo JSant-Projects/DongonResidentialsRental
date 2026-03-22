@@ -1,22 +1,26 @@
-﻿using DongonResidentialsRental.Application.Abstractions.Data;
+﻿using DongonResidentialsRental.Application.Abstractions.Clock;
+using DongonResidentialsRental.Application.Abstractions.Data;
 using DongonResidentialsRental.Application.Abstractions.Messaging;
+using DongonResidentialsRental.Application.Invoices.Queries.GetInvoices;
 using DongonResidentialsRental.Application.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace DongonResidentialsRental.Application.Invoices.Queries.GetInvoices;
+namespace DongonResidentialsRental.Application.Invoices.Queries.GetOutstandingInvoices;
 
-public sealed partial class GetInvoicesQueryHandler : IQueryHandler<GetInvoicesQuery, PagedResult<InvoiceResponse>>
+public sealed class GetOutstandingInvoicesQueryHandler : IQueryHandler<GetOutstandingInvoicesQuery, PagedResult<InvoiceResponse>>
 {
     private readonly IApplicationDBContext _dbContext;
-    public GetInvoicesQueryHandler(IApplicationDBContext dbContext)
+    public GetOutstandingInvoicesQueryHandler(IApplicationDBContext dbContext)
     {
         _dbContext = dbContext;
     }
-    public async Task<PagedResult<InvoiceResponse>> Handle(GetInvoicesQuery request, CancellationToken cancellationToken)
+    public async Task<PagedResult<InvoiceResponse>> Handle(GetOutstandingInvoicesQuery request, CancellationToken cancellationToken)
     {
         var listQuery = InvoiceQueryHelper.BuildListQuery(_dbContext);
 
         listQuery = ApplyFilters(listQuery, request);
+
+        listQuery = WithOutstandingBalance(listQuery);
 
         var totalCount = await listQuery.CountAsync(cancellationToken);
 
@@ -49,9 +53,15 @@ public sealed partial class GetInvoicesQueryHandler : IQueryHandler<GetInvoicesQ
             request.PageSize);
     }
 
+    private static IQueryable<InvoiceListItem> WithOutstandingBalance(
+       IQueryable<InvoiceListItem> query)
+    {
+        return query.Where(x => x.Balance > 0m);
+    }
+
     private static IQueryable<InvoiceListItem> ApplyFilters(
-        IQueryable<InvoiceListItem> query,
-        GetInvoicesQuery request)
+       IQueryable<InvoiceListItem> query,
+       GetOutstandingInvoicesQuery request)
     {
         if (request.LeaseId is not null)
         {
@@ -63,25 +73,6 @@ public sealed partial class GetInvoicesQueryHandler : IQueryHandler<GetInvoicesQ
             query = query.Where(x => x.TenantId == request.TenantId.Id);
         }
 
-        if (request.Period is not null)
-        {
-            query = query.Where(x =>
-                x.From <= request.Period.To &&
-                x.To >= request.Period.From);
-        }
-
-        if (!string.IsNullOrWhiteSpace(request.SearchTerm))
-        {
-            var searchTerm = request.SearchTerm.Trim();
-            var pattern = $"%{searchTerm}%";
-
-            query = query.Where(x =>
-                EF.Functions.Like(x.InvoiceNumber, pattern) ||
-                EF.Functions.Like(x.TenantName, pattern) ||
-                EF.Functions.Like(x.UnitNumber, pattern));
-        }
-
         return query;
     }
 }
-

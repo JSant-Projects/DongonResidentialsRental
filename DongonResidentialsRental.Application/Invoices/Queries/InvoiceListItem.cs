@@ -1,11 +1,8 @@
 ﻿using DongonResidentialsRental.Domain.Invoice;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace DongonResidentialsRental.Application.Invoices.Queries;
 
-public sealed record InvoiceResponse(
+public sealed record InvoiceListItem(
     Guid InvoiceId,
     string InvoiceNumber,
     Guid LeaseId,

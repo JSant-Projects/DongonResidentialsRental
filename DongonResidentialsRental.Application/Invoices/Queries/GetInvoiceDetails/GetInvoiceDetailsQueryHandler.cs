@@ -36,7 +36,7 @@ public sealed class GetInvoiceDetailsQueryHandler : IQueryHandler<GetInvoiceDeta
              i.BillingPeriod.From,
              i.BillingPeriod.To,
              i.DueDate,
-             i.Status.ToString(),
+             i.Status,
              i.Total.Amount,
              i.Balance.Amount,
              i.Total.Currency))
