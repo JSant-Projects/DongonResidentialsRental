@@ -9,6 +9,7 @@ namespace DongonResidentialsRental.Domain.Invoice;
 public sealed class Invoice: AggregateRoot
 {
     public InvoiceId InvoiceId { get; }
+    public string InvoiceNumber { get; }
     public LeaseId LeaseId { get; }
     public BillingPeriod BillingPeriod { get; }
     private readonly List<InvoiceLine> _lines = new();
@@ -39,7 +40,7 @@ public sealed class Invoice: AggregateRoot
     public InvoiceStatus Status { get; private set;  }
 
     private Invoice() { }
-    private Invoice(LeaseId leaseId, BillingPeriod billingPeriod, DateOnly dueDate, string currency)
+    private Invoice(LeaseId leaseId, BillingPeriod billingPeriod, DateOnly dueDate, string currency, string invoiceNumber)
     {
         InvoiceId = new InvoiceId(Guid.NewGuid());
         LeaseId = leaseId;
@@ -47,6 +48,7 @@ public sealed class Invoice: AggregateRoot
         DueDate = dueDate;
         Currency = currency;
         Status = InvoiceStatus.Draft;
+        InvoiceNumber = invoiceNumber;
     }
 
     private void EnsureIsDraft() 
@@ -88,8 +90,9 @@ public sealed class Invoice: AggregateRoot
         AddDomainEvent(new InvoiceIssuedDomainEvent(InvoiceId, LeaseId, issuedOn));
     }
 
-    public static Invoice Create(LeaseId leaseId, BillingPeriod billingPeriod, DateOnly dueDate, string currency)
+    public static Invoice Create(string invoiceNumber, LeaseId leaseId, BillingPeriod billingPeriod, DateOnly dueDate, string currency)
     {
+        Ensure.NotNullOrWhiteSpace(invoiceNumber);
         Ensure.NotNull(leaseId);
         Ensure.NotNull(billingPeriod);
         Ensure.NotNullOrWhiteSpace(currency);
@@ -99,7 +102,7 @@ public sealed class Invoice: AggregateRoot
         if (dueDate == default)
             throw new DomainException("Due date is required.");
 
-        var invoice = new Invoice(leaseId, billingPeriod, dueDate, currency);
+        var invoice = new Invoice(leaseId, billingPeriod, dueDate, currency, invoiceNumber);
 
         // Add domain event for invoice creation
         invoice.AddDomainEvent(new InvoiceDraftCreatedDomainEvent(invoice.InvoiceId, leaseId, billingPeriod));
@@ -110,7 +113,7 @@ public sealed class Invoice: AggregateRoot
     {
         EnsureIsDraft();
 
-        var line = InvoiceLine.Create(description, quantity, unitPrice, type);
+        var line = InvoiceLine.Create(InvoiceId, description, quantity, unitPrice, type);
 
         if (unitPrice.Currency != Currency)
             throw new DomainException("Line currency must match invoice currency.");
@@ -131,7 +134,7 @@ public sealed class Invoice: AggregateRoot
         if (_allocations.Any(a => a.PaymentId == paymentId))
             throw new DomainException("Payment has already been applied to this invoice.");
 
-        var allocation = InvoiceAllocation.Create(paymentId, amount, appliedOn);
+        var allocation = InvoiceAllocation.Create(InvoiceId, paymentId, amount, appliedOn);
 
         _allocations.Add(allocation);
 
@@ -149,7 +152,7 @@ public sealed class Invoice: AggregateRoot
             throw new DomainException("Credit amount cannot exceed invoice balance.");
 
         _creditAllocations.Add(
-            InvoiceCreditAllocation.Create(creditNoteId, amount, appliedOn));
+            InvoiceCreditAllocation.Create(InvoiceId, creditNoteId, amount, appliedOn));
 
         AddDomainEvent(new InvoiceCreditAppliedDomainEvent(InvoiceId, creditNoteId, amount, appliedOn));
     }

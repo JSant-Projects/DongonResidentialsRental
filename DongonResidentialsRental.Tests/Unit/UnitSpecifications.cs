@@ -7,7 +7,7 @@ using AwesomeAssertions;
 using DongonResidentialsRental.Domain.Unit;
 using DongonResidentialsRental.Domain.Shared;
 
-namespace DongonResidentialsRental.Tests.Unit;
+namespace DongonResidentialsRental.Tests.Domain.Unit;
 
 public class UnitSpecifications
 {
@@ -32,7 +32,7 @@ public class UnitSpecifications
         result.BuildingId.Should().Be(buildingId);
         result.UnitNumber.Should().Be(unitNumber);
         result.Floor.Should().Be(floor);
-        result.Status.Should().Be(UnitStatus.Available);
+        result.Status.Should().Be(UnitStatus.Active);
     }
 
     [Fact]
@@ -94,9 +94,9 @@ public class UnitSpecifications
         var unit = DomainUnit.Create(buildingId, "12B", 3);
         unit.PutUnderMaintenance();
         // Act
-        unit.MarkAvailable();
+        unit.Activate();
         // Assert
-        unit.Status.Should().Be(UnitStatus.Available);
+        unit.Status.Should().Be(UnitStatus.Active);
     }
 
     // ---------- SetInactive ----------

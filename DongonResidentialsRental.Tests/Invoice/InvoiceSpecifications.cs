@@ -9,7 +9,7 @@ using System;
 using Xunit;
 using DomainInvoice = DongonResidentialsRental.Domain.Invoice.Invoice;
 
-namespace DongonResidentialsRental.Domain.Tests.Invoice;
+namespace DongonResidentialsRental.Tests.Domain.Invoice;
 
 public sealed class InvoiceTests
 {
@@ -653,7 +653,7 @@ public sealed class InvoiceTests
     // -------------------------
 
     private static DomainInvoice CreateDraftInvoice(string currency = "CAD")
-        => DomainInvoice.Create(NewLeaseId(), DefaultBillingPeriod(), DueDate(), currency);
+        => DomainInvoice.Create(NewInvoiceNumber(), NewLeaseId(), DefaultBillingPeriod(), DueDate(), currency);
 
     private static DomainInvoice CreateIssuedInvoiceWithLine(string currency, decimal lineTotal)
     {
@@ -705,4 +705,6 @@ public sealed class InvoiceTests
         => invoice.ApplyCredit(creditNoteId, CreateMoney(invoice.Currency, amount), AppliedOn());
 
     private static CreditNoteId NewCreditNoteId() => new CreditNoteId(Guid.NewGuid());
+
+    private static string NewInvoiceNumber() => "INV-2026-000123";
 }

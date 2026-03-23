@@ -84,7 +84,7 @@ public sealed class Payment: AggregateRoot
         if (amount.Amount > RemainingAmount.Amount)
             throw new DomainException("Allocation amount cannot exceed remaining payment amount.");
 
-        var allocation = PaymentAllocation.Create(invoiceId, amount, appliedOn);
+        var allocation = PaymentAllocation.Create(PaymentId, invoiceId, amount, appliedOn);
 
         _allocations.Add(allocation);
 

@@ -7,7 +7,7 @@ using System.Text;
 using AwesomeAssertions;
 using DongonResidentialsRental.Domain.Shared;
 
-namespace DongonResidentialsRental.Tests.Meter;
+namespace DongonResidentialsRental.Tests.Domain.Meter;
 
 public class MeterSpecifications
 {

@@ -7,7 +7,7 @@ using DongonResidentialsRental.Domain.Unit;
 using System;
 using DongonResidentialsRental.Domain.Lease;
 
-namespace DongonResidentialsRental.Domain.Tests.Lease;
+namespace DongonResidentialsRental.Tests.Domain.Lease;
 
 public class LeaseSpecifications
 {
@@ -37,7 +37,9 @@ public class LeaseSpecifications
             AnyTenantId(),
             AnyUnitId(),
             TermStarting(start, end),
-            AnyMonthlyRate(rate)
+            AnyMonthlyRate(rate),
+            AnyBillingSettings(),
+            Responsibility(true, false)
         );
     }
 
@@ -53,7 +55,9 @@ public class LeaseSpecifications
             AnyTenantId(),
             AnyUnitId(),
             TermStarting(start, end),
-            AnyMonthlyRate(rate)
+            AnyMonthlyRate(rate),
+            AnyBillingSettings(),
+            Responsibility(true, false)
         );
 
         lease.ChangeUtilityResponsibility(responsibility);
@@ -76,9 +80,11 @@ public class LeaseSpecifications
         var start = new DateOnly(2026, 01, 01);
         var term = TermStarting(start, new DateOnly(2026, 12, 31));
         var rate = AnyMonthlyRate(1200m);
+        var billingSettings = AnyBillingSettings();
+        var responsibility = Responsibility(true, false);
 
         // Act
-        var lease = DomainLease.Create(tenantId, unitId, term, rate);
+        var lease = DomainLease.Create(tenantId, unitId, term, rate, billingSettings, responsibility);
 
         // Assert
         lease.Should().NotBeNull();
@@ -99,9 +105,11 @@ public class LeaseSpecifications
         var unitId = AnyUnitId();
         var term = TermStarting(new DateOnly(2026, 01, 01));
         var rate = AnyMonthlyRate();
+        var billingSettings = AnyBillingSettings();
+        var responsibility = Responsibility(true, false);
 
         // Act
-        Action act = () => DomainLease.Create(occupancy, unitId, term, rate);
+        Action act = () => DomainLease.Create(occupancy, unitId, term, rate, billingSettings, responsibility);
 
         // Assert
         act.Should().ThrowExactly<ArgumentException>()
@@ -116,9 +124,11 @@ public class LeaseSpecifications
         UnitId unitId = null;
         var term = TermStarting(new DateOnly(2026, 01, 01));
         var rate = AnyMonthlyRate();
+        var billingSettings = AnyBillingSettings();
+        var responsibility = Responsibility(true, false);
 
         // Act
-        Action act = () => DomainLease.Create(occupancy, unitId, term, rate);
+        Action act = () => DomainLease.Create(occupancy, unitId, term, rate, billingSettings, responsibility);
 
         // Assert
         act.Should().ThrowExactly<ArgumentException>()
@@ -133,9 +143,11 @@ public class LeaseSpecifications
         var unitId = AnyUnitId();
         LeaseTerm term = null;
         var rate = AnyMonthlyRate();
+        var billingSettings = AnyBillingSettings();
+        var responsibility = Responsibility(true, false);
 
         // Act
-        Action act = () => DomainLease.Create(occupancy, unitId, term, rate);
+        Action act = () => DomainLease.Create(occupancy, unitId, term, rate, billingSettings, responsibility);
 
         // Assert
         act.Should().ThrowExactly<ArgumentException>()
@@ -150,9 +162,11 @@ public class LeaseSpecifications
         var unitId = AnyUnitId();
         var term = TermStarting(new DateOnly(2026, 01, 01));
         Money rate = null;
+        var billingSettings = AnyBillingSettings();
+        var responsibility = Responsibility(true, false);
 
         // Act
-        Action act = () => DomainLease.Create(occupancy, unitId, term, rate);
+        Action act = () => DomainLease.Create(occupancy, unitId, term, rate, billingSettings, responsibility);
 
         // Assert
         act.Should().ThrowExactly<ArgumentException>()
@@ -167,9 +181,11 @@ public class LeaseSpecifications
         var unitId = AnyUnitId();
         var term = TermStarting(new DateOnly(2026, 01, 01));
         Money rate = AnyMonthlyRate(0m);
+        var billingSettings = AnyBillingSettings();
+        var responsibility = Responsibility(true, false);
 
         // Act
-        Action act = () => DomainLease.Create(occupancy, unitId, term, rate);
+        Action act = () => DomainLease.Create(occupancy, unitId, term, rate, billingSettings, responsibility);
 
         // Assert
         act.Should().ThrowExactly<DomainException>()
@@ -184,29 +200,11 @@ public class LeaseSpecifications
         var today = new DateOnly(2026, 01, 10);
         var lease = CreateDraftLease(start: new DateOnly(2026, 01, 01), end: new DateOnly(2026, 12, 31));
 
-        lease.ChangeUtilityResponsibility(Responsibility(tenantPaysElectricity: true, tenantPaysWater: false));
-        lease.ChangeBillingSettings(AnyBillingSettings(), today);
-
         // Act
         lease.Activate();
 
         // Assert
         lease.Status.Should().Be(LeaseStatus.Active);
-    }
-
-    [Fact]
-    public void Activate_Should_Throw_ArgumentException_When_BillingSettings_Is_Missing()
-    {
-        // Arrange
-        var lease = CreateDraftLease(start: new DateOnly(2026, 01, 01), end: new DateOnly(2026, 12, 31));
-        lease.ChangeUtilityResponsibility(Responsibility(true, false));
-
-        // Act
-        Action act = () => lease.Activate();
-
-        // Assert
-        act.Should().ThrowExactly<ArgumentException>()
-            .WithMessage("Billing settings must be set before activating the lease*");
     }
 
     // ---------- ChangeLeaseTerm ----------

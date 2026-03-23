@@ -112,7 +112,7 @@ public sealed class CreditNote: AggregateRoot
         if (amount.Amount > RemainingAmount.Amount)
             throw new DomainException("Cannot allocate more than remaining credit.");
 
-        var allocation = CreditAllocation.Create(invoiceId, amount, appliedOn);
+        var allocation = CreditAllocation.Create(CreditNoteId, invoiceId, amount, appliedOn);
 
         _allocations.Add(allocation);
 

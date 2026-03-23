@@ -9,21 +9,24 @@ namespace DongonResidentialsRental.Domain.CreditNote;
 public sealed class CreditAllocation
 {
     public CreditAllocationId CreditAllocationId { get; }
+    public CreditNoteId CreditNoteId { get; }
     public InvoiceId InvoiceId { get; }
     public Money Amount { get; }
     public DateOnly AppliedOn { get; }
 
     private CreditAllocation() { } // For EF Core
 
-    private CreditAllocation(InvoiceId invoiceId, Money amount, DateOnly appliedOn)
+    private CreditAllocation(CreditNoteId creditNoteId, InvoiceId invoiceId, Money amount, DateOnly appliedOn)
     {
         CreditAllocationId = new CreditAllocationId(Guid.NewGuid());
+        CreditNoteId = creditNoteId;
         InvoiceId = invoiceId;
         Amount = amount;
         AppliedOn = appliedOn;
     }
 
     internal static CreditAllocation Create(
+        CreditNoteId creditNoteId,
         InvoiceId invoiceId,
         Money amount,
         DateOnly appliedOn)
@@ -37,6 +40,6 @@ public sealed class CreditAllocation
         if (appliedOn == default)
             throw new DomainException("AppliedOn is required.");
 
-        return new CreditAllocation(invoiceId, amount, appliedOn);
+        return new CreditAllocation(creditNoteId, invoiceId, amount, appliedOn);
     }
 }
