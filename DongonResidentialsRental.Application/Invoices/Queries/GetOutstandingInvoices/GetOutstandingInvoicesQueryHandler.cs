@@ -1,6 +1,7 @@
 ﻿using DongonResidentialsRental.Application.Abstractions.Clock;
 using DongonResidentialsRental.Application.Abstractions.Data;
 using DongonResidentialsRental.Application.Abstractions.Messaging;
+using DongonResidentialsRental.Application.Extensions;
 using DongonResidentialsRental.Application.Invoices.Queries.GetInvoices;
 using DongonResidentialsRental.Application.Models;
 using Microsoft.EntityFrameworkCore;
@@ -26,8 +27,7 @@ public sealed class GetOutstandingInvoicesQueryHandler : IQueryHandler<GetOutsta
         var items = await listQuery
             .OrderByDescending(x => x.From)
             .ThenByDescending(x => x.DueDate)
-            .Skip((request.Page - 1) * request.PageSize)
-            .Take(request.PageSize)
+            .ApplyPaging(request.Page, request.PageSize)
             .Select(x => new InvoiceResponse(
                 x.InvoiceId,
                 x.InvoiceNumber,

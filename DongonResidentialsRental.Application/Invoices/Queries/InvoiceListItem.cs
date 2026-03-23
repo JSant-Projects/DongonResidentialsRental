@@ -15,4 +15,5 @@ public sealed record InvoiceListItem(
     InvoiceStatus Status,
     decimal TotalAmount,
     decimal Balance,
-    string Currency);
+    string Currency,
+    int GracePeriodDays);

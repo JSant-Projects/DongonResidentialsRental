@@ -1,26 +1,32 @@
-﻿using DongonResidentialsRental.Application.Abstractions.Data;
+﻿using DongonResidentialsRental.Application.Abstractions.Clock;
+using DongonResidentialsRental.Application.Abstractions.Data;
 using DongonResidentialsRental.Application.Abstractions.Messaging;
 using DongonResidentialsRental.Application.Extensions;
 using DongonResidentialsRental.Application.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace DongonResidentialsRental.Application.Invoices.Queries.GetInvoices;
+namespace DongonResidentialsRental.Application.Invoices.Queries.GetOverdueInvoices;
 
-public sealed partial class GetInvoicesQueryHandler : IQueryHandler<GetInvoicesQuery, PagedResult<InvoiceResponse>>
+public sealed class GetOverdueInvoicesQueryHandler : IQueryHandler<GetOverdueInvoicesQuery, PagedResult<InvoiceResponse>>
 {
     private readonly IApplicationDBContext _dbContext;
-    public GetInvoicesQueryHandler(IApplicationDBContext dbContext)
+    private readonly IDateTimeProvider _dateTimeProvider;
+    public GetOverdueInvoicesQueryHandler(
+        IApplicationDBContext dbContext,
+        IDateTimeProvider dateTimeProvider)
     {
         _dbContext = dbContext;
+        _dateTimeProvider = dateTimeProvider;
     }
-    public async Task<PagedResult<InvoiceResponse>> Handle(GetInvoicesQuery request, CancellationToken cancellationToken)
+    public async Task<PagedResult<InvoiceResponse>> Handle(GetOverdueInvoicesQuery request, CancellationToken cancellationToken)
     {
-        var listQuery = InvoiceQueryBuilder
-            .BuildListQuery(_dbContext)
-            .ApplyLeaseFilter(request.LeaseId)
-            .ApplyBillingPeriodFilter(request.Period)
-            .ApplySearchFilter(request.SearchTerm);
+        var today = DateOnly.FromDateTime(_dateTimeProvider.Today);
 
+        var listQuery = InvoiceQueryBuilder
+           .BuildListQuery(_dbContext)
+           .ApplyLeaseFilter(request.LeaseId)
+           .WithOutstandingBalance()
+           .WhereOverdue(today);
 
         var totalCount = await listQuery.CountAsync(cancellationToken);
 
@@ -51,4 +57,3 @@ public sealed partial class GetInvoicesQueryHandler : IQueryHandler<GetInvoicesQ
             request.PageSize);
     }
 }
-

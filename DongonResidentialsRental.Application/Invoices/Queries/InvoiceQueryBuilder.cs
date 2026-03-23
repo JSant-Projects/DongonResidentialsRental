@@ -36,7 +36,8 @@ public static class InvoiceQueryBuilder
              invoice.Status,
              invoice.Total.Amount,
              invoice.Balance.Amount,
-             invoice.Total.Currency);
+             invoice.Total.Currency,
+             lease.BillingSettings.GracePeriodDays);
     }
 
     public static IQueryable<InvoiceListItem> ApplyLeaseFilter(
@@ -53,6 +54,13 @@ public static class InvoiceQueryBuilder
       this IQueryable<InvoiceListItem> query)
     {
         return query.Where(x => x.Balance > 0m);
+    }
+
+    public static IQueryable<InvoiceListItem> WhereOverdue(
+      this IQueryable<InvoiceListItem> query, DateOnly today)
+    {
+        return query.Where(x => 
+                x.DueDate.AddDays(x.GracePeriodDays) < today);
     }
 
     public static IQueryable<InvoiceListItem> ApplyBillingPeriodFilter(
@@ -82,4 +90,6 @@ public static class InvoiceQueryBuilder
             EF.Functions.Like(x.TenantName, pattern) ||
             EF.Functions.Like(x.UnitNumber, pattern));
     }
+
+
 }
