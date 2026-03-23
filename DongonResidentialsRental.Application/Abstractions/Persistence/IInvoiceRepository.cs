@@ -7,7 +7,7 @@ namespace DongonResidentialsRental.Application.Abstractions.Persistence;
 public interface IInvoiceRepository
 {
     void Add(Invoice invoice);
-    Task<Unit?> GetByIdAsync(InvoiceId invoiceId, CancellationToken cancellationToken = default);
+    Task<Invoice?> GetByIdAsync(InvoiceId invoiceId, CancellationToken cancellationToken = default);
     Task<bool> ExistsIssuedAsync(
         LeaseId leaseId,
         BillingPeriod billingPeriod,
