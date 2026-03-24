@@ -44,6 +44,8 @@ public sealed class ApplyToInvoiceCommandHandler : ICommandHandler<ApplyToInvoic
 
         payment.ApplyToInvoice(invoice.InvoiceId, amount, today);
 
+        invoice.ApplyPayment(payment.PaymentId, amount, today);
+
         return Unit.Value;
 
     }
