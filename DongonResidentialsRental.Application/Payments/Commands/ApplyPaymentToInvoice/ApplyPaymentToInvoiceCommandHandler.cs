@@ -6,14 +6,14 @@ using DongonResidentialsRental.Domain.Invoice;
 using DongonResidentialsRental.Domain.Payment;
 using DongonResidentialsRental.Domain.Shared;
 
-namespace DongonResidentialsRental.Application.Payments.Commands.ApplyToInvoice;
+namespace DongonResidentialsRental.Application.Payments.Commands.ApplyPaymentToInvoice;
 
-public sealed class ApplyToInvoiceCommandHandler : ICommandHandler<ApplyToInvoiceCommand, Unit>
+public sealed class ApplyPaymentToInvoiceCommandHandler : ICommandHandler<ApplyPaymentToInvoiceCommand, Unit>
 {
     private readonly IPaymentRepository _paymentRepository;
     private readonly IInvoiceRepository _invoiceRepository;
     private readonly IDateTimeProvider _dateTimeProvider;
-    public ApplyToInvoiceCommandHandler(
+    public ApplyPaymentToInvoiceCommandHandler(
         IPaymentRepository paymentRepository,
         IInvoiceRepository invoiceRepository,
         IDateTimeProvider dateTimeProvider)
@@ -22,7 +22,7 @@ public sealed class ApplyToInvoiceCommandHandler : ICommandHandler<ApplyToInvoic
         _invoiceRepository = invoiceRepository;
         _dateTimeProvider = dateTimeProvider;   
     }
-    public async Task<Unit> Handle(ApplyToInvoiceCommand request, CancellationToken cancellationToken)
+    public async Task<Unit> Handle(ApplyPaymentToInvoiceCommand request, CancellationToken cancellationToken)
     {
         var today = DateOnly.FromDateTime(_dateTimeProvider.Today);
 
@@ -43,7 +43,6 @@ public sealed class ApplyToInvoiceCommandHandler : ICommandHandler<ApplyToInvoic
         var amount = Money.Create(payment.Amount.Currency, request.Amount);
 
         payment.ApplyToInvoice(invoice.InvoiceId, amount, today);
-
         invoice.ApplyPayment(payment.PaymentId, amount, today);
 
         return Unit.Value;

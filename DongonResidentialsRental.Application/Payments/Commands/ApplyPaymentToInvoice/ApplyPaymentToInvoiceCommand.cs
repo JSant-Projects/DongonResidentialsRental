@@ -5,10 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace DongonResidentialsRental.Application.Payments.Commands.ApplyToInvoice;
+namespace DongonResidentialsRental.Application.Payments.Commands.ApplyPaymentToInvoice;
 
-public sealed record ApplyToInvoiceCommand(
+public sealed record ApplyPaymentToInvoiceCommand(
     PaymentId PaymentId,
     InvoiceId InvoiceId,
-    decimal Amount,
-    string Currency) : ICommand<Unit>;
+    decimal Amount) : ICommand<Unit>;
