@@ -13,7 +13,7 @@ public static class InvoiceMappings
             invoiceLine.Description,
             invoiceLine.Quantity,
             invoiceLine.UnitPrice.Amount,
-            invoiceLine.Type.ToString());
+            invoiceLine.Type);
 
     public static Expression<Func<InvoiceAllocation, InvoicePaymentResponse>> ToInvoicePaymentResponse()
         => invoiceAllocation => new InvoicePaymentResponse(
