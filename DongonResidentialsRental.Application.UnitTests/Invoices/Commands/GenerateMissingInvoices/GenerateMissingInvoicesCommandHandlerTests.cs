@@ -11,7 +11,7 @@ using DongonResidentialsRental.Domain.Unit;
 using NSubstitute;
 using Xunit;
 
-namespace Application.UnitTests.Invoices.Commands.GenerateMissingInvoices;
+namespace DongonResidentialsRental.Application.UnitTests.Invoices.Commands.GenerateMissingInvoices;
 
 public sealed class GenerateMissingInvoicesCommandHandlerTests
 {

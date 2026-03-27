@@ -12,7 +12,7 @@ using DongonResidentialsRental.Domain.Unit;
 using NSubstitute;
 using Xunit;
 
-namespace Application.UnitTests.Invoices.Commands.GenerateInvoicesForBillingPeriod;
+namespace DongonResidentialsRental.Application.UnitTests.Invoices.Commands.GenerateInvoicesForBillingPeriod;
 
 public sealed class GenerateInvoicesForBillingPeriodCommandHandlerTests
 {

@@ -8,8 +8,9 @@ using DongonResidentialsRental.Domain.Tenant;
 using System;
 using DomainPayment = DongonResidentialsRental.Domain.Payment.Payment;
 using DomainInvoice = DongonResidentialsRental.Domain.Invoice.Invoice;
+using DomainCreditNote = DongonResidentialsRental.Domain.CreditNote.CreditNote;
 
-namespace DongonResidentialsRental.Tests.Domain.BillingFlow;
+namespace DongonResidentialsRental.Domain.UnitTests.BillingFlow;
 
 public sealed class BillingFlowSpecifications
 {
@@ -201,9 +202,9 @@ public sealed class BillingFlowSpecifications
             method: PaymentMethod.Cash);
     }
 
-    private static CreditNote CreateIssuedCreditNote(LeaseId leaseId, string currency, decimal amount)
+    private static DomainCreditNote CreateIssuedCreditNote(LeaseId leaseId, string currency, decimal amount)
     {
-        var creditNote = CreditNote.Create(leaseId, Money.Create(currency, amount));
+        var creditNote = DomainCreditNote.Create(leaseId, Money.Create(currency, amount));
         creditNote.Issue(Today());
         return creditNote;
     }

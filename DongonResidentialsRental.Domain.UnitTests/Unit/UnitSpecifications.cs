@@ -7,7 +7,7 @@ using AwesomeAssertions;
 using DongonResidentialsRental.Domain.Unit;
 using DongonResidentialsRental.Domain.Shared;
 
-namespace DongonResidentialsRental.Tests.Domain.Unit;
+namespace DongonResidentialsRental.Domain.UnitTests.Unit;
 
 public class UnitSpecifications
 {

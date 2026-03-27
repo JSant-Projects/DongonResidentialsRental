@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace DongonResidentialsRental.Application.Payments.Queries.GetPaymentDetailsQuery;
+namespace DongonResidentialsRental.Application.Payments.Queries.GetPaymentDetails;
 
 public sealed record PaymentAllocationResponse(
     string InvoiceNumber,

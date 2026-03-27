@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Text;
 using DongonResidentialsRental.Domain.Payment.Events;
 
-namespace DongonResidentialsRental.Tests.Domain.Payment;
+namespace DongonResidentialsRental.Domain.UnitTests.Payment;
 
 public class PaymentSpecifications
 {

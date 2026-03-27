@@ -4,8 +4,9 @@ using DongonResidentialsRental.Domain.CreditNote.Events;
 using DongonResidentialsRental.Domain.Invoice;
 using DongonResidentialsRental.Domain.Lease;
 using DongonResidentialsRental.Domain.Shared;
+using DomainCreditNote = DongonResidentialsRental.Domain.CreditNote.CreditNote;
 
-namespace DongonResidentialsRental.Tests.Domain.CreditNotes;
+namespace DongonResidentialsRental.Domain.UnitTests.CreditNote;
 
 public sealed class CreditNoteSpecifications
 {
@@ -19,7 +20,7 @@ public sealed class CreditNoteSpecifications
         var amount = Money.Create("CAD", 100m);
 
         // Act
-        var creditNote = CreditNote.Create(leaseId, amount);
+        var creditNote = DomainCreditNote.Create(leaseId, amount);
 
         // Assert
         creditNote.CreditNoteId.Should().NotBeNull();
@@ -40,7 +41,7 @@ public sealed class CreditNoteSpecifications
         var amount = Money.Create("CAD", 0m);
 
         // Act
-        Action act = () => CreditNote.Create(leaseId, amount);
+        Action act = () => DomainCreditNote.Create(leaseId, amount);
 
         // Assert
         act.Should().ThrowExactly<DomainException>()
@@ -55,7 +56,7 @@ public sealed class CreditNoteSpecifications
         var amount = Money.Create("CAD", 10m);
 
         // Act
-        Action act = () => CreditNote.Create(leaseId, amount.Negate());
+        Action act = () => DomainCreditNote.Create(leaseId, amount.Negate());
 
         // Assert
         act.Should().ThrowExactly<DomainException>()
@@ -404,12 +405,12 @@ public sealed class CreditNoteSpecifications
 
     // ---------- Helpers ----------
 
-    private static CreditNote CreateDraftCreditNote(string currency, decimal amount)
+    private static DomainCreditNote CreateDraftCreditNote(string currency, decimal amount)
     {
-        return CreditNote.Create(NewLeaseId(), Money.Create(currency, amount));
+        return DomainCreditNote.Create(NewLeaseId(), Money.Create(currency, amount));
     }
 
-    private static CreditNote CreateIssuedCreditNote(string currency, decimal amount)
+    private static DomainCreditNote CreateIssuedCreditNote(string currency, decimal amount)
     {
         var creditNote = CreateDraftCreditNote(currency, amount);
         creditNote.Issue(Today());

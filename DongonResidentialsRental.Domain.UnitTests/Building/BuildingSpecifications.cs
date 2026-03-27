@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace DongonResidentialsRental.Tests.Domain.Building;
+namespace DongonResidentialsRental.Domain.UnitTests.Building;
 
 public class BuildingSpecifications
 {

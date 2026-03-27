@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace DongonResidentialsRental.Tests.Domain.Shared;
+namespace DongonResidentialsRental.Domain.UnitTests.Shared;
 
 public class ContactInfoSpecifications
 {

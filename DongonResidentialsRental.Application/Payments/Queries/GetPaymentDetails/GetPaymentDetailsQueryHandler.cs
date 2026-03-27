@@ -4,7 +4,7 @@ using DongonResidentialsRental.Application.Exceptions;
 using DongonResidentialsRental.Domain.Payment;
 using Microsoft.EntityFrameworkCore;
 
-namespace DongonResidentialsRental.Application.Payments.Queries.GetPaymentDetailsQuery;
+namespace DongonResidentialsRental.Application.Payments.Queries.GetPaymentDetails;
 
 public sealed class GetPaymentDetailsQueryHandler : IQueryHandler<GetPaymentDetailsQuery, PaymentDetailsResponse>
 {

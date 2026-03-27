@@ -7,7 +7,7 @@ using System.Text;
 using AwesomeAssertions;
 using DongonResidentialsRental.Domain.Tenant;
 
-namespace DongonResidentialsRental.Tests.Domain.Tenant;
+namespace DongonResidentialsRental.Domain.UnitTests.Tenant;
 
 public class TenantSpecifications
 {
