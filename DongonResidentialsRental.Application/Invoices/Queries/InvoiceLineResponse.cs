@@ -9,4 +9,4 @@ public sealed record InvoiceLineResponse(
     string Description,
     int Quantity,
     decimal Price,
-    string Type);
+    InvoiceLineType Type);

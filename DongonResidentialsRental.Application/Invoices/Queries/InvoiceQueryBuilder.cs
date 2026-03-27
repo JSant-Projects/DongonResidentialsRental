@@ -5,6 +5,7 @@ using DongonResidentialsRental.Domain.Tenant;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Formats.Tar;
 using System.Text;
 
 namespace DongonResidentialsRental.Application.Invoices.Queries;
@@ -57,10 +58,19 @@ public static class InvoiceQueryBuilder
     }
 
     public static IQueryable<InvoiceListItem> WhereOverdue(
-      this IQueryable<InvoiceListItem> query, DateOnly today)
+      this IQueryable<InvoiceListItem> query, 
+      DateOnly today)
     {
         return query.Where(x => 
                 x.DueDate.AddDays(x.GracePeriodDays) < today);
+    }
+
+    public static IQueryable<InvoiceListItem> WhereDueSoon(
+      this IQueryable<InvoiceListItem> query,
+      DateOnly today,
+      int days)
+    {
+        return query.Where(x => x.DueDate == today.AddDays(days));
     }
 
     public static IQueryable<InvoiceListItem> ApplyBillingPeriodFilter(

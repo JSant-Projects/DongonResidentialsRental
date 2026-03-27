@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <Folder Include="Behaviors\" />
+    <Folder Include="CreditNotes\Queries\" />
   </ItemGroup>
 
   <ItemGroup>
