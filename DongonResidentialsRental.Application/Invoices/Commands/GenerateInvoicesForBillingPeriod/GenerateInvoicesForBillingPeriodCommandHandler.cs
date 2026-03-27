@@ -91,6 +91,7 @@ public sealed class GenerateInvoicesForBillingPeriodCommandHandler :
             invoice.AddLine(RENT_LINE_DESCRIPTION, DEFAULT_RENT_QUANTITY, monthlyRent, InvoiceLineType.Rent);
 
             _invoiceRepository.Add(invoice);
+            totalCreated++;
         }
 
         return new GenerateInvoicesForBillingPeriodResult(

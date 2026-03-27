@@ -15,7 +15,6 @@ public sealed class GenerateMissingInvoicesCommandHandler : ICommandHandler<Gene
 
     private readonly IInvoiceRepository _invoiceRepository;
     private readonly ILeaseRepository _leaseRepository;
-    private readonly IDateTimeProvider _dateTimeProvider;
     private readonly IInvoiceNumberGenerator _invoiceNumberGenerator;
     public GenerateMissingInvoicesCommandHandler(
         IInvoiceRepository invoiceRepository,
@@ -25,7 +24,6 @@ public sealed class GenerateMissingInvoicesCommandHandler : ICommandHandler<Gene
     {
         _invoiceRepository = invoiceRepository;
         _leaseRepository = leaseRepository;
-        _dateTimeProvider = dateTimeProvider;
         _invoiceNumberGenerator = invoiceNumberGenerator;
     }
     public async Task<GenerateMissingInvoicesResult> Handle(GenerateMissingInvoicesCommand request, CancellationToken cancellationToken)
