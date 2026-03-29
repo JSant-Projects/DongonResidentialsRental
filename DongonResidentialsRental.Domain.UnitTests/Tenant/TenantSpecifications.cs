@@ -45,6 +45,32 @@ public class TenantSpecifications
     }
 
     [Fact]
+    public void ChangeName_Should_Change_Tenant_PersonalInfo_When_PersonalInfo_Is_Valid()
+    {
+        var personalInfo = CreatePersonalInfo("John", "Doe");
+        var contactInfo = CreateContactInfo("John.Doe@sample.com", "09171234567");
+        var tenant = CreateTenant(personalInfo, contactInfo);
+        var newPersonalInfo = CreatePersonalInfo("Jane", "Joe");
+        tenant.ChangeName(newPersonalInfo);
+
+        tenant.PersonalInfo.FirstName.Should().Be("Jane");
+        tenant.PersonalInfo.LastName.Should().Be("Joe");
+    }
+
+    [Fact]
+    public void ChangeContactInfo_Should_Change_Tenant_ContactInfo_When_ContactInfo_Is_Valid()
+    {
+        var personalInfo = CreatePersonalInfo("John", "Doe");
+        var contactInfo = CreateContactInfo("John.Doe@sample.com", "09171234567");
+        var tenant = CreateTenant(personalInfo, contactInfo);
+        var newContactInfo = CreateContactInfo("John.Doe@newsample.com", "09171234568");
+        tenant.ChangeContactInfo(newContactInfo);
+
+        tenant.ContactInfo.Email.Value.Should().Be("John.Doe@newsample.com");
+        tenant.ContactInfo.PhoneNumber.Value.Should().Be("09171234568");
+    }
+
+    [Fact]
     public void Create_Should_Throw_ArgumentException_When_PersonalInfo_Is_Null()
     {
         // Arrange
