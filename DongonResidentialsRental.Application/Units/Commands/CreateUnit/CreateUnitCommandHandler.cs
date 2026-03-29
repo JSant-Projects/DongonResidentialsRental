@@ -22,9 +22,19 @@ public class CreateUnitCommandHandler : ICommandHandler<CreateUnitCommand, UnitI
     {
         bool buildingExists = await _buildingRepository.ExistsAsync(request.BuildingId, cancellationToken);
 
-        if (buildingExists) 
+        if (!buildingExists) 
         {
             throw new NotFoundException(nameof(Building), request.BuildingId.Id);
+        }
+
+        bool unitExists = await _unitRepository.ExistsUnitNumberInBuildingAsync(
+                                request.BuildingId, 
+                                request.UnitNumber, 
+                                cancellationToken);
+
+        if (unitExists)
+        {
+            throw new ConflictException($"A unit with the number {request.UnitNumber} already exists in the building.");
         }
 
         var unit = DomainUnit.Create(request.BuildingId, request.UnitNumber, request.Floor);

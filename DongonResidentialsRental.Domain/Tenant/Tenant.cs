@@ -20,6 +20,18 @@ public sealed class Tenant
         ContactInfo = contactInfo;
     }
 
+    public void ChangeName(PersonalInfo personalInfo)
+    {
+        Ensure.NotNull(personalInfo, "Personal info cannot be null");
+        PersonalInfo = personalInfo;
+    }
+
+    public void ChangeContactInfo(ContactInfo contactInfo)
+    {
+        Ensure.NotNull(contactInfo, "Contact info cannot be null");
+        ContactInfo = contactInfo;
+    }
+
     public static Tenant Create(PersonalInfo personalInfo, ContactInfo contactInfo)
     {
         Ensure.NotNull(personalInfo, "Personal info cannot be null");

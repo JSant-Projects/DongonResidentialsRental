@@ -36,6 +36,18 @@ public sealed class CreateInvoiceCommandHandler : ICommandHandler<CreateInvoiceC
 
 
         var billingPeriod = BillingPeriod.Create(request.From, request.To);
+
+        // Check if issued invoice for the lease and current billing period exists
+        var issuedInvoiceExists = await _invoiceRepository.ExistsIssuedAsync(
+                                            lease.LeaseId,
+                                            billingPeriod,
+                                            cancellationToken);
+
+        if (issuedInvoiceExists)
+        {
+            throw new InvalidOperationException($"Lease {lease.LeaseId} already have an issued invoice for the current billing period.");
+        }
+
         var dueDate = lease.BillingSettings.CalculateDueDate(billingPeriod);
         var monthlyRent = lease.MonthlyRate;
 
