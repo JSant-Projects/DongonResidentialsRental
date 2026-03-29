@@ -11,5 +11,9 @@ public interface IUnitRepository
 {
     void Add(Unit unit);
     Task<Unit?> GetByIdAsync(UnitId unitId, CancellationToken cancellationToken = default);
+    Task<bool> ExistsUnitNumberInBuildingAsync(
+        BuildingId buildingId,
+        string unitNumber,
+        CancellationToken cancellationToken = default);
     void Remove(Unit unit);
 }

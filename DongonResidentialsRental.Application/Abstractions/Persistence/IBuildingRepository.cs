@@ -7,6 +7,6 @@ public interface IBuildingRepository
 {
     void Add(Building building);
     Task<BuildingId?> GetByIdAsync(BuildingId building, CancellationToken cancellationToken = default);
-    Task<bool> ExistsAsync(BuildingId buildingId, CancellationToken cancellationToken);
+    Task<bool> ExistsAsync(BuildingId buildingId, CancellationToken cancellationToken = default);
     void Remove(Building building);
 }

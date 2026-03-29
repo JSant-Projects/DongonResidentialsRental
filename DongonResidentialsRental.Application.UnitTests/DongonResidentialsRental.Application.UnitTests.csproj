@@ -26,7 +26,6 @@
 
   <ItemGroup>
     <Folder Include="Buildings\" />
-    <Folder Include="Units\" />
   </ItemGroup>
 
 </Project>
