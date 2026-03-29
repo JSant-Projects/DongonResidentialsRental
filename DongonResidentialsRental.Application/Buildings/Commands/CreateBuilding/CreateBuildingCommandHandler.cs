@@ -1,5 +1,6 @@
 ﻿using DongonResidentialsRental.Application.Abstractions.Messaging;
 using DongonResidentialsRental.Application.Abstractions.Persistence;
+using DongonResidentialsRental.Application.Exceptions;
 using DongonResidentialsRental.Domain.Building;
 using DongonResidentialsRental.Domain.Shared;
 
@@ -12,7 +13,7 @@ public sealed class CreateBuildingCommandHandler : ICommandHandler<CreateBuildin
     {
         _buildingRepository = buildingRepository;
     }
-    public Task<BuildingId> Handle(CreateBuildingCommand request, CancellationToken cancellationToken)
+    public async Task<BuildingId> Handle(CreateBuildingCommand request, CancellationToken cancellationToken)
     {
         var address = Address.Create(
                             request.AddressStreet,
@@ -20,10 +21,19 @@ public sealed class CreateBuildingCommandHandler : ICommandHandler<CreateBuildin
                             request.AddressProvince,
                             request.AddressPostalCode);
 
+        bool isBuildingNameExists = await _buildingRepository.ExistsByNameAsync(
+                                            request.Name,
+                                            cancellationToken);
+
+        if (isBuildingNameExists)
+        {
+            throw new ConflictException($"A building with the name {request.Name} already exists.");
+        }
+
         var building = Building.Create(request.Name, address);
 
         _buildingRepository.Add(building);
 
-        return Task.FromResult(building.BuildingId);
+        return building.BuildingId;
     }
 }
