@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace DongonResidentialsRental.Application.Abstractions.Events;
+namespace DongonResidentialsRental.Application.Abstractions.Messaging;
 
 
 public interface IDomainEventHandler<in TDomainEvent>

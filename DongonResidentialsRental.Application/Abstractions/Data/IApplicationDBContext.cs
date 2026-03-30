@@ -3,6 +3,7 @@ using DongonResidentialsRental.Domain.CreditNote;
 using DongonResidentialsRental.Domain.Invoice;
 using DongonResidentialsRental.Domain.Lease;
 using DongonResidentialsRental.Domain.Payment;
+using DongonResidentialsRental.Domain.Shared;
 using DongonResidentialsRental.Domain.Tenant;
 using DongonResidentialsRental.Domain.Unit;
 using Microsoft.EntityFrameworkCore;
@@ -28,4 +29,6 @@ public interface IApplicationDbContext
     DbSet<CreditAllocation> CreditAllocations { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+    IReadOnlyCollection<IDomainEvent> GetDomainEvents();
+    void ClearDomainEvents();
 }
