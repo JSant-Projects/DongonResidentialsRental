@@ -8,8 +8,8 @@ namespace DongonResidentialsRental.Application.Payments.Queries.GetPaymentDetail
 
 public sealed class GetPaymentDetailsQueryHandler : IQueryHandler<GetPaymentDetailsQuery, PaymentDetailsResponse>
 {
-    private readonly IApplicationDBContext _dbContext;
-    public GetPaymentDetailsQueryHandler(IApplicationDBContext dbContext)
+    private readonly IApplicationDbContext _dbContext;
+    public GetPaymentDetailsQueryHandler(IApplicationDbContext dbContext)
     {
         _dbContext = dbContext;
     }

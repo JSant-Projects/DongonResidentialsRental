@@ -8,8 +8,8 @@ namespace DongonResidentialsRental.Application.Invoices.Queries.GetInvoices;
 
 public sealed partial class GetInvoicesQueryHandler : IQueryHandler<GetInvoicesQuery, PagedResult<InvoiceResponse>>
 {
-    private readonly IApplicationDBContext _dbContext;
-    public GetInvoicesQueryHandler(IApplicationDBContext dbContext)
+    private readonly IApplicationDbContext _dbContext;
+    public GetInvoicesQueryHandler(IApplicationDbContext dbContext)
     {
         _dbContext = dbContext;
     }

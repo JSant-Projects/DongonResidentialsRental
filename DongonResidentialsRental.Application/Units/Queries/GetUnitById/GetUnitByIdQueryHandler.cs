@@ -9,8 +9,8 @@ namespace DongonResidentialsRental.Application.Units.Queries.GetUnitById;
 
 public sealed class GetUnitByIdQueryHandler : IQueryHandler<GetUnitByIdQuery, UnitResponse>
 {
-    private readonly IApplicationDBContext _dbContenxt;
-    public GetUnitByIdQueryHandler(IApplicationDBContext dbContext)
+    private readonly IApplicationDbContext _dbContenxt;
+    public GetUnitByIdQueryHandler(IApplicationDbContext dbContext)
     {
         _dbContenxt = dbContext;
     }

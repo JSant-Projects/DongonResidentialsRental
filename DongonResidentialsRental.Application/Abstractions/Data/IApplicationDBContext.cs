@@ -12,7 +12,7 @@ using System.Text;
 
 namespace DongonResidentialsRental.Application.Abstractions.Data;
 
-public interface IApplicationDBContext
+public interface IApplicationDbContext
 {
     DbSet<Building> Buildings { get; }
     DbSet<Unit> Units { get; }

@@ -12,7 +12,7 @@ namespace DongonResidentialsRental.Application.Invoices.Queries;
 
 public static class InvoiceQueryBuilder
 {
-    public static IQueryable<InvoiceListItem> BuildListQuery(IApplicationDBContext dbContext)
+    public static IQueryable<InvoiceListItem> BuildListQuery(IApplicationDbContext dbContext)
     {
         return
          from invoice in dbContext.Invoices.AsNoTracking()

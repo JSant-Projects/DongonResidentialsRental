@@ -8,11 +8,11 @@ namespace DongonResidentialsRental.Application.Tenants.Queries.GetTenantsLookup;
 
 public sealed class GetTenantWithoutLeaseLookupQueryHandler : IQueryHandler<GetTenantWithoutLeaseLookupQuery, IReadOnlyList<TenantLookupResponse>>
 {
-    private readonly IApplicationDBContext _dbContext;
+    private readonly IApplicationDbContext _dbContext;
     private readonly IDateTimeProvider _dateTimeProvider;
     public GetTenantWithoutLeaseLookupQueryHandler(
         IDateTimeProvider dateTimeProvider,
-        IApplicationDBContext dbContext)
+        IApplicationDbContext dbContext)
     {
         _dateTimeProvider = dateTimeProvider;
         _dbContext = dbContext;

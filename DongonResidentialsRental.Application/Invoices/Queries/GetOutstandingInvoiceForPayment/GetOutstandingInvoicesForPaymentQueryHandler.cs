@@ -7,8 +7,8 @@ namespace DongonResidentialsRental.Application.Invoices.Queries.GetOutstandingIn
 public sealed class GetOutstandingInvoicesForPaymentQueryHandler :
     IQueryHandler<GetOutstandingInvoicesForPaymentQuery, IReadOnlyList<OutstandingInvoicesForPaymentResponse>>
 {
-    private readonly IApplicationDBContext _dbContext;
-    public GetOutstandingInvoicesForPaymentQueryHandler(IApplicationDBContext dbContext)
+    private readonly IApplicationDbContext _dbContext;
+    public GetOutstandingInvoicesForPaymentQueryHandler(IApplicationDbContext dbContext)
     {
         _dbContext = dbContext;
     }

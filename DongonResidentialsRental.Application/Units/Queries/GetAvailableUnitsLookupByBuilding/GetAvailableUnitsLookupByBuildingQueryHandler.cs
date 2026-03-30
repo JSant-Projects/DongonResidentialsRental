@@ -11,10 +11,10 @@ namespace DongonResidentialsRental.Application.Units.Queries.GetAvailableUnitsLo
 
 public sealed class GetAvailableUnitsLookupByBuildingQueryHandler : IQueryHandler<GetAvailableUnitsLookupByBuildingQuery, IReadOnlyList<UnitLookupResponse>>
 {
-    private readonly IApplicationDBContext _dbContext;
+    private readonly IApplicationDbContext _dbContext;
     private readonly IDateTimeProvider _dateTimeProvider;    
     public GetAvailableUnitsLookupByBuildingQueryHandler(
-        IApplicationDBContext dbContext,
+        IApplicationDbContext dbContext,
         IDateTimeProvider dateTimeProvider)
     {
         _dbContext = dbContext;

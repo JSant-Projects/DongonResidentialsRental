@@ -9,10 +9,10 @@ namespace DongonResidentialsRental.Application.Invoices.Queries.GetInvoicesDueSo
 
 public sealed class GetInvoicesDueSoonQueryHandler : IQueryHandler<GetInvoicesDueSoonQuery, PagedResult<InvoiceResponse>>
 {
-    private readonly IApplicationDBContext _dbContext;
+    private readonly IApplicationDbContext _dbContext;
     private readonly IDateTimeProvider _dateTimeProvider;
     public GetInvoicesDueSoonQueryHandler(
-        IApplicationDBContext dbContext,
+        IApplicationDbContext dbContext,
         IDateTimeProvider dateTimeProvider)
     {
         _dbContext = dbContext;

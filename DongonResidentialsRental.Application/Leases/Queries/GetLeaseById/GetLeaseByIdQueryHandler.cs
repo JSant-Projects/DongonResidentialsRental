@@ -9,10 +9,10 @@ namespace DongonResidentialsRental.Application.Leases.Queries.GetLeaseById;
 
 public sealed class GetLeaseByIdQueryHandler : IQueryHandler<GetLeaseByIdQuery, LeaseResponse>
 {
-    private readonly IApplicationDBContext _dbContext;
+    private readonly IApplicationDbContext _dbContext;
     private readonly IDateTimeProvider _dateTimeProvider;
     public GetLeaseByIdQueryHandler(
-        IApplicationDBContext dbContext,
+        IApplicationDbContext dbContext,
         IDateTimeProvider dateTimeProvider)
     {
         _dbContext = dbContext; 

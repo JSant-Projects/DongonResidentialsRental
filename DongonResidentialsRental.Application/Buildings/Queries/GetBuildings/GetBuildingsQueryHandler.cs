@@ -11,8 +11,8 @@ namespace DongonResidentialsRental.Application.Buildings.Queries.GetBuildings;
 
 public sealed class GetBuildingsQueryHandler : IQueryHandler<GetBuildingsQuery, PagedResult<BuildingResponse>>
 {
-    private readonly IApplicationDBContext _dbContext;
-    public GetBuildingsQueryHandler(IApplicationDBContext dbContext)
+    private readonly IApplicationDbContext _dbContext;
+    public GetBuildingsQueryHandler(IApplicationDbContext dbContext)
     {
         _dbContext = dbContext;
     }

@@ -17,12 +17,12 @@ public sealed class GenerateInvoicesForBillingPeriodCommandHandler :
 
     private readonly IInvoiceRepository _invoiceRepository;
     private readonly ILeaseRepository _leaseRepository;
-    private readonly IApplicationDBContext _dbContext;
+    private readonly IApplicationDbContext _dbContext;
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly IInvoiceNumberGenerator _invoiceNumberGenerator;
     public GenerateInvoicesForBillingPeriodCommandHandler(
         IInvoiceRepository invoiceRepository,
-        IApplicationDBContext dbContext,
+        IApplicationDbContext dbContext,
         IDateTimeProvider dateTimeProvider,
         ILeaseRepository leaseRepository,
         IInvoiceNumberGenerator invoiceNumberGenerator)

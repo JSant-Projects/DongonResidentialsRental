@@ -9,10 +9,10 @@ namespace DongonResidentialsRental.Application.Invoices.Queries.GetOverdueInvoic
 
 public sealed class GetOverdueInvoicesQueryHandler : IQueryHandler<GetOverdueInvoicesQuery, PagedResult<InvoiceResponse>>
 {
-    private readonly IApplicationDBContext _dbContext;
+    private readonly IApplicationDbContext _dbContext;
     private readonly IDateTimeProvider _dateTimeProvider;
     public GetOverdueInvoicesQueryHandler(
-        IApplicationDBContext dbContext,
+        IApplicationDbContext dbContext,
         IDateTimeProvider dateTimeProvider)
     {
         _dbContext = dbContext;

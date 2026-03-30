@@ -8,8 +8,8 @@ namespace DongonResidentialsRental.Application.Units.Queries.GetUnits;
 
 public sealed class GetUnitsQueryHandler : IQueryHandler<GetUnitsQuery, PagedResult<UnitResponse>>
 {
-    private readonly IApplicationDBContext _dbContext;
-    public GetUnitsQueryHandler(IApplicationDBContext dbContext)
+    private readonly IApplicationDbContext _dbContext;
+    public GetUnitsQueryHandler(IApplicationDbContext dbContext)
     {
         _dbContext = dbContext;
     }

@@ -8,8 +8,8 @@ namespace DongonResidentialsRental.Application.Tenants.Queries.GetTenants;
 
 public sealed class GetTenantsQueryHandler : IQueryHandler<GetTenantsQuery, PagedResult<TenantResponse>>
 {
-    private readonly IApplicationDBContext _dbContext;
-    public GetTenantsQueryHandler(IApplicationDBContext dbContext)
+    private readonly IApplicationDbContext _dbContext;
+    public GetTenantsQueryHandler(IApplicationDbContext dbContext)
     {
         _dbContext = dbContext;
     }

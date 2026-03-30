@@ -7,8 +7,8 @@ namespace DongonResidentialsRental.Application.Buildings.Queries.GetAvailableBui
 
 public sealed class GetAvailableBuildingsLookupQueryHandler : IQueryHandler<GetAvailableBuildingsLookupQuery, IReadOnlyList<BuildingLookupResponse>>
 {
-    public readonly IApplicationDBContext _dbContext;
-    public GetAvailableBuildingsLookupQueryHandler(IApplicationDBContext dbContext)
+    public readonly IApplicationDbContext _dbContext;
+    public GetAvailableBuildingsLookupQueryHandler(IApplicationDbContext dbContext)
     {
         _dbContext = dbContext;
     }

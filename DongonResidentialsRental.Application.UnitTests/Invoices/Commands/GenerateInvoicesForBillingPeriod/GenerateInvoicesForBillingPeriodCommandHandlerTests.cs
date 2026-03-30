@@ -18,7 +18,7 @@ public sealed class GenerateInvoicesForBillingPeriodCommandHandlerTests
 {
     private readonly IInvoiceRepository _invoiceRepository = Substitute.For<IInvoiceRepository>();
     private readonly ILeaseRepository _leaseRepository = Substitute.For<ILeaseRepository>();
-    private readonly IApplicationDBContext _dbContext = Substitute.For<IApplicationDBContext>();
+    private readonly IApplicationDbContext _dbContext = Substitute.For<IApplicationDbContext>();
     private readonly IDateTimeProvider _dateTimeProvider = Substitute.For<IDateTimeProvider>();
     private readonly IInvoiceNumberGenerator _invoiceNumberGenerator = Substitute.For<IInvoiceNumberGenerator>();
 

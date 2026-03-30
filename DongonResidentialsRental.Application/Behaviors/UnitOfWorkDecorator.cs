@@ -12,11 +12,11 @@ internal static class UnitOfWorkDecorator
         where TRequest : ICommand<TResponse>
     {
         private readonly ICommandHandler<TRequest, TResponse> _inner;
-        private readonly IApplicationDBContext _dbContext;
+        private readonly IApplicationDbContext _dbContext;
 
         public CommandHandler(
             ICommandHandler<TRequest, TResponse> inner,
-            IApplicationDBContext dbContext)
+            IApplicationDbContext dbContext)
         {
             _inner = inner;
             _dbContext = dbContext;

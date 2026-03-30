@@ -9,8 +9,8 @@ namespace DongonResidentialsRental.Application.Payments.Queries.GetPaymentsByTen
 
 public sealed class GetPaymentsByTenantQueryHandler : IQueryHandler<GetPaymentsByTenantQuery, PagedResult<PaymentResponse>>
 {
-    private readonly IApplicationDBContext _dbContext;
-    public GetPaymentsByTenantQueryHandler(IApplicationDBContext dbContext)
+    private readonly IApplicationDbContext _dbContext;
+    public GetPaymentsByTenantQueryHandler(IApplicationDbContext dbContext)
     {
         _dbContext = dbContext;
     }

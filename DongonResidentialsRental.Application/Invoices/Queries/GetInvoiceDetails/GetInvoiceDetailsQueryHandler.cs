@@ -9,8 +9,8 @@ namespace DongonResidentialsRental.Application.Invoices.Queries.GetInvoiceDetail
 
 public sealed class GetInvoiceDetailsQueryHandler : IQueryHandler<GetInvoiceDetailsQuery, InvoiceDetailsResponse>
 {
-    private readonly IApplicationDBContext _dbContext;
-    public GetInvoiceDetailsQueryHandler(IApplicationDBContext dbContext)
+    private readonly IApplicationDbContext _dbContext;
+    public GetInvoiceDetailsQueryHandler(IApplicationDbContext dbContext)
     {
         _dbContext = dbContext;
     }
