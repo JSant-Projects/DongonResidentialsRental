@@ -26,4 +26,6 @@ public interface IApplicationDBContext
     DbSet<PaymentAllocation> PaymentsAllocations { get; }
     DbSet<CreditNote> CreditNotes { get; }
     DbSet<CreditAllocation> CreditAllocations { get; }
+
+    Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
