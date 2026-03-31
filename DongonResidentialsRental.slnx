@@ -4,6 +4,9 @@
     <Project Path="DongonResidentialsRental.Application/DongonResidentialsRental.Application.csproj" Id="1a58fc2f-8c5c-41a6-8ff0-14db261fa9a5" />
     <Project Path="DongonResidentialsRental.Domain/DongonResidentialsRental.Domain.csproj" />
   </Folder>
+  <Folder Name="/src/Infrastructure/">
+    <Project Path="DongonResidentialsRental.Persistence/DongonResidentialsRental.Persistence.csproj" Id="0154dd6a-dd50-4eed-8ab7-2b6621f6fd92" />
+  </Folder>
   <Folder Name="/test/">
     <Project Path="DongonResidentialsRental.Application.UnitTests/DongonResidentialsRental.Application.UnitTests.csproj" Id="36b153a8-a434-49b0-9b7c-df976d56d946" />
     <Project Path="DongonResidentialsRental.Domain.UnitTests/DongonResidentialsRental.Domain.UnitTests.csproj" />

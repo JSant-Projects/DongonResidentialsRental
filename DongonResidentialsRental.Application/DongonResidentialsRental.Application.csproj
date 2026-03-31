@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <Folder Include="CreditNotes\Queries\" />
+    <Folder Include="Invoices\Events\" />
   </ItemGroup>
 
   <ItemGroup>
