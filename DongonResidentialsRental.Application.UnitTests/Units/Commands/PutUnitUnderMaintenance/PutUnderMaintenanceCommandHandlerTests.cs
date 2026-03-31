@@ -70,7 +70,7 @@ public sealed class PutUnitUnderMaintenanceCommandHandlerTests
             .GetByIdAsync(unit.UnitId, Arg.Any<CancellationToken>())
             .Returns(unit);
 
-        _dateTimeProvider.Today.Returns(today);
+        _dateTimeProvider.Today.Returns(DateOnly.FromDateTime(today));
 
         _leaseRepository
             .ExistsActiveLeaseForUnitAsync(
@@ -102,7 +102,7 @@ public sealed class PutUnitUnderMaintenanceCommandHandlerTests
             .GetByIdAsync(unit.UnitId, Arg.Any<CancellationToken>())
             .Returns(unit);
 
-        _dateTimeProvider.Today.Returns(today);
+        _dateTimeProvider.Today.Returns(DateOnly.FromDateTime(today));
 
         _leaseRepository
             .ExistsActiveLeaseForUnitAsync(

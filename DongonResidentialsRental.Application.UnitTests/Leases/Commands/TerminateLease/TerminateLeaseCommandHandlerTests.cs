@@ -69,7 +69,7 @@ public sealed class TerminateLeaseCommandHandlerTests
             .GetByIdAsync(lease.LeaseId, Arg.Any<CancellationToken>())
             .Returns(lease);
 
-        _dateTimeProvider.Today.Returns(new DateTime(2026, 6, 15, 10, 0, 0));
+        _dateTimeProvider.Today.Returns(new DateOnly(2026, 6, 15));
 
         // Act
         var result = await _handler.Handle(command, CancellationToken.None);
@@ -96,7 +96,7 @@ public sealed class TerminateLeaseCommandHandlerTests
             .GetByIdAsync(lease.LeaseId, Arg.Any<CancellationToken>())
             .Returns(lease);
 
-        _dateTimeProvider.Today.Returns(new DateTime(2026, 7, 1));
+        _dateTimeProvider.Today.Returns(new DateOnly(2026, 7, 1));
 
         // Act
         var result = await _handler.Handle(command, CancellationToken.None);

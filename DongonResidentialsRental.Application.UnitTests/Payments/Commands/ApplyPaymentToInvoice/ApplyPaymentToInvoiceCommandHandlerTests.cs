@@ -100,7 +100,7 @@ public sealed class ApplyPaymentToInvoiceCommandHandlerTests
             invoice.InvoiceId,
             200m);
 
-        _dateTimeProvider.Today.Returns(today);
+        _dateTimeProvider.Today.Returns(DateOnly.FromDateTime(today));
 
         _invoiceRepository
             .GetByIdAsync(invoice.InvoiceId)
@@ -146,7 +146,7 @@ public sealed class ApplyPaymentToInvoiceCommandHandlerTests
             invoice.InvoiceId,
             150m);
 
-        _dateTimeProvider.Today.Returns(today);
+        _dateTimeProvider.Today.Returns(DateOnly.FromDateTime(today));
 
         _invoiceRepository
             .GetByIdAsync(invoice.InvoiceId)

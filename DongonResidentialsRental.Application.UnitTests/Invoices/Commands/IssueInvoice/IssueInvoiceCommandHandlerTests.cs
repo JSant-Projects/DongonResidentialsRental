@@ -64,7 +64,7 @@ public sealed class IssueInvoiceCommandHandlerTests
         var today = new DateTime(2026, 3, 27);
         var expectedDateOnly = DateOnly.FromDateTime(today);
 
-        _dateTimeProvider.Today.Returns(today);
+        _dateTimeProvider.Today.Returns(DateOnly.FromDateTime(today));
 
         _invoiceRepository
             .GetByIdAsync(invoiceId)
@@ -89,7 +89,7 @@ public sealed class IssueInvoiceCommandHandlerTests
         var invoiceId = NewInvoiceId();
         var command = new IssueInvoiceCommand(invoiceId);
 
-        _dateTimeProvider.Today.Returns(new DateTime(2026, 3, 27));
+        _dateTimeProvider.Today.Returns(new DateOnly(2026, 3, 27));
 
         _invoiceRepository
             .GetByIdAsync(invoiceId)

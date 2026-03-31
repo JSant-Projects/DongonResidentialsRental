@@ -70,7 +70,7 @@ public sealed class ChangeBillingSettingsCommandHandlerTests
             .GetByIdAsync(lease.LeaseId, Arg.Any<CancellationToken>())
             .Returns(lease);
 
-        _dateTimeProvider.Today.Returns(new DateTime(2026, 3, 28, 9, 0, 0));
+        _dateTimeProvider.Today.Returns(new DateOnly(2026, 3, 28));
 
         // Act
         var result = await _handler.Handle(command, CancellationToken.None);
@@ -100,7 +100,7 @@ public sealed class ChangeBillingSettingsCommandHandlerTests
             .GetByIdAsync(lease.LeaseId, Arg.Any<CancellationToken>())
             .Returns(lease);
 
-        _dateTimeProvider.Today.Returns(today);
+        _dateTimeProvider.Today.Returns(DateOnly.FromDateTime(today));
 
         // Act
         await _handler.Handle(command, CancellationToken.None);

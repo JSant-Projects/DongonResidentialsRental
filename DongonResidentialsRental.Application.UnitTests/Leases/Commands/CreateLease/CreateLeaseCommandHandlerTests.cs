@@ -36,7 +36,7 @@ public sealed class CreateLeaseCommandHandlerTests
 
         var command = CreateCommand();
 
-        _dateTimeProvider.Today.Returns(today);
+        _dateTimeProvider.Today.Returns(DateOnly.FromDateTime(today));
 
         _leaseRepository
             .ExistsActiveLeaseForUnitAsync(
@@ -72,7 +72,7 @@ public sealed class CreateLeaseCommandHandlerTests
 
         var command = CreateCommand();
 
-        _dateTimeProvider.Today.Returns(today);
+        _dateTimeProvider.Today.Returns(DateOnly.FromDateTime(today));
 
         _leaseRepository
             .ExistsActiveLeaseForUnitAsync(
@@ -119,7 +119,7 @@ public sealed class CreateLeaseCommandHandlerTests
             tenantPaysElectricity: true,
             tenantPaysWater: false);
 
-        _dateTimeProvider.Today.Returns(today);
+        _dateTimeProvider.Today.Returns(DateOnly.FromDateTime(today));
 
         _leaseRepository
             .ExistsActiveLeaseForUnitAsync(
@@ -176,7 +176,7 @@ public sealed class CreateLeaseCommandHandlerTests
 
         var command = CreateCommand();
 
-        _dateTimeProvider.Today.Returns(today);
+        _dateTimeProvider.Today.Returns(DateOnly.FromDateTime(today));
 
         _leaseRepository
             .ExistsActiveLeaseForUnitAsync(

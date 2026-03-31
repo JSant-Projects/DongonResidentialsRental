@@ -111,7 +111,7 @@ public sealed class ReversePaymentCommandHandlerTests
             invoice.InvoiceId,
             reason);
 
-        _dateTimeProvider.Today.Returns(today);
+        _dateTimeProvider.Today.Returns(DateOnly.FromDateTime(today));
 
         _invoiceRepository
             .GetByIdAsync(invoice.InvoiceId)
@@ -156,7 +156,7 @@ public sealed class ReversePaymentCommandHandlerTests
             invoice.InvoiceId,
             "Duplicate payment");
 
-        _dateTimeProvider.Today.Returns(today);
+        _dateTimeProvider.Today.Returns(DateOnly.FromDateTime(today));
 
         _invoiceRepository
             .GetByIdAsync(invoice.InvoiceId)

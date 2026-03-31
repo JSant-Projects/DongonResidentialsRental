@@ -59,7 +59,7 @@ public sealed class IssueCreditNoteCommandHandlerTests
 
         var command = new IssueCreditNoteCommand(creditNote.CreditNoteId);
 
-        _dateTimeProvider.Today.Returns(today);
+        _dateTimeProvider.Today.Returns(DateOnly.FromDateTime(today));
 
         _creditNoteRepository
             .GetByIdAsync(creditNote.CreditNoteId)
@@ -86,7 +86,7 @@ public sealed class IssueCreditNoteCommandHandlerTests
 
         var command = new IssueCreditNoteCommand(creditNote.CreditNoteId);
 
-        _dateTimeProvider.Today.Returns(today);
+        _dateTimeProvider.Today.Returns(DateOnly.FromDateTime(today));
 
         _creditNoteRepository
             .GetByIdAsync(creditNote.CreditNoteId)
