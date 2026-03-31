@@ -14,12 +14,13 @@ public sealed class InvoiceCreditAllocation
     private InvoiceCreditAllocation() { }
 
     private InvoiceCreditAllocation(
+        InvoiceCreditAllocationId invoiceCreditAllocationId,
         InvoiceId invoiceId, 
         CreditNoteId creditNoteId,
         Money amount,
         DateOnly appliedOn)
     {
-        InvoiceCreditAllocationId = new InvoiceCreditAllocationId(Guid.NewGuid());
+        InvoiceCreditAllocationId = invoiceCreditAllocationId;
         InvoiceId = invoiceId;
         CreditNoteId = creditNoteId;
         Amount = amount;
@@ -36,6 +37,11 @@ public sealed class InvoiceCreditAllocation
         Ensure.NotNull(amount);
         Ensure.NonNegativeDecimal(amount.Amount, "Allocation amount must be greater than zero.");
 
-        return new InvoiceCreditAllocation(invoiceId, creditNoteId, amount, appliedOn);
+        return new InvoiceCreditAllocation(
+            new InvoiceCreditAllocationId(Guid.NewGuid()),
+            invoiceId, 
+            creditNoteId, 
+            amount, 
+            appliedOn);
     }
 }

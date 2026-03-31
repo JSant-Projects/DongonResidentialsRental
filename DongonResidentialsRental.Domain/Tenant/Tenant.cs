@@ -13,9 +13,9 @@ public sealed class Tenant
 
     private Tenant() { }
 
-    private Tenant(PersonalInfo personalInfo, ContactInfo contactInfo)
+    private Tenant(TenantId tenantId, PersonalInfo personalInfo, ContactInfo contactInfo)
     {
-        TenantId = new TenantId(Guid.NewGuid());
+        TenantId = tenantId;
         PersonalInfo = personalInfo;
         ContactInfo = contactInfo;
     }
@@ -36,6 +36,10 @@ public sealed class Tenant
     {
         Ensure.NotNull(personalInfo, "Personal info cannot be null");
         Ensure.NotNull(contactInfo, "Contact info cannot be null");
-        return new Tenant(personalInfo, contactInfo);
+
+        return new Tenant(
+            new TenantId(Guid.NewGuid()),
+            personalInfo, 
+            contactInfo);
     }
 }

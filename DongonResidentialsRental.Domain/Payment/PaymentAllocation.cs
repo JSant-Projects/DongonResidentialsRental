@@ -14,12 +14,13 @@ public sealed class PaymentAllocation
     private PaymentAllocation() { }
 
     private PaymentAllocation(
+        PaymentAllocationId paymentAllocationId,
         PaymentId paymentId,
         InvoiceId invoiceId, 
         Money amount, 
         DateOnly allocatedOn)
     {
-        PaymentAllocationId = new PaymentAllocationId(Guid.NewGuid());
+        PaymentAllocationId = paymentAllocationId;
         PaymentId = paymentId;
         InvoiceId = invoiceId;
         Amount = amount;
@@ -39,6 +40,11 @@ public sealed class PaymentAllocation
         if (allocatedOn == default)
             throw new DomainException("AllocatedOn is required.");
 
-        return new PaymentAllocation(paymentId, invoiceId, amount, allocatedOn);
+        return new PaymentAllocation(
+            new PaymentAllocationId(Guid.NewGuid()),
+            paymentId, 
+            invoiceId, 
+            amount, 
+            allocatedOn);
     }
 }

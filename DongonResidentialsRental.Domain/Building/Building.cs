@@ -12,9 +12,12 @@ public sealed class Building
     public Address Address { get; private set; }
     public BuildingStatus Status { get; private set; }
     private Building() { }
-    private Building( string name, Address address)
+    private Building(
+        BuildingId buildingId,
+        string name, 
+        Address address)
     {
-        BuildingId = new BuildingId(Guid.NewGuid());
+        BuildingId = buildingId;
         Name = name;
         Address = address;
         Status = BuildingStatus.Active;
@@ -23,7 +26,11 @@ public sealed class Building
     {
         Ensure.NotNullOrWhiteSpace(name, "Building name cannot be null or empty");
         Ensure.NotNull(address, "Address cannot be null or empty");
-        return new Building(name, address);
+
+        return new Building(
+            new BuildingId(Guid.NewGuid()),
+            name, 
+            address);
     }
     public void Archive() => Status = BuildingStatus.Archived;
 

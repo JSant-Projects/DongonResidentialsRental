@@ -12,9 +12,15 @@ public sealed class InvoiceLine
     public Money LineTotal => UnitPrice.Multiply(Quantity);
     public InvoiceLineType Type { get; }
     private InvoiceLine() { }
-    private InvoiceLine(InvoiceId invoiceId, string description, int quantity, Money unitPrice, InvoiceLineType type)
+    private InvoiceLine(
+        InvoiceLineId invoiceLineId,
+        InvoiceId invoiceId, 
+        string description, 
+        int quantity, 
+        Money unitPrice, 
+        InvoiceLineType type)
     {
-        InvoiceLineId = new InvoiceLineId(Guid.NewGuid());
+        InvoiceLineId = invoiceLineId;
         InvoiceId = invoiceId;
         Description = description;
         Quantity = quantity;
@@ -23,11 +29,11 @@ public sealed class InvoiceLine
     }
 
     internal static InvoiceLine Create(
-       InvoiceId invoiceId,
-       string description,
-       int quantity,
-       Money unitPrice,
-       InvoiceLineType type)
+        InvoiceId invoiceId,
+        string description,
+        int quantity,
+        Money unitPrice,
+        InvoiceLineType type)
     {
         Ensure.NotNullOrWhiteSpace(description);
         Ensure.InRangeInteger(quantity, 1, int. MaxValue, "Quantity must be at least 1.");
@@ -39,7 +45,13 @@ public sealed class InvoiceLine
         if (type == InvoiceLineType.Adjustment && unitPrice.Amount == 0)
             throw new DomainException("Adjustment amount cannot be zero.");
 
-        return new InvoiceLine(invoiceId, description, quantity, unitPrice, type);
+        return new InvoiceLine(
+            new InvoiceLineId(Guid.NewGuid()),
+            invoiceId, 
+            description, 
+            quantity, 
+            unitPrice, 
+            type);
     }
 
 

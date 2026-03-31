@@ -40,9 +40,15 @@ public sealed class Invoice: AggregateRoot
     public InvoiceStatus Status { get; private set;  }
 
     private Invoice() { }
-    private Invoice(LeaseId leaseId, BillingPeriod billingPeriod, DateOnly dueDate, string currency, string invoiceNumber)
+    private Invoice(
+        InvoiceId invoiceId,
+        LeaseId leaseId, 
+        BillingPeriod billingPeriod, 
+        DateOnly dueDate, 
+        string currency, 
+        string invoiceNumber)
     {
-        InvoiceId = new InvoiceId(Guid.NewGuid());
+        InvoiceId = invoiceId;
         LeaseId = leaseId;
         BillingPeriod = billingPeriod;
         DueDate = dueDate;
@@ -90,7 +96,12 @@ public sealed class Invoice: AggregateRoot
         AddDomainEvent(new InvoiceIssuedDomainEvent(InvoiceId, LeaseId, issuedOn));
     }
 
-    public static Invoice Create(string invoiceNumber, LeaseId leaseId, BillingPeriod billingPeriod, DateOnly dueDate, string currency)
+    public static Invoice Create(
+        string invoiceNumber, 
+        LeaseId leaseId, 
+        BillingPeriod billingPeriod, 
+        DateOnly dueDate, 
+        string currency)
     {
         Ensure.NotNullOrWhiteSpace(invoiceNumber);
         Ensure.NotNull(leaseId);
@@ -102,7 +113,13 @@ public sealed class Invoice: AggregateRoot
         if (dueDate == default)
             throw new DomainException("Due date is required.");
 
-        var invoice = new Invoice(leaseId, billingPeriod, dueDate, currency, invoiceNumber);
+        var invoice = new Invoice(
+            new InvoiceId(Guid.NewGuid()),
+            leaseId, 
+            billingPeriod, 
+            dueDate, 
+            currency, 
+            invoiceNumber);
 
         // Add domain event for invoice creation
         invoice.AddDomainEvent(new InvoiceDraftCreatedDomainEvent(invoice.InvoiceId, leaseId, billingPeriod));

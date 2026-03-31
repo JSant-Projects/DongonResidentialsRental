@@ -27,9 +27,15 @@ public sealed class Payment: AggregateRoot
     public DateOnly? ReversedOn { get; private set; }
     public string? ReversalReason { get; private set; }
     private Payment() { }
-    private Payment(TenantId tenantId, Money amount, DateOnly receivedOn, PaymentMethod method, string? reference)
+    private Payment(
+        PaymentId paymentId, 
+        TenantId tenantId, 
+        Money amount, 
+        DateOnly receivedOn, 
+        PaymentMethod method, 
+        string? reference)
     {
-        PaymentId = new PaymentId(Guid.NewGuid());
+        PaymentId = paymentId;
         TenantId = tenantId;
         Amount = amount;
         ReceivedOn = receivedOn;
@@ -51,7 +57,13 @@ public sealed class Payment: AggregateRoot
         if (amount.Amount <= 0)
             throw new DomainException("Payment amount must be greater than zero.");
 
-        var payment = new Payment(tenantId, amount, receivedOn, method, reference);
+        var payment = new Payment(
+            new PaymentId(Guid.NewGuid()),
+            tenantId, 
+            amount, 
+            receivedOn, 
+            method, 
+            reference);
 
         payment.AddDomainEvent(new PaymentReceivedDomainEvent(payment.PaymentId, tenantId, amount, receivedOn, method));
 

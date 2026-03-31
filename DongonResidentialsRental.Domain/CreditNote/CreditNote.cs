@@ -24,9 +24,12 @@ public sealed class CreditNote: AggregateRoot
     public CreditNoteStatus Status { get; private set; }
 
     private CreditNote() { }
-    private CreditNote(LeaseId leaseId, Money amount)
+    private CreditNote(
+        CreditNoteId creditNoteId,
+        LeaseId leaseId, 
+        Money amount)
     {
-        CreditNoteId = new CreditNoteId(Guid.NewGuid());
+        CreditNoteId = creditNoteId;
         LeaseId = leaseId;
         Amount = amount;
         Status = CreditNoteStatus.Draft;
@@ -40,7 +43,10 @@ public sealed class CreditNote: AggregateRoot
         if (amount.Amount <= 0)
             throw new DomainException("Credit note amount must be greater than zero.");
 
-        var creditNote = new CreditNote(leaseId, amount);
+        var creditNote = new CreditNote(
+            new CreditNoteId(Guid.NewGuid()),
+            leaseId, 
+            amount);
 
         //creditNote.AddDomainEvent(new CreditNoteCreatedDomainEvent(creditNote.CreditNoteId, creditNote.LeaseId, creditNote.Amount));
 

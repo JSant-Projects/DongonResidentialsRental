@@ -15,9 +15,9 @@ public sealed class Unit
     public UnitStatus Status { get; private set; }
 
     private Unit() { }
-    private Unit(BuildingId buildingId, string unitNumber, int? floor)
+    private Unit(UnitId unitId, BuildingId buildingId, string unitNumber, int? floor)
     {
-        UnitId = new UnitId(Guid.NewGuid());
+        UnitId = unitId;
         BuildingId = buildingId;
         UnitNumber = unitNumber;
         Floor = floor;
@@ -40,7 +40,11 @@ public sealed class Unit
         Ensure.NotNull(buildingId, "BuildingId cannot be null");
         Ensure.NotNullOrWhiteSpace(unitNumber, "Unit number cannot be null or empty");
 
-        return new Unit(buildingId, unitNumber.Trim(), floor);
+        return new Unit(
+            new UnitId(Guid.NewGuid()), 
+            buildingId, 
+            unitNumber.Trim(), 
+            floor);
     }
 
 

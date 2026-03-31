@@ -16,9 +16,14 @@ public sealed class CreditAllocation
 
     private CreditAllocation() { } // For EF Core
 
-    private CreditAllocation(CreditNoteId creditNoteId, InvoiceId invoiceId, Money amount, DateOnly appliedOn)
+    private CreditAllocation(
+        CreditAllocationId creditAllocationId,
+        CreditNoteId creditNoteId, 
+        InvoiceId invoiceId, 
+        Money amount, 
+        DateOnly appliedOn)
     {
-        CreditAllocationId = new CreditAllocationId(Guid.NewGuid());
+        CreditAllocationId = creditAllocationId;
         CreditNoteId = creditNoteId;
         InvoiceId = invoiceId;
         Amount = amount;
@@ -40,6 +45,11 @@ public sealed class CreditAllocation
         if (appliedOn == default)
             throw new DomainException("AppliedOn is required.");
 
-        return new CreditAllocation(creditNoteId, invoiceId, amount, appliedOn);
+        return new CreditAllocation(
+            new CreditAllocationId(Guid.NewGuid()),
+            creditNoteId, 
+            invoiceId, 
+            amount, 
+            appliedOn);
     }
 }

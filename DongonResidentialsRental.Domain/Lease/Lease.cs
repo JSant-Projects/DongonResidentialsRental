@@ -24,6 +24,7 @@ public sealed class Lease: AggregateRoot
     private Lease() { }
     
     private Lease(
+        LeaseId leaseId,
         TenantId occupancy, 
         UnitId unitId, 
         LeaseTerm leaseTerm, 
@@ -31,7 +32,7 @@ public sealed class Lease: AggregateRoot
         BillingSettings billingSettings,
         UtilityResponsibility utilityResponsibility)
     {
-        LeaseId = new LeaseId(Guid.NewGuid());
+        LeaseId = leaseId;
         Occupancy = occupancy;
         UnitId = unitId;
         Term = leaseTerm;
@@ -60,6 +61,7 @@ public sealed class Lease: AggregateRoot
             throw new DomainException("Monthly rate must be greater than zero.");
         
         var lease = new Lease(
+            new LeaseId(Guid.NewGuid()),
             occupancy, 
             unitId, 
             leaseTerm, 

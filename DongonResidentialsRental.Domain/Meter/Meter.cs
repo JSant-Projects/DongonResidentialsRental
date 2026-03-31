@@ -19,9 +19,12 @@ public sealed class Meter
 
     private Meter() { }
 
-    private Meter(UnitId unitId, MeterType type)
+    private Meter(
+        MeterId meterId,
+        UnitId unitId, 
+        MeterType type)
     {
-        MeterId = new MeterId(Guid.NewGuid());
+        MeterId = meterId;
         UnitId = unitId;
         Type = type;
         Status = MeterStatus.Active;
@@ -30,7 +33,11 @@ public sealed class Meter
     public static Meter Create(UnitId unitId, MeterType type)
     {
         Ensure.NotNull(unitId, "Unit ID cannot be null");
-        return new Meter(unitId, type);
+
+        return new Meter(
+            new MeterId(Guid.NewGuid()),
+            unitId, 
+            type);
     }
 
     public void Deactivate()

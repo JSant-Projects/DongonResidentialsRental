@@ -5,7 +5,7 @@ namespace DongonResidentialsRental.Domain.Invoice;
 
 public sealed class InvoiceAllocation
 {
-    public InvoiceAllocationId Id { get; }
+    public InvoiceAllocationId InvoiceAllocationId { get; }
     public InvoiceId InvoiceId { get; }
     public PaymentId PaymentId { get; } 
     public Money Amount { get; } 
@@ -13,9 +13,14 @@ public sealed class InvoiceAllocation
 
     private InvoiceAllocation() { } // For EF Core
 
-    private InvoiceAllocation(InvoiceId invoiceId, PaymentId paymentId, Money amount, DateOnly appliedOn)
+    private InvoiceAllocation(
+        InvoiceAllocationId invoiceAllocationId,
+        InvoiceId invoiceId, 
+        PaymentId paymentId, 
+        Money amount, 
+        DateOnly appliedOn)
     {
-        Id = new InvoiceAllocationId(Guid.NewGuid());
+        InvoiceAllocationId = invoiceAllocationId;
         InvoiceId = invoiceId;
         PaymentId = paymentId;
         Amount = amount;
@@ -37,6 +42,11 @@ public sealed class InvoiceAllocation
         if (appliedOn == default)
             throw new DomainException("AppliedOn is required.");
 
-        return new InvoiceAllocation(invoiceId, paymentId, amount, appliedOn);
+        return new InvoiceAllocation(
+            new InvoiceAllocationId(Guid.NewGuid()),
+            invoiceId, 
+            paymentId, 
+            amount, 
+            appliedOn);
     }
 }
