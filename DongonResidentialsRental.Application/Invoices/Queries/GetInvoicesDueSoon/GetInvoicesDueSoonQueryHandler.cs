@@ -20,7 +20,7 @@ public sealed class GetInvoicesDueSoonQueryHandler : IQueryHandler<GetInvoicesDu
     }
     public async Task<PagedResult<InvoiceResponse>> Handle(GetInvoicesDueSoonQuery request, CancellationToken cancellationToken)
     {
-        var today = DateOnly.FromDateTime(_dateTimeProvider.Today);
+        var today = _dateTimeProvider.Today;
 
         var listQuery = InvoiceQueryBuilder
             .BuildListQuery(_dbContext)

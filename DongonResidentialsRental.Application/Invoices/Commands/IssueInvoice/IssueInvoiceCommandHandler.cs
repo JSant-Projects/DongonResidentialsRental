@@ -19,7 +19,7 @@ public sealed class IssueInvoiceCommandHandler : ICommandHandler<IssueInvoiceCom
     }
     public async Task<Unit> Handle(IssueInvoiceCommand request, CancellationToken cancellationToken)
     {
-        var today = DateOnly.FromDateTime(_dateTimeProvider.Today);
+        var today = _dateTimeProvider.Today;
 
         var invoice = await _invoiceRepository.GetByIdAsync(request.InvoiceId);
         if (invoice is null)

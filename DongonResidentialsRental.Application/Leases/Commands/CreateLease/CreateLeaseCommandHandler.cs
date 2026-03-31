@@ -20,7 +20,7 @@ public sealed class CreateLeaseCommandHandler : ICommandHandler<CreateLeaseComma
     }
     public async Task<LeaseId> Handle(CreateLeaseCommand request, CancellationToken cancellationToken)
     {
-        var today = DateOnly.FromDateTime(_dateTimeProvider.Today);
+        var today = _dateTimeProvider.Today;
 
         // Throw exception when unitid from request has active lease
         bool unitHasActiveLease = await _leaseRepository.ExistsActiveLeaseForUnitAsync(

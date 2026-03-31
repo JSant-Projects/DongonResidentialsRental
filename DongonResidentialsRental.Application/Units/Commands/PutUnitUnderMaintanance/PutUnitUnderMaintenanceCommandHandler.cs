@@ -35,7 +35,7 @@ public sealed class PutUnitUnderMaintenanceCommandHandler : ICommandHandler<PutU
             throw new NotFoundException(nameof(Domain.Unit), request.UnitId);
         }
 
-        var today = DateOnly.FromDateTime(_dateTimeProvider.Today);
+        var today = _dateTimeProvider.Today;
 
         bool hasActiveLease = await _leaseRepository.ExistsActiveLeaseForUnitAsync(
             unit.UnitId,

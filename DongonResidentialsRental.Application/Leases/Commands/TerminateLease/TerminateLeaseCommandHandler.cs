@@ -26,7 +26,7 @@ public sealed class TerminateLeaseCommandHandler : ICommandHandler<TerminateLeas
             throw new NotFoundException(nameof(Lease), request.LeaseId);
         }
 
-        var today = DateOnly.FromDateTime(_dateTimeProvider.Today);
+        var today = _dateTimeProvider.Today;
 
         lease.Terminate(request.TerminationDate, today);
 

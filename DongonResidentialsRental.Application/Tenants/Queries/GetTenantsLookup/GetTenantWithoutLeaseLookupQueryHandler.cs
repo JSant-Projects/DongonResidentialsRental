@@ -19,7 +19,7 @@ public sealed class GetTenantWithoutLeaseLookupQueryHandler : IQueryHandler<GetT
     }
     public async Task<IReadOnlyList<TenantLookupResponse>> Handle(GetTenantWithoutLeaseLookupQuery query, CancellationToken cancellationToken)
     {
-        var today = DateOnly.FromDateTime(_dateTimeProvider.Today);
+        var today = _dateTimeProvider.Today;
         // Fetch tenants that doesn't have active lease
         var lookup = await _dbContext.Tenants
             .WithoutActiveLease(_dbContext.Leases, today)

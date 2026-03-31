@@ -28,7 +28,7 @@ public sealed class ChangeBillingSettingsCommandHandler : ICommandHandler<Change
         }
 
         var newBillingSettings = BillingSettings.Create(request.NewDueDayOfMonth, request.NewGracePeriodDays);
-        var today = DateOnly.FromDateTime(_dateTimeProvider.Today);
+        var today = _dateTimeProvider.Today;
 
         lease.ChangeBillingSettings(newBillingSettings, today);
 

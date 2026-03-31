@@ -19,7 +19,7 @@ public sealed class IssueCreditNoteCommandHandler : ICommandHandler<IssueCreditN
     }
     public async Task<Unit> Handle(IssueCreditNoteCommand request, CancellationToken cancellationToken)
     {
-        var today = DateOnly.FromDateTime(_dateTimeProvider.Today);
+        var today = _dateTimeProvider.Today;
 
         var creditNote = await _creditNoteRepository.GetByIdAsync(request.CreditNoteId);
         if (creditNote is null)

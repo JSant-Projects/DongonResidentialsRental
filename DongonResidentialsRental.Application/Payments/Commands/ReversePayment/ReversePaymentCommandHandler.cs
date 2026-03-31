@@ -23,7 +23,7 @@ public sealed class ReversePaymentCommandHandler : ICommandHandler<ReversePaymen
     }
     public async Task<Unit> Handle(ReversePaymentCommand request, CancellationToken cancellationToken)
     {
-        var today = DateOnly.FromDateTime(_dateTimeProvider.Today);
+        var today = _dateTimeProvider.Today;
 
         var invoice = await _invoiceRepository.GetByIdAsync(request.InvoiceId);
 

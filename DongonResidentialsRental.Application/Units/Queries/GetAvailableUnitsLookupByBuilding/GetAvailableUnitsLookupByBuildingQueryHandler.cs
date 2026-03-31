@@ -22,7 +22,7 @@ public sealed class GetAvailableUnitsLookupByBuildingQueryHandler : IQueryHandle
     }
     public async Task<IReadOnlyList<UnitLookupResponse>> Handle(GetAvailableUnitsLookupByBuildingQuery request, CancellationToken cancellationToken)
     {
-        var today = DateOnly.FromDateTime(_dateTimeProvider.Today);
+        var today = _dateTimeProvider.Today;
         // Fetch only units that is available and doesn't have an active lease
         var lookup = await _dbContext.Units
             .AsNoTracking()

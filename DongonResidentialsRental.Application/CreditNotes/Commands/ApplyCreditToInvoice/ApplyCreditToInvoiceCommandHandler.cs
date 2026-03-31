@@ -24,7 +24,7 @@ public sealed class ApplyCreditToInvoiceCommandHandler : ICommandHandler<ApplyCr
     }
     public async Task<Unit> Handle(ApplyCreditToInvoiceCommand request, CancellationToken cancellationToken)
     {
-        var today = DateOnly.FromDateTime(_dateTimeProvider.Today);
+        var today = _dateTimeProvider.Today;
 
         var invoice = await _invoiceRepository.GetByIdAsync(request.InvoiceId);
         if (invoice is null)

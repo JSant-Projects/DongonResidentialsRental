@@ -6,5 +6,5 @@ namespace DongonResidentialsRental.Application.Abstractions.Clock;
 
 public interface IDateTimeProvider
 {
-    DateTime Today { get; }
+    DateOnly Today { get; }
 }

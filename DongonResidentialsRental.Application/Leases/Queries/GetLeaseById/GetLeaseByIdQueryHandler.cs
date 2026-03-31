@@ -20,7 +20,7 @@ public sealed class GetLeaseByIdQueryHandler : IQueryHandler<GetLeaseByIdQuery, 
     }
     public async Task<LeaseResponse> Handle(GetLeaseByIdQuery request, CancellationToken cancellationToken)
     {
-        var today = DateOnly.FromDateTime(_dateTimeProvider.Today);
+        var today = _dateTimeProvider.Today;
 
         var lease = await (
             from l in _dbContext.Leases.AsNoTracking()

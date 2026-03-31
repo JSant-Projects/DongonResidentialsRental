@@ -27,7 +27,7 @@ public sealed class ChangeLeaseTermCommandHandler : ICommandHandler<ChangeLeaseT
         }
 
         var newTerm = LeaseTerm.Create(request.NewStartDate, request.NewEndDate);
-        var today = DateOnly.FromDateTime(_dateTimeProvider.Today);
+        var today = _dateTimeProvider.Today;
 
         lease.ChangeLeaseTerm(newTerm, today);
 

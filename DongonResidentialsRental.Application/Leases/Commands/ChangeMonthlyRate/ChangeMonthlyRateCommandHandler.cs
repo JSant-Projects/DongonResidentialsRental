@@ -28,7 +28,7 @@ public sealed class ChangeMonthlyRateCommandHandler : ICommandHandler<ChangeMont
         }
 
         var newMonthlyRate = Money.Create(request.Currency, request.NewMonthlyRate);
-        var today = DateOnly.FromDateTime(_dateTimeProvider.Today);
+        var today = _dateTimeProvider.Today;
         
         lease.ChangeMonthlyRate(newMonthlyRate, today);
 
