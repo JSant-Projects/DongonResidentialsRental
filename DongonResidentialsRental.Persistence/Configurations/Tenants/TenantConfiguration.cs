@@ -53,6 +53,9 @@ internal sealed class TenantConfiguration : IEntityTypeConfiguration<Tenant>
                     .HasColumnName("email")
                     .IsRequired()
                     .HasMaxLength(255);
+
+                email.HasIndex(e => e.Value)
+                .IsUnique();
             });
 
             // PhoneNumber VO
@@ -64,8 +67,5 @@ internal sealed class TenantConfiguration : IEntityTypeConfiguration<Tenant>
                     .HasMaxLength(20);
             });
         });
-
-        // Optional but recommended index
-        builder.HasIndex("email").IsUnique();
     }
 }

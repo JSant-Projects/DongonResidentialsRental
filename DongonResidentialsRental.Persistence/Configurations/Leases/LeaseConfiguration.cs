@@ -65,6 +65,8 @@ internal sealed class LeaseConfiguration : IEntityTypeConfiguration<Lease>
 
             term.Property(x => x.EndDate)
                 .HasColumnName("end_date");
+
+            term.HasIndex(x => new { x.StartDate, x.EndDate });
         });
 
         builder.OwnsOne(x => x.BillingSettings, billing =>
@@ -97,6 +99,5 @@ internal sealed class LeaseConfiguration : IEntityTypeConfiguration<Lease>
         builder.HasIndex(x => x.Occupancy);
         builder.HasIndex(x => x.UnitId);
         builder.HasIndex(x => x.Status);
-        builder.HasIndex("start_date", "end_date");
     }
 }

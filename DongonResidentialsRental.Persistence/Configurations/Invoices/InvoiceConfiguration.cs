@@ -62,6 +62,8 @@ internal sealed class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
             billingPeriod.Property(x => x.To)
                 .HasColumnName("to")
                 .IsRequired();
+
+            billingPeriod.HasIndex(x => new { x.From, x.To });
         });
 
         builder.Navigation(x => x.BillingPeriod).IsRequired();
@@ -102,6 +104,5 @@ internal sealed class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
         builder.HasIndex(x => x.DueDate);
         builder.HasIndex(x => x.Status);
         builder.HasIndex(x => x.IssuedOn);
-        builder.HasIndex("from", "to");
     }
 }
