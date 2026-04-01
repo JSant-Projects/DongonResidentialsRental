@@ -82,7 +82,10 @@ public sealed record GetLeasesQueryHandler : IQueryHandler<GetLeasesQuery, Paged
                     x.lease.Term.EndDate,
                     x.lease.MonthlyRate.Amount,
                     x.lease.MonthlyRate.Currency,
-                    x.lease.Term.StartDate <= today && x.lease.Term.EndDate >= today && x.lease.Status == Domain.Lease.LeaseStatus.Active
+                    x.lease.Term.StartDate <= today && 
+                        (x.lease.Term.EndDate == null || 
+                        x.lease.Term.EndDate >= today) && 
+                        x.lease.Status == Domain.Lease.LeaseStatus.Active
                 ));
     }
 

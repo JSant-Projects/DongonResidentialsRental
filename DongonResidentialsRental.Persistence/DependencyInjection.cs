@@ -1,4 +1,6 @@
 ﻿using DongonResidentialsRental.Application.Abstractions.Data;
+using DongonResidentialsRental.Application.Abstractions.Persistence;
+using DongonResidentialsRental.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,16 +17,28 @@ public static class DependencyInjection
         IConfiguration configuration)
     {
 
+        // Get the connection string from configuration
         var connectionString = configuration.GetConnectionString("DefaultConnection")
                               ?? throw new InvalidOperationException("Connection string 'DefaultConnection' was not found.");
 
+        // Register the ApplicationDbContext with the connection string
         services.AddDbContext<ApplicationDbContext>(options =>
         {
             options.UseNpgsql(connectionString);
         });
 
+        // Register the IApplicationDbContext to resolve to the same instance as ApplicationDbContext
         services.AddScoped<IApplicationDbContext>(sp =>
             sp.GetRequiredService<ApplicationDbContext>());
+
+        // Register repositories
+        services.AddScoped<IBuildingRepository, BuildingRepository>();
+        services.AddScoped<ICreditNoteRepository, CreditNoteRepository>();
+        services.AddScoped<IInvoiceRepository, InvoiceRepository>();
+        services.AddScoped<ILeaseRepository, LeaseRepository>();
+        services.AddScoped<IPaymentRepository, PaymentRepository>();
+        services.AddScoped<ITenantRepository, TenantRepository>();
+        services.AddScoped<IUnitRepository, UnitRepository>();
 
         return services;
     }
