@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: dongon-postgres
+    environment:
+      POSTGRES_DB: dongon_rentals
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - dongon-postgres-data:/var/lib/postgresql/data
+
+volumes:
+  dongon-postgres-data:
