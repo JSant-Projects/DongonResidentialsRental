@@ -6,8 +6,10 @@ namespace DongonResidentialsRental.Domain.Shared;
 
 public record ContactInfo
 {
-    public Email Email { get; }
-    public PhoneNumber PhoneNumber { get; }
+    public Email Email { get; private set; } = default!;
+    public PhoneNumber PhoneNumber { get; private set; } = default!;
+
+    private ContactInfo() { }
     private ContactInfo(Email email, PhoneNumber phoneNumber)
     {
         Email = email;
