@@ -20,8 +20,8 @@
 
   <ItemGroup>
     <Folder Include="Common\Extensions\" />
-    <Folder Include="Contracts\Buildings\" />
     <Folder Include="Endpoints\" />
+    <Folder Include="Middleware\" />
   </ItemGroup>
 
   <ItemGroup>

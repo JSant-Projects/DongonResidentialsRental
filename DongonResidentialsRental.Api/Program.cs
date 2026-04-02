@@ -1,7 +1,10 @@
 using DongonResidentialsRental.Application;
 using DongonResidentialsRental.Infrastracture;
 using DongonResidentialsRental.Persistence;
+using Microsoft.AspNetCore.Mvc;
 using Scalar.AspNetCore;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,10 +12,19 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
+builder.Services.Configure<JsonOptions>(options =>
+{
+    options.JsonSerializerOptions.Converters.Add(
+        new JsonStringEnumConverter(
+                JsonNamingPolicy.CamelCase, 
+                allowIntegerValues: false));
+});
+
 var config = builder.Configuration;
-builder.Services.AddApplication();
-builder.Services.AddPersistence(config);
-builder.Services.AddInfrastructure();
+builder.Services
+    .AddApplication()
+    .AddPersistence(config)
+    .AddInfrastructure();
 
 var app = builder.Build();
 

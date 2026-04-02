@@ -9,7 +9,7 @@ namespace DongonResidentialsRental.Application.Payments.Commands.CreatePayment;
 
 public sealed record CreatePaymentCommand(
     TenantId TenantId,
-    Decimal Amount,
+    decimal Amount,
     string Currency,
     DateOnly ReceivedOn,
     PaymentMethod PaymentMethod,

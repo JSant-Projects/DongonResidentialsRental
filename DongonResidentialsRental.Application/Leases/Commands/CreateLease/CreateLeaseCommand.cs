@@ -13,7 +13,7 @@ public sealed record CreateLeaseCommand(
     UnitId UnitId,
     DateOnly StartDate,
     DateOnly? EndDate,
-    Decimal MonthlyRate,
+    decimal MonthlyRate,
     int DueDayOfMonth,
     int GracePeridoDays,
     bool tenantPaysElectricity,
