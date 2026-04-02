@@ -17,7 +17,7 @@ internal sealed class CreditAllocationConfiguration : IEntityTypeConfiguration<C
             .HasColumnName("credit_allocation_id")
             .ValueGeneratedNever()
             .HasConversion(
-                id => id.Value,
+                id => id.Id,
                 value => new CreditAllocationId(value));
 
         builder.Property(x => x.CreditNoteId)

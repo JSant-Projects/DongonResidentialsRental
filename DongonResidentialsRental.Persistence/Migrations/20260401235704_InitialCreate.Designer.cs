@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DongonResidentialsRental.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260401020652_InitialCreate")]
+    [Migration("20260401235704_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
