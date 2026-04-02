@@ -6,6 +6,11 @@ public sealed class CreateInvoiceCommandValidator : AbstractValidator<CreateInvo
 {
     public CreateInvoiceCommandValidator()
     {
-        
+        RuleFor(x => x.LeaseId.Id)
+            .NotEmpty();
+
+        RuleFor(x => x.Period)
+            .Must(r => r is null || r.From <= r.To)
+            .WithMessage("'From' must be less than or equal to 'To'.");
     }
 }

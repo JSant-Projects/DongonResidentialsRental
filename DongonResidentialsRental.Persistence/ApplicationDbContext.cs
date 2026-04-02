@@ -7,6 +7,7 @@ using DongonResidentialsRental.Domain.Payment;
 using DongonResidentialsRental.Domain.Shared;
 using DongonResidentialsRental.Domain.Tenant;
 using DongonResidentialsRental.Domain.Unit;
+using DongonResidentialsRental.Persistence.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System;
@@ -51,6 +52,8 @@ public sealed class ApplicationDbContext : DbContext, IApplicationDbContext
         }
     }
 
+    // Domains
+
     public DbSet<Building> Buildings => Set<Building>();
 
     public DbSet<Unit> Units => Set<Unit>();
@@ -74,4 +77,9 @@ public sealed class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<CreditNote> CreditNotes => Set<CreditNote>();
 
     public DbSet<CreditAllocation> CreditAllocations => Set<CreditAllocation>();
+
+    // Models
+
+    public DbSet<InvoiceSequence> InvoiceSequences => Set<InvoiceSequence>();
+
 }

@@ -1,3 +1,5 @@
+using DongonResidentialsRental.Api.Common.Extensions;
+using DongonResidentialsRental.Api.Common.Middleware;
 using DongonResidentialsRental.Application;
 using DongonResidentialsRental.Infrastracture;
 using DongonResidentialsRental.Persistence;
@@ -26,6 +28,9 @@ builder.Services
     .AddPersistence(config)
     .AddInfrastructure();
 
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -43,6 +48,11 @@ if (app.Environment.IsDevelopment())
         });
 }
 
+
 app.UseHttpsRedirection();
+
+app.UseExceptionHandler();
+
+app.MapApiEndpoints();
 
 app.Run();

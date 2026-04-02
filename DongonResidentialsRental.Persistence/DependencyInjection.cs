@@ -1,6 +1,8 @@
 ﻿using DongonResidentialsRental.Application.Abstractions.Data;
 using DongonResidentialsRental.Application.Abstractions.Persistence;
+using DongonResidentialsRental.Application.Invoices.Services;
 using DongonResidentialsRental.Persistence.Repositories;
+using DongonResidentialsRental.Persistence.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -39,6 +41,9 @@ public static class DependencyInjection
         services.AddScoped<IPaymentRepository, PaymentRepository>();
         services.AddScoped<ITenantRepository, TenantRepository>();
         services.AddScoped<IUnitRepository, UnitRepository>();
+
+        // Register services
+        services.AddScoped<IInvoiceNumberGenerator, InvoiceGenerator>();
 
         return services;
     }

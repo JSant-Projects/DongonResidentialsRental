@@ -19,12 +19,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Common\Extensions\" />
-    <Folder Include="Endpoints\" />
-    <Folder Include="Middleware\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\DongonResidentialsRental.Application\DongonResidentialsRental.Application.csproj" />
     <ProjectReference Include="..\DongonResidentialsRental.Infrastracture\DongonResidentialsRental.Infrastracture.csproj" />
     <ProjectReference Include="..\DongonResidentialsRental.Persistence\DongonResidentialsRental.Persistence.csproj" />

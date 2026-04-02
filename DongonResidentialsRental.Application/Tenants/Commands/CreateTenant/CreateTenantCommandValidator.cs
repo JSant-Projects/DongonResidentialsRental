@@ -10,19 +10,19 @@ public sealed class CreateTenantCommandValidator : AbstractValidator<CreateTenan
     public CreateTenantCommandValidator()
     {
         RuleFor(x => x.FirstName)
-            .NotNull()
+            .NotEmpty()
             .MaximumLength(100);
 
         RuleFor(x => x.LastName)
-            .NotNull()
+            .NotEmpty()
             .MaximumLength(100);
 
         RuleFor(x => x.Email)
-            .NotNull()
+            .NotEmpty()
             .MaximumLength(254);
 
         RuleFor(x => x.PhoneNumber)
-            .NotNull()
+            .NotEmpty()
             .MaximumLength(20);
     }
 }

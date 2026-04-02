@@ -4,6 +4,7 @@ using DongonResidentialsRental.Application.Exceptions;
 using DongonResidentialsRental.Application.Invoices.Commands.CreateInvoice;
 using DongonResidentialsRental.Application.Invoices.Commands.GenerateInvoicesForBillingPeriod;
 using DongonResidentialsRental.Application.Invoices.Services;
+using DongonResidentialsRental.Application.Models;
 using DongonResidentialsRental.Domain.Invoice;
 using DongonResidentialsRental.Domain.Lease;
 using DongonResidentialsRental.Domain.Shared;
@@ -38,10 +39,11 @@ public class CreateInvoiceCommandHandlerTests
         // Arrange
         var leaseId = NewLease();
 
+        var period = new DateRange(new DateOnly(2026, 3, 1), new DateOnly(2026, 3, 31));
+
         var command = new CreateInvoiceCommand(
             leaseId,
-            new DateOnly(2026, 3, 1),
-            new DateOnly(2026, 3, 31));
+            period);
 
         _leaseRepository
             .GetByIdAsync(leaseId, Arg.Any<CancellationToken>())
@@ -79,10 +81,10 @@ public class CreateInvoiceCommandHandlerTests
             currency: "CAD",
             dueDayOfMonth: 5);
 
+        var period = new DateRange(new DateOnly(2026, 3, 1), new DateOnly(2026, 3, 31));
         var command = new CreateInvoiceCommand(
             lease.LeaseId,
-            new DateOnly(2026, 3, 1),
-            new DateOnly(2026, 3, 31));
+            period);
 
         _leaseRepository
             .GetByIdAsync(lease.LeaseId, Arg.Any<CancellationToken>())
@@ -121,10 +123,11 @@ public class CreateInvoiceCommandHandlerTests
             currency: "CAD",
             dueDayOfMonth: 5);
 
+        var period = new DateRange(new DateOnly(2026, 3, 1), new DateOnly(2026, 3, 31));
+
         var command = new CreateInvoiceCommand(
             lease.LeaseId,
-            new DateOnly(2026, 3, 1),
-            new DateOnly(2026, 3, 31));
+            period);
 
         _leaseRepository
             .GetByIdAsync(lease.LeaseId, Arg.Any<CancellationToken>())
@@ -174,10 +177,11 @@ public class CreateInvoiceCommandHandlerTests
             startDate: new DateOnly(2026, 1, 1),
             endDate: null);
 
+        var period = new DateRange(new DateOnly(2026, 2, 1), new DateOnly(2026, 2, 28));
+
         var command = new CreateInvoiceCommand(
             lease.LeaseId,
-            new DateOnly(2026, 2, 1),
-            new DateOnly(2026, 2, 28));
+            period);
 
         BillingPeriod? capturedBillingPeriod = null;
 

@@ -1,0 +1,77 @@
+﻿using DongonResidentialsRental.Application.Exceptions;
+using DongonResidentialsRental.Domain.Shared;
+using FluentValidation;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
+
+namespace DongonResidentialsRental.Api.Common.Middleware;
+
+public sealed class GlobalExceptionHandler : IExceptionHandler
+{
+    private readonly ILogger<GlobalExceptionHandler> _logger;
+
+    public GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger)
+    {
+        _logger = logger;
+    }
+
+    public async ValueTask<bool> TryHandleAsync(
+        HttpContext httpContext,
+        Exception exception,
+        CancellationToken cancellationToken)
+    {
+        var traceId = Activity.Current?.Id ?? httpContext.TraceIdentifier;
+
+        _logger.LogError(
+            exception,
+            "Unhandled exception occurred. TraceId: {TraceId}",
+            traceId);
+
+        object problem = exception switch
+        {
+            ValidationException validationException => new ValidationProblemDetails(
+                validationException.Errors
+                    .GroupBy(e => e.PropertyName)
+                    .ToDictionary(
+                        g => g.Key,
+                        g => g.Select(e => e.ErrorMessage).ToArray()))
+            {
+                Title = "Validation failed.",
+                Status = StatusCodes.Status400BadRequest,
+                Detail = "One or more validation errors occurred.",
+                Instance = httpContext.Request.Path
+            },
+
+            DomainException domainException => new ProblemDetails
+            {
+                Title = "Business rule violation.",
+                Status = StatusCodes.Status400BadRequest,
+                Detail = domainException.Message,
+                Instance = httpContext.Request.Path
+            },
+
+            _ => new ProblemDetails
+            {
+                Title = "Server error.",
+                Status = StatusCodes.Status500InternalServerError,
+                Detail = "An unexpected error occurred.",
+                Instance = httpContext.Request.Path
+            }
+        };
+
+        if (problem is ProblemDetails pd)
+        {
+            pd.Extensions["traceId"] = traceId;
+            httpContext.Response.StatusCode = pd.Status ?? StatusCodes.Status500InternalServerError;
+        }
+        else
+        {
+            httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        }
+
+        await httpContext.Response.WriteAsJsonAsync(problem, cancellationToken);
+
+        return true;
+    }
+}
