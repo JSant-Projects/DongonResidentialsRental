@@ -21,13 +21,13 @@ public static class TenantEndpoint
             .WithDescription("Creates a new tenant.")
             .Produces(StatusCodes.Status201Created);
 
-        group.MapPost("/{tenantId:guid}/change-tenant-contact", 
+        group.MapPut("/{tenantId:guid}/contact-info", 
             ChangeTenantContactInfo)
             .WithName("ChangeTenantContactInfo")
             .WithDescription("Changes the contact information of a tenant.")
             .Produces(StatusCodes.Status204NoContent);
 
-        group.MapPost("/{tenantId:guid}/change-tenant-name", 
+        group.MapPut("/{tenantId:guid}/personal-info", 
             ChangeTenantName)
             .WithName("ChangeTenantName")
             .WithDescription("Changes the name of a tenant.")

@@ -13,7 +13,7 @@ namespace DongonResidentialsRental.Api.IntegrationTests.Infrastructure;
 public sealed class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
     private readonly PostgreSqlContainer _postgresContainer = new PostgreSqlBuilder()
-        .WithImage("postgres:16")
+        .WithImage("postgres:17")
         .WithDatabase("dongon_test")
         .WithUsername("postgres")
         .WithPassword("postgres")
