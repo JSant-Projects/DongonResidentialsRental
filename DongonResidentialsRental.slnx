@@ -13,6 +13,7 @@
     <Project Path="DongonResidentialsRental.Api/DongonResidentialsRental.Api.csproj" Id="14163a44-16e1-4e83-ad2f-f41ad428f680" />
   </Folder>
   <Folder Name="/test/">
+    <Project Path="DongonResidentialsRental.Api.IntegrationTests/DongonResidentialsRental.Api.IntegrationTests.csproj" Id="8c5debc9-13f5-4b30-ac84-3e9ff5fe4552" />
     <Project Path="DongonResidentialsRental.Application.UnitTests/DongonResidentialsRental.Application.UnitTests.csproj" Id="36b153a8-a434-49b0-9b7c-df976d56d946" />
     <Project Path="DongonResidentialsRental.Domain.UnitTests/DongonResidentialsRental.Domain.UnitTests.csproj" />
   </Folder>

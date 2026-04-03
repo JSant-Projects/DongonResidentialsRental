@@ -24,7 +24,7 @@ public static class BuildingEndpoint
             .WithDescription("Retrieves a list of buildings.")
             .Produces(StatusCodes.Status200OK);
 
-        group.MapGet("/available-buildings", GetAvailableBuildingsLookup)
+        group.MapGet("/available", GetAvailableBuildingsLookup)
             .WithName("GetAvailableBuildingsLookup")
             .WithDescription("Retrieves a list of available buildings for lookup.")
             .Produces(StatusCodes.Status200OK);
