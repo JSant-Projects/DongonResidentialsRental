@@ -44,6 +44,11 @@ internal sealed class UnitConfiguration : IEntityTypeConfiguration<Unit>
             .HasConversion<string>()
             .HasMaxLength(20);
 
+        builder.HasOne<Building>()
+            .WithMany()
+            .HasForeignKey(x => x.BuildingId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         builder.HasIndex(x => new { x.BuildingId, x.UnitNumber })
             .IsUnique();
     }

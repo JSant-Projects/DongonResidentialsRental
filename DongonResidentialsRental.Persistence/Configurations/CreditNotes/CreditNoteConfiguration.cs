@@ -58,6 +58,11 @@ internal sealed class CreditNoteConfiguration : IEntityTypeConfiguration<CreditN
         builder.Ignore(x => x.AmountApplied);
         builder.Ignore(x => x.RemainingAmount);
 
+        builder.HasOne<Lease>()
+            .WithMany()
+            .HasForeignKey(x => x.LeaseId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.HasMany(x => x.Allocations)
             .WithOne()
             .HasForeignKey(x => x.CreditNoteId)

@@ -76,6 +76,11 @@ internal sealed class PaymentConfiguration : IEntityTypeConfiguration<Payment>
         builder.Ignore(x => x.AllocatedAmount);
         builder.Ignore(x => x.RemainingAmount);
 
+        builder.HasOne<Tenant>()
+            .WithMany()
+            .HasForeignKey(x => x.TenantId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.HasMany(x => x.Allocations)
             .WithOne()
             .HasForeignKey(x => x.PaymentId)

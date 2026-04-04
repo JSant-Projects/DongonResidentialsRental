@@ -73,6 +73,11 @@ internal sealed class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
         builder.Ignore(x => x.AmountCredited);
         builder.Ignore(x => x.Balance);
 
+        builder.HasOne<Lease>()
+            .WithMany()
+            .HasForeignKey(x => x.LeaseId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.HasMany(x => x.Lines)
             .WithOne()
             .HasForeignKey(x => x.InvoiceId)

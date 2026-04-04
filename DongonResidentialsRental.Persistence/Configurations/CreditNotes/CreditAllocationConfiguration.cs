@@ -51,6 +51,11 @@ internal sealed class CreditAllocationConfiguration : IEntityTypeConfiguration<C
                 .IsRequired();
         });
 
+        builder.HasOne<Invoice>()
+            .WithMany()
+            .HasForeignKey(x => x.InvoiceId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.Navigation(x => x.Amount)
             .IsRequired();
 

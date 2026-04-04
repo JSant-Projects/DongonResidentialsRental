@@ -54,6 +54,11 @@ internal sealed class PaymentAllocationConfiguration : IEntityTypeConfiguration<
         builder.Navigation(x => x.Amount)
             .IsRequired();
 
+        builder.HasOne<Invoice>()
+            .WithMany()
+            .HasForeignKey(x => x.InvoiceId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.HasIndex(x => x.PaymentId);
         builder.HasIndex(x => x.InvoiceId);
     }
