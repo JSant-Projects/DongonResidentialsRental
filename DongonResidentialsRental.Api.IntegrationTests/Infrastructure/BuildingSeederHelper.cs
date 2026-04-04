@@ -43,4 +43,26 @@ public static class BuildingSeedHelper
         await dbContext.Buildings.AddRangeAsync(buildings);
         await dbContext.SaveChangesAsync();
     }
+
+    public static async Task<Building> SeedBuildingAsync(
+        IntegrationTestWebAppFactory factory,
+        string name = "Test Building",
+        string street = "123 Main St",
+        string city = "Camrose",
+        string province = "AB",
+        string postalCode = "T4V 1A1")
+    {
+        using var scope = factory.Services.CreateScope();
+
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        var building = Building.Create(
+            name,
+            Address.Create(street, city, province, postalCode));
+
+        await dbContext.Buildings.AddAsync(building);
+        await dbContext.SaveChangesAsync();
+
+        return building;
+    }
 }

@@ -39,7 +39,7 @@ public static class UnitQueryExtensions
         int? floor)
     {
 
-        if (floor is null && floor < 1)
+        if (floor is null || floor < 1)
             return query;
 
         return query.Where(u => u.Floor == floor);

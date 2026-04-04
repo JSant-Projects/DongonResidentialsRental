@@ -9,8 +9,8 @@ using System.Text;
 namespace DongonResidentialsRental.Application.Units.Queries.GetUnits;
 
 public sealed record GetUnitsQuery(
-    UnitStatus Status,
-    string UnitNumber,
+    UnitStatus? Status,
+    string? UnitNumber,
     BuildingId? BuildingId,
     int? Floor,
     int Page = 1,

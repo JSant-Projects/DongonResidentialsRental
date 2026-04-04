@@ -51,6 +51,14 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
                 Instance = httpContext.Request.Path
             },
 
+            NotFoundException notFoundException => new ProblemDetails
+            {
+                Title = "Resource not found.",
+                Status = StatusCodes.Status404NotFound,
+                Detail = notFoundException.Message,
+                Instance = httpContext.Request.Path
+            },
+
             _ => new ProblemDetails
             {
                 Title = "Server error.",

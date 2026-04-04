@@ -1,5 +1,6 @@
 ﻿using DongonResidentialsRental.Api.Endpoints.Buildings;
 using DongonResidentialsRental.Api.Endpoints.Tenants;
+using DongonResidentialsRental.Api.Endpoints.Units;
 
 namespace DongonResidentialsRental.Api.Common.Extensions;
 
@@ -9,6 +10,7 @@ public static class EndpointRouteBuilderExtensions
     {
         app.MapBuildingEndpoints();
         app.MapTenantEndpoint();
+        app.MapUnitEndpoint();
 
         return app;
     }
