@@ -21,6 +21,14 @@ internal sealed class TenantRepository : ITenantRepository
         _dbContext.Tenants.Add(tenant);
     }
 
+    public async Task<bool> ExistsAsync(TenantId tenantId, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.Tenants
+                        .AnyAsync(t => 
+                            t.TenantId == tenantId, 
+                            cancellationToken);
+    }
+
     public async Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
         return await _dbContext.Tenants

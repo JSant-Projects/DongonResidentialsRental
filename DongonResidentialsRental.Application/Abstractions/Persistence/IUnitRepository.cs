@@ -15,5 +15,6 @@ public interface IUnitRepository
         BuildingId buildingId,
         string unitNumber,
         CancellationToken cancellationToken = default);
+    Task<bool> ExistsAsync(UnitId unitId, CancellationToken cancellationToken = default);
     void Remove(Unit unit);
 }

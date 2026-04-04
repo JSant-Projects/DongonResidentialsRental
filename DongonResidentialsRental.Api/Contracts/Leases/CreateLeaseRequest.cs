@@ -8,6 +8,6 @@ public sealed record CreateLeaseRequest(
     decimal MonthlyRate,
     int DueDayOfMonth,
     int GracePeridoDays,
-    bool tenantPaysElectricity,
-    bool tenantPaysWater,
+    bool TenantPaysElectricity,
+    bool TenantPaysWater,
     string Currency);

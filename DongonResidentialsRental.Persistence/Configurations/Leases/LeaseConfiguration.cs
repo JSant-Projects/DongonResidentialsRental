@@ -91,6 +91,16 @@ internal sealed class LeaseConfiguration : IEntityTypeConfiguration<Lease>
                 .IsRequired();
         });
 
+        builder.HasOne<Tenant>()
+            .WithMany()
+            .HasForeignKey(x => x.Occupancy)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne<Unit>()
+            .WithMany()
+            .HasForeignKey(x => x.UnitId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.Navigation(x => x.MonthlyRate).IsRequired();
         builder.Navigation(x => x.Term).IsRequired();
         builder.Navigation(x => x.BillingSettings).IsRequired();

@@ -131,12 +131,7 @@ public static class UnitEndpoint
         IQueryDispatcher dispatcher,
         CancellationToken cancellationToken)
     {
-        if (!queryParams.BuildingId.HasValue || queryParams.BuildingId == Guid.Empty)
-        {
-            return Results.BadRequest("BuildingId is required.");
-        }
-
-        var buildingId = new BuildingId(queryParams.BuildingId.Value);
+        var buildingId = new BuildingId(queryParams.BuildingId);
 
         var getAvailableUnitsLookupQuery = new GetAvailableUnitsLookupByBuildingQuery(buildingId);
 

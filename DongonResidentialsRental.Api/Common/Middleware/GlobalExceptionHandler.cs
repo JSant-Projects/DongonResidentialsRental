@@ -4,6 +4,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using System.Text.Json;
 
 namespace DongonResidentialsRental.Api.Common.Middleware;
 
@@ -56,6 +57,40 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
                 Title = "Resource not found.",
                 Status = StatusCodes.Status404NotFound,
                 Detail = notFoundException.Message,
+                Instance = httpContext.Request.Path
+            },
+
+            ConflictException conflictException => new ProblemDetails
+            {
+                Title = "Conflict.",
+                Status = StatusCodes.Status409Conflict,
+                Detail = conflictException.Message,
+                Instance = httpContext.Request.Path
+            },
+
+            JsonException jsonException => new ProblemDetails
+            {
+                Title = "Invalid JSON.",
+                Status = StatusCodes.Status400BadRequest,
+                Detail = jsonException.Message,
+                Instance = httpContext.Request.Path
+            },
+
+            BadHttpRequestException badRequestException
+                when badRequestException.InnerException is JsonException jsonException
+                => new ProblemDetails
+                {
+                    Title = "Invalid JSON.",
+                    Status = StatusCodes.Status400BadRequest,
+                    Detail = jsonException.Message,
+                    Instance = httpContext.Request.Path
+                },
+
+            BadHttpRequestException badRequestException => new ProblemDetails 
+            {
+                Title = "Invalid Request.",
+                Status = StatusCodes.Status400BadRequest,
+                Detail = badRequestException.Message,
                 Instance = httpContext.Request.Path
             },
 

@@ -21,6 +21,14 @@ internal sealed class UnitRepository : IUnitRepository
         _dbContext.Units.Add(unit);
     }
 
+    public async Task<bool> ExistsAsync(UnitId unitId, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.Units
+                        .AnyAsync(u => 
+                            u.UnitId == unitId, 
+                            cancellationToken);
+    }
+
     public async Task<bool> ExistsUnitNumberInBuildingAsync(BuildingId buildingId, string unitNumber, CancellationToken cancellationToken = default)
     {
         return await _dbContext.Units

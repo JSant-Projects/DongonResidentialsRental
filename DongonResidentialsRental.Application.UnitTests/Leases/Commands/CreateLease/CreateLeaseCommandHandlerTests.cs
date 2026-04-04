@@ -17,6 +17,8 @@ public sealed class CreateLeaseCommandHandlerTests
 {
     private readonly ILeaseRepository _leaseRepository = Substitute.For<ILeaseRepository>();
     private readonly IDateTimeProvider _dateTimeProvider = Substitute.For<IDateTimeProvider>();
+    private readonly IUnitRepository _unitRepository = Substitute.For<IUnitRepository>();
+    private readonly ITenantRepository _tenantRepository = Substitute.For<ITenantRepository>();
 
     private readonly CreateLeaseCommandHandler _handler;
 
@@ -24,7 +26,9 @@ public sealed class CreateLeaseCommandHandlerTests
     {
         _handler = new CreateLeaseCommandHandler(
             _leaseRepository,
-            _dateTimeProvider);
+            _dateTimeProvider,
+            _unitRepository,
+            _tenantRepository);
     }
 
     [Fact]
@@ -37,6 +41,18 @@ public sealed class CreateLeaseCommandHandlerTests
         var command = CreateCommand();
 
         _dateTimeProvider.Today.Returns(DateOnly.FromDateTime(today));
+
+        _unitRepository
+            .ExistsAsync(
+                command.UnitId,
+                Arg.Any<CancellationToken>())
+            .Returns(true);
+
+        _tenantRepository
+            .ExistsAsync(
+                command.Occupancy,
+                Arg.Any<CancellationToken>())
+            .Returns(true);
 
         _leaseRepository
             .ExistsActiveLeaseForUnitAsync(
@@ -73,6 +89,18 @@ public sealed class CreateLeaseCommandHandlerTests
         var command = CreateCommand();
 
         _dateTimeProvider.Today.Returns(DateOnly.FromDateTime(today));
+
+        _unitRepository
+            .ExistsAsync(
+                command.UnitId, 
+                Arg.Any<CancellationToken>())
+            .Returns(true);
+
+        _tenantRepository
+            .ExistsAsync(
+                command.Occupancy,
+                Arg.Any<CancellationToken>())
+            .Returns(true);
 
         _leaseRepository
             .ExistsActiveLeaseForUnitAsync(
@@ -121,12 +149,24 @@ public sealed class CreateLeaseCommandHandlerTests
 
         _dateTimeProvider.Today.Returns(DateOnly.FromDateTime(today));
 
+        _unitRepository
+            .ExistsAsync(
+                command.UnitId, 
+                Arg.Any<CancellationToken>())
+            .Returns(true);
+
         _leaseRepository
             .ExistsActiveLeaseForUnitAsync(
                 command.UnitId,
                 expectedDate,
                 Arg.Any<CancellationToken>())
             .Returns(false);
+
+        _tenantRepository
+            .ExistsAsync(
+                command.Occupancy,
+                Arg.Any<CancellationToken>())
+            .Returns(true);
 
         _leaseRepository
             .ExistsActiveLeaseForTenantAsync(
@@ -177,6 +217,18 @@ public sealed class CreateLeaseCommandHandlerTests
         var command = CreateCommand();
 
         _dateTimeProvider.Today.Returns(DateOnly.FromDateTime(today));
+
+        _unitRepository
+            .ExistsAsync(
+                command.UnitId,
+                Arg.Any<CancellationToken>())
+            .Returns(true);
+
+        _tenantRepository
+            .ExistsAsync(
+                command.Occupancy,
+                Arg.Any<CancellationToken>())
+            .Returns(true);
 
         _leaseRepository
             .ExistsActiveLeaseForUnitAsync(
@@ -233,7 +285,7 @@ public sealed class CreateLeaseCommandHandlerTests
             MonthlyRate: monthlyRate,
             DueDayOfMonth: dueDayOfMonth,
             GracePeridoDays: gracePeriodDays,
-            tenantPaysElectricity: tenantPaysElectricity,
-            tenantPaysWater: tenantPaysWater);
+            TenantPaysElectricity: tenantPaysElectricity,
+            TenantPaysWater: tenantPaysWater);
     }
 }
