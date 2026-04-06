@@ -80,7 +80,8 @@ public sealed class GetTenantsWithoutLeaseLookupTests : IntegrationTestBase
             tenantWithLease.TenantId,
             unit.UnitId,
             startDate: DateOnly.FromDateTime(DateTime.UtcNow).AddDays(-10),
-            endDate: null);
+            endDate: null,
+            status: Domain.Lease.LeaseStatus.Active);
 
         var response = await Client.GetAsync("/api/tenants/without-lease");
 

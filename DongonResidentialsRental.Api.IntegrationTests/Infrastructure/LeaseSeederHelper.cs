@@ -12,7 +12,7 @@ namespace DongonResidentialsRental.Api.IntegrationTests.Infrastructure;
 
 public static class LeaseSeederHelper
 {
-    public static Lease CreateActiveLease(
+    public static Lease CreateLease(
         TenantId tenantId,
         UnitId unitId,
         DateOnly startDate,
@@ -22,7 +22,9 @@ public static class LeaseSeederHelper
         int gracePeriodDays = 5,
         bool tenantPaysElectricity = true,
         bool tenantPaysWater = true,
-        string currency = "CAD")
+        string currency = "CAD",
+        LeaseStatus status = LeaseStatus.Draft,
+        DateOnly? terminationDate = null)
     {
         var term = LeaseTerm.Create(startDate, endDate);
         var money = Money.Create(currency, monthlyRate);
@@ -39,9 +41,32 @@ public static class LeaseSeederHelper
             billingSettings,
             utilityResponsibility);
 
-        lease.Activate();
+        switch (status)
+        {
+            case LeaseStatus.Active:
+                lease.Activate();
+                break;
+            case LeaseStatus.Terminated:
+                var today =  DateOnly.FromDateTime(DateTime.UtcNow);
+                var terminationDateToUse = terminationDate ?? today;
+
+                lease.Activate();
+                lease.Terminate(terminationDateToUse, today);
+                break;
+        }
 
         return lease;
+    }
+
+    public static async Task SeedLeasesAsync(
+        IntegrationTestWebAppFactory factory,
+        params Lease[] leases)
+    {
+        using var scope = factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        await dbContext.Leases.AddRangeAsync(leases);
+        await dbContext.SaveChangesAsync();
     }
 
     public static async Task<Lease> SeedLeaseAsync(
@@ -55,12 +80,14 @@ public static class LeaseSeederHelper
         int gracePeriodDays = 5,
         bool tenantPaysElectricity = true,
         bool tenantPaysWater = true,
-        string currency = "CAD")
+        string currency = "CAD",
+        LeaseStatus status = LeaseStatus.Draft,
+        DateOnly? terminationDate = null)
     {
         using var scope = factory.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-        var lease = CreateActiveLease(
+        var lease = CreateLease(
             tenantId,
             unitId,
             startDate,
@@ -70,7 +97,9 @@ public static class LeaseSeederHelper
             gracePeriodDays,
             tenantPaysElectricity,
             tenantPaysWater,
-            currency);
+            currency,
+            status,
+            terminationDate);
 
         await dbContext.Leases.AddAsync(lease);
         await dbContext.SaveChangesAsync();

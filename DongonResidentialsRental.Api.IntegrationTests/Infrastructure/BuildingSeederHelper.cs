@@ -9,7 +9,7 @@ using System.Text;
 
 namespace DongonResidentialsRental.Api.IntegrationTests.Infrastructure;
 
-public static class BuildingSeedHelper
+public static class BuildingSeederHelper
 {
     public static async Task SeedBuildingsAsync(
         IntegrationTestWebAppFactory factory,

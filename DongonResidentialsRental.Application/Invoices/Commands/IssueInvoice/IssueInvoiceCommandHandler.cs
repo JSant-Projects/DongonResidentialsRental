@@ -29,7 +29,7 @@ public sealed class IssueInvoiceCommandHandler : ICommandHandler<IssueInvoiceCom
     {
         var today = _dateTimeProvider.Today;
 
-        var invoice = await _invoiceRepository.GetWithDetailsByIAsync(request.InvoiceId, cancellationToken);
+        var invoice = await _invoiceRepository.GetByIdAsync(request.InvoiceId, cancellationToken);
         if (invoice is null)
         {
             throw new NotFoundException(nameof(Invoice), request.InvoiceId);

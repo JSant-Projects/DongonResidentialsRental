@@ -62,7 +62,7 @@ public static class UnitSeederHelper
         int? floor = 1,
         UnitStatus status = UnitStatus.Active)
     {
-        var building = await  BuildingSeedHelper.SeedBuildingAsync(
+        var building = await  BuildingSeederHelper.SeedBuildingAsync(
             factory,
             buildingName);
 

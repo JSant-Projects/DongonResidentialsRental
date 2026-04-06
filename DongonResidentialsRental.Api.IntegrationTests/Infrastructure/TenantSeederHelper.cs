@@ -30,16 +30,11 @@ public static class TenantSeederHelper
         using var scope = factory.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-        var email = Email.Create(tenantEmail);
-        var phoneNumber = PhoneNumber.Create(tenantPhoneNumber);
-        var contactInfo = ContactInfo.Create(email, phoneNumber);
-
-        var personalInfo = PersonalInfo.Create(tenantFirstName, tenantLastName);
-
-
-        var tenant = Tenant.Create(
-            personalInfo,
-            contactInfo);
+        var tenant = CreateTenant(
+            tenantFirstName,
+            tenantLastName,
+            tenantEmail,
+            tenantPhoneNumber);
 
         await dbContext.Tenants.AddAsync(tenant);
         await dbContext.SaveChangesAsync();

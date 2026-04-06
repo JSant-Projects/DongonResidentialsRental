@@ -20,7 +20,7 @@ public sealed class GetBuildingsTests : IntegrationTestBase
     public async Task GetBuildings_ShouldReturnPagedResults()
     {
         await ResetDatabaseAsync();
-        await BuildingSeedHelper.SeedBuildingsAsync(Factory, 100);
+        await BuildingSeederHelper.SeedBuildingsAsync(Factory, 100);
 
         var response = await Client.GetAsync("/api/buildings?page=1&pageSize=20");
 
@@ -34,7 +34,7 @@ public sealed class GetBuildingsTests : IntegrationTestBase
     public async Task GetBuildings_ShouldFilterByStatus()
     {
         await ResetDatabaseAsync();
-        await BuildingSeedHelper.SeedBuildingsAsync(Factory, 50);
+        await BuildingSeederHelper.SeedBuildingsAsync(Factory, 50);
 
         var response = await Client.GetAsync("/api/buildings?status=Active&page=1&pageSize=20");
 
@@ -51,7 +51,7 @@ public sealed class GetBuildingsTests : IntegrationTestBase
 
         // You can seed targeted data manually
         // plus bulk fake data
-        await BuildingSeedHelper.SeedBuildingsAsync(Factory, 50);
+        await BuildingSeederHelper.SeedBuildingsAsync(Factory, 50);
 
         var response = await Client.GetAsync("/api/buildings?searchTerm=Camrose&page=1&pageSize=20");
 
@@ -62,7 +62,7 @@ public sealed class GetBuildingsTests : IntegrationTestBase
     public async Task GetBuildings_CanBeObservedForElapsedTime()
     {
         await ResetDatabaseAsync();
-        await BuildingSeedHelper.SeedBuildingsAsync(Factory, 1000);
+        await BuildingSeederHelper.SeedBuildingsAsync(Factory, 1000);
 
         var stopwatch = Stopwatch.StartNew();
 

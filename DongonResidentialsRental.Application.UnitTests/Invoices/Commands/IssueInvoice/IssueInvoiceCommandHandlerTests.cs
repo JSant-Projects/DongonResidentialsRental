@@ -65,8 +65,7 @@ public sealed class IssueInvoiceCommandHandlerTests
             new DateOnly(2026, 3, 26),
             new DateOnly(2026, 4, 6));
 
-        var invoiceId = NewInvoiceId();
-        var command = new IssueInvoiceCommand(invoiceId);
+        var command = new IssueInvoiceCommand(invoice.InvoiceId);
 
         var lease = Lease.Create(
           occupancy: new TenantId(Guid.NewGuid()),
@@ -84,7 +83,9 @@ public sealed class IssueInvoiceCommandHandlerTests
         _dateTimeProvider.Today.Returns(DateOnly.FromDateTime(today));
 
         _invoiceRepository
-            .GetByIdAsync(invoiceId)
+            .GetByIdAsync(
+                invoice.InvoiceId, 
+                Arg.Any<CancellationToken>())
             .Returns(invoice);
 
         _leaseRepository
@@ -107,8 +108,7 @@ public sealed class IssueInvoiceCommandHandlerTests
             new DateOnly(2026, 3, 26),
             new DateOnly(2026, 4, 6));
 
-        var invoiceId = NewInvoiceId();
-        var command = new IssueInvoiceCommand(invoiceId);
+        var command = new IssueInvoiceCommand(invoice.InvoiceId);
 
 
         var lease = Lease.Create(
@@ -124,7 +124,9 @@ public sealed class IssueInvoiceCommandHandlerTests
         _dateTimeProvider.Today.Returns(new DateOnly(2026, 3, 27));
 
         _invoiceRepository
-            .GetByIdAsync(invoiceId)
+            .GetByIdAsync(
+                invoice.InvoiceId,
+                Arg.Any<CancellationToken>())
             .Returns(invoice);
 
         _leaseRepository
@@ -147,8 +149,8 @@ public sealed class IssueInvoiceCommandHandlerTests
             new DateOnly(2026, 3, 26),
             new DateOnly(2026, 4, 6));
 
-        var invoiceId = NewInvoiceId();
-        var command = new IssueInvoiceCommand(invoiceId);
+
+        var command = new IssueInvoiceCommand(invoice.InvoiceId);
 
         var lease = Lease.Create(
             occupancy: new TenantId(Guid.NewGuid()),
@@ -161,7 +163,9 @@ public sealed class IssueInvoiceCommandHandlerTests
                 tenantPaysWater: false));
 
         _invoiceRepository
-            .GetByIdAsync(invoiceId)
+            .GetByIdAsync(
+                invoice.InvoiceId,
+                Arg.Any<CancellationToken>())
             .Returns(invoice);
 
         _leaseRepository

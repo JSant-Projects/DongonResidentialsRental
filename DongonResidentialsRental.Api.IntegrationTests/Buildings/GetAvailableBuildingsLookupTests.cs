@@ -19,7 +19,7 @@ public sealed class GetAvailableBuildingsLookupTests : IntegrationTestBase
     public async Task GetAvailableBuildingsLookup_ShouldReturnResults()
     {
         await ResetDatabaseAsync();
-        await BuildingSeedHelper.SeedBuildingsAsync(Factory, 100);
+        await BuildingSeederHelper.SeedBuildingsAsync(Factory, 100);
 
         var response = await Client.GetAsync("/api/buildings/available");
 
@@ -33,7 +33,7 @@ public sealed class GetAvailableBuildingsLookupTests : IntegrationTestBase
     public async Task GetAvailableBuildingsLookup_CanBeObservedForElapsedTime()
     {
         await ResetDatabaseAsync();
-        await BuildingSeedHelper.SeedBuildingsAsync(Factory, 1000);
+        await BuildingSeederHelper.SeedBuildingsAsync(Factory, 1000);
 
         var stopwatch = Stopwatch.StartNew();
 

@@ -38,7 +38,7 @@ public sealed class GetUnitsTests : IntegrationTestBase
         // Arrange
         await ResetDatabaseAsync();
 
-        var building = await BuildingSeedHelper.SeedBuildingAsync(Factory, name: "Building A");
+        var building = await BuildingSeederHelper.SeedBuildingAsync(Factory, name: "Building A");
 
         await UnitSeederHelper.SeedUnitAsync(Factory, buildingId: building.BuildingId, unitNumber: "101", floor: 1);
         await UnitSeederHelper.SeedUnitAsync(Factory, buildingId: building.BuildingId, unitNumber: "102", floor: 1);
@@ -59,7 +59,7 @@ public sealed class GetUnitsTests : IntegrationTestBase
         // Arrange
         await ResetDatabaseAsync();
 
-        var building = await BuildingSeedHelper.SeedBuildingAsync(Factory, name: "Building A");
+        var building = await BuildingSeederHelper.SeedBuildingAsync(Factory, name: "Building A");
 
         await UnitSeederHelper.CreateUnitAsync(Factory, buildingId: building.BuildingId, status: UnitStatus.Active, unitNumber: "101");
         await UnitSeederHelper.CreateUnitAsync(Factory, buildingId: building.BuildingId, UnitStatus.Inactive, unitNumber: "102");
@@ -81,7 +81,7 @@ public sealed class GetUnitsTests : IntegrationTestBase
         // Arrange
         await ResetDatabaseAsync();
 
-        var building = await BuildingSeedHelper.SeedBuildingAsync(Factory, name: "Building A");
+        var building = await BuildingSeederHelper.SeedBuildingAsync(Factory, name: "Building A");
 
         await UnitSeederHelper.SeedUnitAsync(Factory, buildingId: building.BuildingId, unitNumber: "101");
         await UnitSeederHelper.SeedUnitAsync(Factory, buildingId: building.BuildingId, unitNumber: "102");
@@ -103,7 +103,7 @@ public sealed class GetUnitsTests : IntegrationTestBase
         // Arrange
         await ResetDatabaseAsync();
 
-        var building = await BuildingSeedHelper.SeedBuildingAsync(Factory, name: "Building A");
+        var building = await BuildingSeederHelper.SeedBuildingAsync(Factory, name: "Building A");
 
         await UnitSeederHelper.SeedUnitAsync(Factory, buildingId: building.BuildingId, unitNumber: "101", floor: 1);
         await UnitSeederHelper.SeedUnitAsync(Factory, buildingId: building.BuildingId, unitNumber: "102", floor: 1);
@@ -126,7 +126,7 @@ public sealed class GetUnitsTests : IntegrationTestBase
         // Arrange
         await ResetDatabaseAsync();
 
-        var building = await BuildingSeedHelper.SeedBuildingAsync(Factory, name: "Building A");
+        var building = await BuildingSeederHelper.SeedBuildingAsync(Factory, name: "Building A");
 
         await UnitSeederHelper.SeedUnitAsync(Factory, buildingId: building.BuildingId, unitNumber: "101");
         await UnitSeederHelper.SeedUnitAsync(Factory, buildingId: building.BuildingId, unitNumber: "102");

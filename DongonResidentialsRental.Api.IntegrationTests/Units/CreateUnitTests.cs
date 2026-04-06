@@ -18,7 +18,7 @@ public sealed class CreateUnitTests : IntegrationTestBase
     public async Task CreateUnit_ShouldReturnCreated_WhenRequestIsValid()
     {
         await ResetDatabaseAsync();
-        var building = await BuildingSeedHelper.SeedBuildingAsync(Factory);
+        var building = await BuildingSeederHelper.SeedBuildingAsync(Factory);
         var request = new
         {
             BuildingId = building.BuildingId.Id,

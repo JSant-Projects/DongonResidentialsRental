@@ -138,7 +138,8 @@ public sealed class GetAvailableUnitsLookupTests : IntegrationTestBase
             tenant.TenantId,
             unitWithActiveLease.UnitId,
             DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(-5)),
-            DateOnly.FromDateTime(DateTime.UtcNow.Date.AddMonths(6)));
+            DateOnly.FromDateTime(DateTime.UtcNow.Date.AddMonths(6)),
+            status: LeaseStatus.Active);
 
         // Act
         var result = await Client.GetFromJsonAsync<List<UnitLookupResponse>>(
