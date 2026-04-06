@@ -40,7 +40,7 @@ public sealed class GetOutstandingInvoicesQueryHandler : IQueryHandler<GetOutsta
                 x.DueDate,
                 x.Status,
                 x.TotalAmount,
-                x.Balance,
+                x.TotalAmount - x.AmountPaid - x.AmountCredited,
                 x.Currency))
             .ToListAsync(cancellationToken);
 

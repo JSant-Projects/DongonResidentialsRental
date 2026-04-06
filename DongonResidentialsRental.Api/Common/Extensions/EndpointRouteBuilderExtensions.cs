@@ -1,4 +1,5 @@
 ﻿using DongonResidentialsRental.Api.Endpoints.Buildings;
+using DongonResidentialsRental.Api.Endpoints.Invoices;
 using DongonResidentialsRental.Api.Endpoints.Leases;
 using DongonResidentialsRental.Api.Endpoints.Tenants;
 using DongonResidentialsRental.Api.Endpoints.Units;
@@ -13,6 +14,7 @@ public static class EndpointRouteBuilderExtensions
         app.MapTenantEndpoint();
         app.MapUnitEndpoint();
         app.MapLeaseEndpoint();
+        app.MapInvoiceEndpoint();
 
         return app;
     }

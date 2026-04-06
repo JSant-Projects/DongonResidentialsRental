@@ -33,9 +33,12 @@ internal sealed class InvoiceRepository : IInvoiceRepository
                             cancellationToken);
     }
 
-    public async Task<Invoice?> GetByIdAsync(InvoiceId invoiceId, CancellationToken cancellationToken = default)
+    public async Task<Invoice?> GetWithDetailsByIAsync(InvoiceId invoiceId, CancellationToken cancellationToken = default)
     {
         return await _dbContext.Invoices
+                        .Include(i => i.Lines)
+                        .Include(i => i.Allocations)
+                        .Include(i => i.CreditAllocations)
                         .FirstOrDefaultAsync(i => 
                             i.InvoiceId == invoiceId, 
                             cancellationToken);
@@ -73,5 +76,13 @@ internal sealed class InvoiceRepository : IInvoiceRepository
     public void Remove(Invoice invoice)
     {
         _dbContext.Invoices.Remove(invoice);
+    }
+
+    public async Task<Invoice?> GetByIdAsync(InvoiceId invoiceId, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.Invoices
+                        .FirstOrDefaultAsync(i => 
+                            i.InvoiceId == invoiceId, 
+                            cancellationToken);
     }
 }

@@ -40,7 +40,7 @@ public sealed partial class GetInvoicesQueryHandler : IQueryHandler<GetInvoicesQ
                 x.DueDate,
                 x.Status,
                 x.TotalAmount,
-                x.Balance,
+                x.TotalAmount - x.AmountPaid - x.AmountCredited,
                 x.Currency))
             .ToListAsync(cancellationToken);
 

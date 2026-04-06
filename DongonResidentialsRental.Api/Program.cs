@@ -3,7 +3,7 @@ using DongonResidentialsRental.Api.Common.Middleware;
 using DongonResidentialsRental.Application;
 using DongonResidentialsRental.Infrastracture;
 using DongonResidentialsRental.Persistence;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http.Json;
 using Scalar.AspNetCore;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -16,10 +16,10 @@ builder.Services.AddOpenApi();
 
 builder.Services.Configure<JsonOptions>(options =>
 {
-    options.JsonSerializerOptions.Converters.Add(
+    options.SerializerOptions.Converters.Add(
         new JsonStringEnumConverter(
-                JsonNamingPolicy.CamelCase, 
-                allowIntegerValues: false));
+            JsonNamingPolicy.CamelCase,
+            allowIntegerValues: false));
 });
 
 var config = builder.Configuration;

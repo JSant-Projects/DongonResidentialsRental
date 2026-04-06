@@ -4,6 +4,7 @@ using DongonResidentialsRental.Application.Buildings.Commands.CreateBuilding;
 using DongonResidentialsRental.Application.Buildings.Queries.GetAvailableBuildingsLookup;
 using DongonResidentialsRental.Application.Buildings.Queries.GetBuildingById;
 using DongonResidentialsRental.Application.Buildings.Queries.GetBuildings;
+using DongonResidentialsRental.Domain.Invoice;
 
 namespace DongonResidentialsRental.Api.Endpoints.Buildings;
 
@@ -11,6 +12,7 @@ public static class BuildingEndpoint
 {
     public static IEndpointRouteBuilder MapBuildingEndpoints(this IEndpointRouteBuilder app)
     {
+
         var group = app.MapGroup("/api/buildings")
             .WithTags("Buildings");
 
@@ -47,10 +49,7 @@ public static class BuildingEndpoint
 
         var result = await dispatcher.Send(command, cancellationToken);
 
-        return Results.Created($"/api/buildings/{result.Id}", new
-        {
-            Id = result.Id,
-        });
+        return Results.Created($"/api/buildings/{result.Id}", result.Id);
     }
 
     private static async Task<IResult> GetBuildings(
@@ -58,13 +57,11 @@ public static class BuildingEndpoint
         IQueryDispatcher dispatcher,
         CancellationToken cancellationToken)
     {
-        var query = new GetBuildingsQuery(
-            queryParams.Status,
-            queryParams.SearchTerm,
-            queryParams.Page,
-            queryParams.PageSize);
 
-        var result = await dispatcher.Send(query, cancellationToken);
+        var result = await dispatcher.Send(
+                            queryParams.ToQuery(), 
+                            cancellationToken);
+
         return Results.Ok(result);
     }
 

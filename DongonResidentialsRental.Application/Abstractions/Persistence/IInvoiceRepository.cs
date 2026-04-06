@@ -8,6 +8,7 @@ public interface IInvoiceRepository
 {
     void Add(Invoice invoice);
     Task<Invoice?> GetByIdAsync(InvoiceId invoiceId, CancellationToken cancellationToken = default);
+    Task<Invoice?> GetWithDetailsByIAsync(InvoiceId invoiceId, CancellationToken cancellationToken = default);
     Task<bool> ExistsIssuedAsync(
         LeaseId leaseId,
         BillingPeriod billingPeriod,

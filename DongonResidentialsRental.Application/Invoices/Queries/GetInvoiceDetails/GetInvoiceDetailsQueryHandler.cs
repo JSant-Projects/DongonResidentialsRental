@@ -1,105 +1,123 @@
 ﻿using DongonResidentialsRental.Application.Abstractions.Data;
 using DongonResidentialsRental.Application.Abstractions.Messaging;
+using DongonResidentialsRental.Application.Abstractions.Persistence;
 using DongonResidentialsRental.Application.Exceptions;
 using DongonResidentialsRental.Domain.Invoice;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
+using System.Reflection.Emit;
 
 namespace DongonResidentialsRental.Application.Invoices.Queries.GetInvoiceDetails;
 
 public sealed class GetInvoiceDetailsQueryHandler : IQueryHandler<GetInvoiceDetailsQuery, InvoiceDetailsResponse>
 {
     private readonly IApplicationDbContext _dbContext;
-    public GetInvoiceDetailsQueryHandler(IApplicationDbContext dbContext)
+    private readonly IInvoiceRepository _invoiceRepository;
+    public GetInvoiceDetailsQueryHandler(
+        IApplicationDbContext dbContext,
+        IInvoiceRepository invoiceRepository)
     {
         _dbContext = dbContext;
+        _invoiceRepository = invoiceRepository;
     }
     public async Task<InvoiceDetailsResponse> Handle(GetInvoiceDetailsQuery request, CancellationToken cancellationToken)
     {
-        var invoice = await
-        (from i in _dbContext.Invoices.AsNoTracking()
-         join l in _dbContext.Leases.AsNoTracking()
-             on i.LeaseId equals l.LeaseId
-         join t in _dbContext.Tenants.AsNoTracking()
-             on l.Occupancy equals t.TenantId
-         join u in _dbContext.Units.AsNoTracking()
-             on l.UnitId equals u.UnitId
-         join b in _dbContext.Buildings.AsNoTracking()
-             on u.BuildingId equals b.BuildingId
-         where i.InvoiceId == request.InvoiceId
-         select new InvoiceResponse(
-             i.InvoiceId.Id,
-             i.InvoiceNumber,
-             l.LeaseId.Id,
-             t.PersonalInfo.FirstName + " " + t.PersonalInfo.LastName,
-             b.Name,
-             u.UnitNumber,
-             i.BillingPeriod.From,
-             i.BillingPeriod.To,
-             i.DueDate,
-             i.Status,
-             i.Total.Amount,
-             i.Balance.Amount,
-             i.Total.Currency))
-        .FirstOrDefaultAsync(cancellationToken);
+        var invoice = await _invoiceRepository
+                                .GetWithDetailsByIAsync(
+                                    request.InvoiceId, 
+                                    cancellationToken);
 
         if (invoice is null)
         {
             throw new NotFoundException(nameof(Invoice), request.InvoiceId);
         }
 
-        // Get invoice lines
-        var invoiceLines = await GetInvoiceLinesAsync(request.InvoiceId, cancellationToken);
-
-        // Get invoice allocations
-        var allocations = await GetInvoicePaymentsAsync(request.InvoiceId, cancellationToken);
-
-        // Get invoice credit allocations
-        var credits = await GetInvoiceCreditsAsync(request.InvoiceId, cancellationToken);
+        var relatedInfo = await 
+            (from l in _dbContext.Leases.AsNoTracking()
+                join t in _dbContext.Tenants.AsNoTracking()
+                    on l.Occupancy equals t.TenantId
+                join u in _dbContext.Units.AsNoTracking()
+                    on l.UnitId equals u.UnitId
+                join b in _dbContext.Buildings.AsNoTracking()
+                    on u.BuildingId equals b.BuildingId
+                where l.LeaseId == invoice.LeaseId
+                select new
+                {
+                    TenantName = t.PersonalInfo.FirstName + " " + t.PersonalInfo.LastName,
+                    BuildingName = b.Name,
+                    UnitNumber = u.UnitNumber
+                })
+                .FirstOrDefaultAsync(cancellationToken);
 
         return new InvoiceDetailsResponse(
-            invoice.InvoiceId,
+            invoice.InvoiceId.Id,
             invoice.InvoiceNumber,
-            invoice.LeaseId,
-            invoice.TenantName,
-            invoice.BuildingName,
-            invoice.UnitNumber,
-            invoice.From,
-            invoice.To,
+            invoice.LeaseId.Id,
+            relatedInfo!.TenantName,
+            relatedInfo!.BuildingName,
+            relatedInfo!.UnitNumber,
+            invoice.BillingPeriod.From,
+            invoice.BillingPeriod.To,
             invoice.DueDate,
             invoice.Status,
-            invoice.TotalAmount,
-            invoice.Balance,
+            invoice.Total.Amount,
+            invoice.Balance.Amount,
             invoice.Currency,
-            invoiceLines,
-            allocations,
-            credits);
+            MapInvoiceLines(invoice.Lines),
+            MapInvoicePayments(invoice.Allocations),
+            MapInvoiceCredits(invoice.CreditAllocations));
     }
 
-    
+    public IReadOnlyList<InvoiceLineResponse> MapInvoiceLines(IReadOnlyCollection<InvoiceLine> lines)
+    {
+        return [.. lines.Select(l => new InvoiceLineResponse(
+            l.Description,
+            l.Quantity,
+            l.UnitPrice.Amount,
+            l.UnitPrice.Currency,
+            l.Type))];
+    }
 
-    private async Task<IReadOnlyList<InvoiceLineResponse>> GetInvoiceLinesAsync(InvoiceId invoiceId, CancellationToken cancellationToken)
+    public IReadOnlyList<InvoicePaymentResponse> MapInvoicePayments(IReadOnlyCollection<InvoiceAllocation> allocations)
     {
-        return await _dbContext.InvoiceLines
-            .AsNoTracking()
-            .Where(l => l.InvoiceId == invoiceId)
-            .Select(InvoiceMappings.ToInvoiceLineResponse())
-            .ToListAsync(cancellationToken);
+        return [.. allocations.Select(a => new InvoicePaymentResponse(
+            a.Amount.Currency,
+            a.Amount.Amount,
+            a.AppliedOn))];
     }
-    private async Task<IReadOnlyList<InvoicePaymentResponse>> GetInvoicePaymentsAsync(InvoiceId invoiceId, CancellationToken cancellationToken)
+
+    public IReadOnlyList<InvoiceCreditResponse> MapInvoiceCredits(IReadOnlyCollection<InvoiceCreditAllocation> credits)
     {
-        return await _dbContext.InvoicesAllocations
-            .AsNoTracking()
-            .Where(l => l.InvoiceId == invoiceId)
-            .Select(InvoiceMappings.ToInvoicePaymentResponse())
-            .ToListAsync(cancellationToken);
+        return [.. credits.Select(c => new InvoiceCreditResponse(
+            c.Amount.Currency,
+            c.Amount.Amount,
+            c.AppliedOn))];
     }
-    private async Task<IReadOnlyList<InvoiceCreditResponse>> GetInvoiceCreditsAsync(InvoiceId invoiceId, CancellationToken cancellationToken)
-    {
-        return await _dbContext.InvoicesCreditAllocations
-            .AsNoTracking()
-            .Where(l => l.InvoiceId == invoiceId)
-            .Select(InvoiceMappings.ToInvoiceCreditResponse())
-            .ToListAsync(cancellationToken);
-    }
+
+
+
+    //private async Task<IReadOnlyList<InvoiceLineResponse>> GetInvoiceLinesAsync(InvoiceId invoiceId, CancellationToken cancellationToken)
+    //{
+    //    return await _dbContext.InvoiceLines
+    //        .AsNoTracking()
+    //        .Where(l => l.InvoiceId == invoiceId)
+    //        .Select(InvoiceMappings.ToInvoiceLineResponse())
+    //        .ToListAsync(cancellationToken);
+    //}
+    //private async Task<IReadOnlyList<InvoicePaymentResponse>> GetInvoicePaymentsAsync(InvoiceId invoiceId, CancellationToken cancellationToken)
+    //{
+    //    return await _dbContext.InvoicesAllocations
+    //        .AsNoTracking()
+    //        .Where(l => l.InvoiceId == invoiceId)
+    //        .Select(InvoiceMappings.ToInvoicePaymentResponse())
+    //        .ToListAsync(cancellationToken);
+    //}
+    //private async Task<IReadOnlyList<InvoiceCreditResponse>> GetInvoiceCreditsAsync(InvoiceId invoiceId, CancellationToken cancellationToken)
+    //{
+    //    return await _dbContext.InvoicesCreditAllocations
+    //        .AsNoTracking()
+    //        .Where(l => l.InvoiceId == invoiceId)
+    //        .Select(InvoiceMappings.ToInvoiceCreditResponse())
+    //        .ToListAsync(cancellationToken);
+    //}
 }
