@@ -1,5 +1,6 @@
 ﻿using DongonResidentialsRental.Application.Abstractions.Messaging;
 using DongonResidentialsRental.Application.Behaviors;
+using DongonResidentialsRental.Application.Invoices.Policies;
 using DongonResidentialsRental.Application.Messaging;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
@@ -49,6 +50,9 @@ public static class DependencyInjection
         services.AddScoped<ICommandDispatcher, CommandDispatcher>();
         services.AddScoped<IQueryDispatcher, QueryDispatcher>();
         services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
+
+
+        services.AddTransient<IInvoiceIssuancePolicy, InvoiceIssuancePolicy>();
 
 
         return services;

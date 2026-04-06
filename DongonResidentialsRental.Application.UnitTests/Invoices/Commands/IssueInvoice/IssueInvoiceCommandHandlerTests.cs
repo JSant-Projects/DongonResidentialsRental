@@ -4,14 +4,17 @@ using DongonResidentialsRental.Application.Abstractions.Messaging;
 using DongonResidentialsRental.Application.Abstractions.Persistence;
 using DongonResidentialsRental.Application.Exceptions;
 using DongonResidentialsRental.Application.Invoices.Commands.IssueInvoice;
+using DongonResidentialsRental.Application.Invoices.Policies;
 using DongonResidentialsRental.Domain.Invoice;
 using DongonResidentialsRental.Domain.Lease;
 using DongonResidentialsRental.Domain.Shared;
 using DongonResidentialsRental.Domain.Tenant;
+using DongonResidentialsRental.Domain.Unit;
 using NSubstitute;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Unit = DongonResidentialsRental.Application.Abstractions.Messaging.Unit;
 
 namespace DongonResidentialsRental.Application.UnitTests.Invoices.Commands.IssueInvoice;
 
@@ -19,6 +22,8 @@ public sealed class IssueInvoiceCommandHandlerTests
 {
     private readonly IInvoiceRepository _invoiceRepository = Substitute.For<IInvoiceRepository>();
     private readonly IDateTimeProvider _dateTimeProvider = Substitute.For<IDateTimeProvider>();
+    private readonly ILeaseRepository _leaseRepository = Substitute.For<ILeaseRepository>();
+    private readonly IInvoiceIssuancePolicy _invoiceIssuancePolicy = Substitute.For<IInvoiceIssuancePolicy>();
 
     private readonly IssueInvoiceCommandHandler _handler;
 
@@ -26,7 +31,9 @@ public sealed class IssueInvoiceCommandHandlerTests
     {
         _handler = new IssueInvoiceCommandHandler(
             _invoiceRepository,
-            _dateTimeProvider);
+            _dateTimeProvider,
+            _leaseRepository, 
+            _invoiceIssuancePolicy);
     }
 
     [Fact]
@@ -61,6 +68,16 @@ public sealed class IssueInvoiceCommandHandlerTests
         var invoiceId = NewInvoiceId();
         var command = new IssueInvoiceCommand(invoiceId);
 
+        var lease = Lease.Create(
+          occupancy: new TenantId(Guid.NewGuid()),
+          unitId: new UnitId(Guid.NewGuid()),
+          leaseTerm: LeaseTerm.Create(new DateOnly(2026, 2, 1), null),
+          monthlyRate: Money.Create("CAD", 1200m),
+          billingSettings: BillingSettings.Create(1, 5),
+          utilityResponsibility: UtilityResponsibility.Create(
+              tenantPaysElectricity: true,
+              tenantPaysWater: false));
+
         var today = new DateTime(2026, 3, 27);
         var expectedDateOnly = DateOnly.FromDateTime(today);
 
@@ -69,6 +86,10 @@ public sealed class IssueInvoiceCommandHandlerTests
         _invoiceRepository
             .GetByIdAsync(invoiceId)
             .Returns(invoice);
+
+        _leaseRepository
+            .GetByIdAsync(invoice.LeaseId)
+            .Returns(lease);
 
         // Act
         await _handler.Handle(command, CancellationToken.None);
@@ -89,17 +110,77 @@ public sealed class IssueInvoiceCommandHandlerTests
         var invoiceId = NewInvoiceId();
         var command = new IssueInvoiceCommand(invoiceId);
 
+
+        var lease = Lease.Create(
+          occupancy: new TenantId(Guid.NewGuid()),
+          unitId: new UnitId(Guid.NewGuid()),
+          leaseTerm: LeaseTerm.Create(new DateOnly(2026, 2, 1), null),
+          monthlyRate: Money.Create("CAD", 1200m),
+          billingSettings: BillingSettings.Create(1, 5),
+          utilityResponsibility: UtilityResponsibility.Create(
+              tenantPaysElectricity: true,
+              tenantPaysWater: false));
+
         _dateTimeProvider.Today.Returns(new DateOnly(2026, 3, 27));
 
         _invoiceRepository
             .GetByIdAsync(invoiceId)
             .Returns(invoice);
 
+        _leaseRepository
+            .GetByIdAsync(invoice.LeaseId)
+            .Returns(lease);
+
         // Act
         var result = await _handler.Handle(command, CancellationToken.None);
 
         // Assert
         result.Should().Be(Unit.Value);
+    }
+
+    [Fact]
+    public async Task Handle_Should_Throw_DomainException_When_InvoiceIssuancePolicy_Does_Not_Allow_Issuance()
+    {
+        // Arrange
+        var invoice = CreateDraftInvoice(
+            new DateOnly(2026, 2, 26),
+            new DateOnly(2026, 3, 26),
+            new DateOnly(2026, 4, 6));
+
+        var invoiceId = NewInvoiceId();
+        var command = new IssueInvoiceCommand(invoiceId);
+
+        var lease = Lease.Create(
+            occupancy: new TenantId(Guid.NewGuid()),
+            unitId: new UnitId(Guid.NewGuid()),
+            leaseTerm: LeaseTerm.Create(new DateOnly(2026, 2, 1), null),
+            monthlyRate: Money.Create("CAD", 1200m),
+            billingSettings: BillingSettings.Create(1, 5),
+            utilityResponsibility: UtilityResponsibility.Create(
+                tenantPaysElectricity: true,
+                tenantPaysWater: false));
+
+        _invoiceRepository
+            .GetByIdAsync(invoiceId)
+            .Returns(invoice);
+
+        _leaseRepository
+            .GetByIdAsync(invoice.LeaseId)
+            .Returns(lease);
+
+        _invoiceIssuancePolicy
+            .When(x => x.EnsureCanIssue(invoice, lease))
+            .Do(_ => throw new DomainException("Electricity line is required before issuing this invoice."));
+
+        // Act
+        Func<Task> act = async () => await _handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        await act.Should()
+            .ThrowAsync<DomainException>()
+            .WithMessage("Electricity line is required before issuing this invoice.");
+
+        _invoiceIssuancePolicy.Received(1).EnsureCanIssue(invoice, lease);
     }
 
     private static InvoiceId NewInvoiceId() => new InvoiceId(Guid.NewGuid());

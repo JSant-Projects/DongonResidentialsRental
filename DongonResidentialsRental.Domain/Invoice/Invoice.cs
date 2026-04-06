@@ -130,6 +130,17 @@ public sealed class Invoice: AggregateRoot
     {
         EnsureIsDraft();
 
+        var existingLine = _lines.FirstOrDefault(l =>
+            l.Type == type &&
+            l.UnitPrice == unitPrice &&
+            l.Description == description);
+
+        if (existingLine is not null)
+        {
+            existingLine.IncreaseQuantity(quantity);
+            return;
+        }
+
         var line = InvoiceLine.Create(InvoiceId, description, quantity, unitPrice, type);
 
         if (unitPrice.Currency != Currency)
@@ -221,4 +232,8 @@ public sealed class Invoice: AggregateRoot
         AddDomainEvent(new InvoiceCancelledDomainEvent(InvoiceId, LeaseId));
     }
 
+    public bool HasLineOfType(InvoiceLineType type)
+    {
+        return _lines.Any(l => l.Type == type);
+    }
 }

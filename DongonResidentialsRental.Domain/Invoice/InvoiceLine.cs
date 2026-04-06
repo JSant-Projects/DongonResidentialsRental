@@ -7,7 +7,7 @@ public sealed class InvoiceLine
     public InvoiceLineId InvoiceLineId { get; }
     public InvoiceId InvoiceId { get; }
     public string Description { get; }
-    public int Quantity { get; }
+    public int Quantity { get; private set; }
     public Money UnitPrice { get; }
     public Money LineTotal => UnitPrice.Multiply(Quantity);
     public InvoiceLineType Type { get; }
@@ -52,6 +52,12 @@ public sealed class InvoiceLine
             quantity, 
             unitPrice, 
             type);
+    }
+
+    public void IncreaseQuantity(int quantity)
+    {
+        Ensure.InRangeInteger(quantity, 1, int.MaxValue, "Amount to increase must be at least 1.");
+        Quantity += quantity;
     }
 
 

@@ -118,6 +118,46 @@ public sealed class InvoiceTests
             .WithMessage("Line currency must match invoice currency.");
     }
 
+    [Fact]
+    public void AddLine_Should_Increase_Quantity_When_Same_Type_UnitPrice_And_Description_Already_Exist()
+    {
+        // Arrange
+        var invoice = CreateDraftInvoice("CAD");
+        AddLine(invoice, "Electricity", 1, 100m, InvoiceLineType.Electricity);
+
+        // Act
+        AddLine(invoice, "Electricity", 2, 100m, InvoiceLineType.Electricity);
+
+        // Assert
+        invoice.Lines.Should().HaveCount(1);
+
+        var line = invoice.Lines.Single();
+        line.Description.Should().Be("Electricity");
+        line.Type.Should().Be(InvoiceLineType.Electricity);
+        line.Quantity.Should().Be(3);
+        line.UnitPrice.Should().Be(CreateMoney("CAD", 100m));
+        line.LineTotal.Should().Be(CreateMoney("CAD", 300m));
+
+        invoice.Total.Should().Be(CreateMoney("CAD", 300m));
+        invoice.Balance.Should().Be(CreateMoney("CAD", 300m));
+    }
+
+    [Fact]
+    public void AddLine_Should_Add_New_Line_When_Same_Type_But_UnitPrice_Is_Different()
+    {
+        // Arrange
+        var invoice = CreateDraftInvoice("CAD");
+        AddLine(invoice, "Electricity", 1, 100m, InvoiceLineType.Electricity);
+
+        // Act
+        AddLine(invoice, "Electricity", 1, 120m, InvoiceLineType.Electricity);
+
+        // Assert
+        invoice.Lines.Should().HaveCount(2);
+        invoice.Total.Should().Be(CreateMoney("CAD", 220m));
+        invoice.Balance.Should().Be(CreateMoney("CAD", 220m));
+    }
+
     // ---------- Issue ----------
     [Fact]
     public void Issue_Should_Throw_DomainException_When_No_Lines()
