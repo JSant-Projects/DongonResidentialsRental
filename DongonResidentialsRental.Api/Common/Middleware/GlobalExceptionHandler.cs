@@ -1,5 +1,5 @@
 ﻿using DongonResidentialsRental.Application.Exceptions;
-using DongonResidentialsRental.Domain.Shared;
+using DongonResidentialsRental.Domain.Shared.Exceptions;
 using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
@@ -41,6 +41,15 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
                 Title = "Validation failed.",
                 Status = StatusCodes.Status400BadRequest,
                 Detail = "One or more validation errors occurred.",
+                Instance = httpContext.Request.Path
+            },
+
+            OperationNotAllowedException operationNotAllowedException => 
+                    new ProblemDetails
+            {
+                Title = "Operation not allowed.",
+                Status = StatusCodes.Status409Conflict,
+                Detail = operationNotAllowedException.Message,
                 Instance = httpContext.Request.Path
             },
 

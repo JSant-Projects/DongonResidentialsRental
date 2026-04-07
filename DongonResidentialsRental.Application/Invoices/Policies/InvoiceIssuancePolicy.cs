@@ -1,6 +1,7 @@
 ﻿using DongonResidentialsRental.Domain.Invoice;
 using DongonResidentialsRental.Domain.Lease;
 using DongonResidentialsRental.Domain.Shared;
+using DongonResidentialsRental.Domain.Shared.Exceptions;
 
 namespace DongonResidentialsRental.Application.Invoices.Policies;
 
