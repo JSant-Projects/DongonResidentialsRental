@@ -1,5 +1,6 @@
 ﻿using DongonResidentialsRental.Domain.Building;
 using DongonResidentialsRental.Domain.Shared;
+using DongonResidentialsRental.Domain.Shared.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -27,7 +28,7 @@ public sealed class Unit
     public void PutUnderMaintenance() 
     {
         if (Status == UnitStatus.Inactive)
-            throw new DomainException("Cannot put an inactive unit under maintenance.");
+            throw new OperationNotAllowedException("Cannot put an inactive unit under maintenance.");
 
         Status = UnitStatus.Maintenance; 
     }

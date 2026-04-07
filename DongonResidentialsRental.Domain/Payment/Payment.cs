@@ -1,6 +1,7 @@
 ﻿using DongonResidentialsRental.Domain.Invoice;
 using DongonResidentialsRental.Domain.Payment.Events;
 using DongonResidentialsRental.Domain.Shared;
+using DongonResidentialsRental.Domain.Shared.Exceptions;
 using DongonResidentialsRental.Domain.Tenant;
 using System;
 using System.Collections.Generic;
@@ -106,7 +107,7 @@ public sealed class Payment: AggregateRoot
     public void Reverse(DateOnly reversedOn, string reason)
     {
         if (Status is PaymentStatus.Reversed)
-            throw new DomainException("Payment is already reversed.");
+            throw new OperationNotAllowedException("Payment is already reversed.");
 
         Ensure.NotNullOrWhiteSpace(reason);
 

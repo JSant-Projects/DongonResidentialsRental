@@ -1,4 +1,5 @@
 ﻿using DongonResidentialsRental.Domain.Shared;
+using DongonResidentialsRental.Domain.Shared.Exceptions;
 using System.Security.Cryptography.X509Certificates;
 
 namespace DongonResidentialsRental.Domain.Invoice;

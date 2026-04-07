@@ -1,6 +1,7 @@
 ﻿using DongonResidentialsRental.Domain.Lease.Events;
 using DongonResidentialsRental.Domain.Meter;
 using DongonResidentialsRental.Domain.Shared;
+using DongonResidentialsRental.Domain.Shared.Exceptions;
 using DongonResidentialsRental.Domain.Tenant;
 using DongonResidentialsRental.Domain.Unit;
 using System;
@@ -96,11 +97,11 @@ public sealed class Lease: AggregateRoot
 
         // If lease is Active, we generally treat the start date as immutable.
         if (IsActive(today) && Term.StartDate != newTerm.StartDate)
-            throw new DomainException("Cannot change lease start date once the lease is active.");
+            throw new OperationNotAllowedException("Cannot change lease start date once the lease is active.");
 
         // If lease is Active, don't allow retroactive end dates.
         if (IsActive(today) && (newTerm.EndDate.HasValue && newTerm.EndDate < today))
-            throw new DomainException("Cannot change lease end date to a past date for an active lease.");
+            throw new OperationNotAllowedException("Cannot change lease end date to a past date for an active lease.");
 
         Term = newTerm;
     }
@@ -119,7 +120,7 @@ public sealed class Lease: AggregateRoot
 
             if (today >= currentDueDate && newSettings.DueDayOfMonth != BillingSettings.DueDayOfMonth)
             {
-                throw new DomainException(
+                throw new OperationNotAllowedException(
                     "Cannot change the due day once the current billing due date has been reached."
                 );
             }
@@ -142,7 +143,7 @@ public sealed class Lease: AggregateRoot
         if (IsActive(dateNow))
             return;
             
-        throw new DomainException("Operation allowed only when lease is in Draft or Active state.");
+        throw new OperationNotAllowedException("Operation allowed only when lease is in Draft or Active state.");
     }
 
     private void EnsureIsDraft()
@@ -150,7 +151,7 @@ public sealed class Lease: AggregateRoot
         if (Status is LeaseStatus.Draft)
             return;
 
-        throw new DomainException("Operation allowed only when lease is in Draft state.");
+        throw new OperationNotAllowedException("Operation allowed only when lease is in Draft state.");
     }
 
     public void ChangeMonthlyRate(Money newRate, DateOnly today)
@@ -166,7 +167,7 @@ public sealed class Lease: AggregateRoot
     public void Terminate(DateOnly terminationDate, DateOnly today)
     {
         if (!IsActive(today))
-            throw new DomainException("Cannot terminate a lease that is not active.");
+            throw new OperationNotAllowedException("Cannot terminate a lease that is not active.");
 
         if (Term.EndDate.HasValue && terminationDate > Term.EndDate.Value)
             throw new DomainException("Termination date cannot be later than the lease end date.");
@@ -185,7 +186,7 @@ public sealed class Lease: AggregateRoot
         if (IsActive(dateNow))
             return;
 
-        throw new DomainException("Operation allowed only when lease is active.");
+        throw new OperationNotAllowedException("Operation allowed only when lease is active.");
     }
 
     public bool IsActive(DateOnly dateNow) => Status == LeaseStatus.Active && Term.Includes(dateNow);

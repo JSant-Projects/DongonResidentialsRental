@@ -3,6 +3,7 @@ using DongonResidentialsRental.Domain.Invoice;
 using DongonResidentialsRental.Domain.Lease;
 using DongonResidentialsRental.Domain.Payment;
 using DongonResidentialsRental.Domain.Shared;
+using DongonResidentialsRental.Domain.Shared.Exceptions;
 using DongonResidentialsRental.Domain.Tenant;
 using System;
 using System.Collections.Generic;
@@ -57,7 +58,7 @@ public sealed class CreditNote: AggregateRoot
         if (Status is CreditNoteStatus.Draft)
             return;
 
-        throw new DomainException("Operation allowed only when credit note is in Draft state.");
+        throw new OperationNotAllowedException("Operation allowed only when credit note is in Draft state.");
 
     }
 
@@ -65,7 +66,7 @@ public sealed class CreditNote: AggregateRoot
     {
         if (Status is CreditNoteStatus.Issued)
             return;
-        throw new DomainException("Operation allowed only when credit note is in Issued state.");
+        throw new OperationNotAllowedException("Operation allowed only when credit note is in Issued state.");
     }   
 
     public void Issue(DateOnly issuedOn)
@@ -82,7 +83,7 @@ public sealed class CreditNote: AggregateRoot
     {
         EnsureIsIssued();
         if (_allocations.Any())
-            throw new DomainException("Cannot void a credit note that has been applied to invoices.");
+            throw new OperationNotAllowedException("Cannot void a credit note that has been applied to invoices.");
 
         Status = CreditNoteStatus.Voided;
 
@@ -98,7 +99,7 @@ public sealed class CreditNote: AggregateRoot
             .ToList();
 
         if (allocationsToRemove.Count == 0)
-            throw new DomainException("No allocation exists for this payment.");
+            throw new OperationNotAllowedException("No allocation exists for this payment.");
 
         foreach (var allocation in allocationsToRemove)
         {

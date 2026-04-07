@@ -1,4 +1,5 @@
 ﻿using DongonResidentialsRental.Domain.Shared;
+using DongonResidentialsRental.Domain.Shared.Exceptions;
 using DongonResidentialsRental.Domain.Unit;
 using System;
 using System.Collections.Generic;
@@ -59,7 +60,7 @@ public sealed class Meter
         if (Status == MeterStatus.Active)
             return;
 
-        throw new DomainException("Meter is not active.");
+        throw new OperationNotAllowedException("Meter is not active.");
     }
 
 

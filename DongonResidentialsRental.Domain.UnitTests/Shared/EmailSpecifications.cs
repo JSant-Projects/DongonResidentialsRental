@@ -1,5 +1,6 @@
 ﻿using AwesomeAssertions;
 using DongonResidentialsRental.Domain.Shared;
+using DongonResidentialsRental.Domain.Shared.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -24,11 +25,11 @@ public class EmailSpecifications
     [Theory]
     [InlineData("")]
     [InlineData(null)]
-    public void Create_Should_Throw_ArgumentException_When_Email_Is_Empty_Or_Null(string email)
+    public void Create_Should_Throw_DomainException_When_Email_Is_Empty_Or_Null(string email)
     {
         Action act = () => Email.Create(email);
 
-        act.Should().ThrowExactly<ArgumentException>().WithMessage("Email cannot be null or empty*");
+        act.Should().ThrowExactly<DomainException>().WithMessage("Email cannot be null or empty*");
     }
 
 

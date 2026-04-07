@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DongonResidentialsRental.Domain.Shared.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -14,7 +15,7 @@ public static class Ensure
     {
         if (string.IsNullOrWhiteSpace(value))
         {
-            throw new ArgumentException(message ?? "The value can't be null or empty", paraName);
+            throw new DomainException(message ?? "The value can't be null or empty");
         }
     }
 
@@ -25,7 +26,7 @@ public static class Ensure
     {
         if (value == Guid.Empty)
         {
-            throw new ArgumentException(message ?? "The value can't be null or empty", paraName);
+            throw new DomainException(message ?? "The value can't be null or empty");
         }
     }
 
@@ -37,7 +38,7 @@ public static class Ensure
     {
         if (value.Length != length)
         {
-            throw new ArgumentException(message ?? "The characters should be in exact length", paraName);
+            throw new DomainException(message ?? "The characters should be in exact length");
         }
     }
 
@@ -48,7 +49,7 @@ public static class Ensure
     {
         if (value is null)
         {
-            throw new ArgumentException(message ?? "The value can't be null", paraName);
+            throw new DomainException(message ?? "The value can't be null");
         }
     }
 
@@ -61,7 +62,7 @@ public static class Ensure
     {
         if (value < from || value > to)
         {
-            throw new ArgumentOutOfRangeException(paraName, value, message ?? "The value can't be out of range");
+            throw new DomainException(message ?? "The value can't be out of range");
         }
     }
 
@@ -72,7 +73,7 @@ public static class Ensure
     {
         if (value < 0)
         {
-            throw new ArgumentOutOfRangeException(paraName, value, message ?? "The value can't be out of range");
+            throw new DomainException(message ?? "The value can't be out of range");
         }
     }
 
@@ -83,7 +84,7 @@ public static class Ensure
     {
         if (value < 0)
         {
-            throw new ArgumentOutOfRangeException(paraName, value, message ?? "The value can't be out of range");
+            throw new DomainException(message ?? "The value can't be out of range");
         }
     }
 }

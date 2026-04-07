@@ -1,6 +1,7 @@
 ﻿using AwesomeAssertions;
 using DongonResidentialsRental.Domain.Invoice;
 using DongonResidentialsRental.Domain.Shared;
+using DongonResidentialsRental.Domain.Shared.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -13,28 +14,28 @@ public class BillingSpecifications
     [InlineData(0)]
     [InlineData(29)]
     [InlineData(-1)]
-    public void Create_Should_Throw_ArgumentException_When_DueDayOfMonth_Is_Invalid(int dueDayOfMonth)
+    public void Create_Should_Throw_DomainException_When_DueDayOfMonth_Is_Invalid(int dueDayOfMonth)
     {
         // Act
         Action act = () => BillingSettings.Create(dueDayOfMonth, 0);
 
         // Assert
         act.Should()
-            .ThrowExactly<ArgumentOutOfRangeException>()
+            .ThrowExactly<DomainException>()
             .WithMessage("Due day of month must be between 1 and 28*");
     }
 
     [Theory]
     [InlineData(-1)]
     [InlineData(-10)]
-    public void Create_Should_Throw_ArgumentException_When_GracePeriodDays_Is_Negative(int gracePeriodDays)
+    public void Create_Should_Throw_DomainException_When_GracePeriodDays_Is_Negative(int gracePeriodDays)
     {
         // Act
         Action act = () => BillingSettings.Create(5, gracePeriodDays);
 
         // Assert
         act.Should()
-            .ThrowExactly<ArgumentOutOfRangeException>()
+            .ThrowExactly<DomainException>()
             .WithMessage("Grace period days cannot be negative*");
     }
 

@@ -3,6 +3,7 @@ using DongonResidentialsRental.Domain.Invoice.Events;
 using DongonResidentialsRental.Domain.Lease;
 using DongonResidentialsRental.Domain.Payment;
 using DongonResidentialsRental.Domain.Shared;
+using DongonResidentialsRental.Domain.Shared.Exceptions;
 
 namespace DongonResidentialsRental.Domain.Invoice;
 
@@ -62,25 +63,25 @@ public sealed class Invoice: AggregateRoot
         if (Status is InvoiceStatus.Draft)
             return;
 
-        throw new DomainException("Operation allowed only when invoice is in Draft state.");
+        throw new OperationNotAllowedException("Operation allowed only when invoice is in Draft state.");
 
     }
 
     private void EnsureCanAcceptPayment()
     {
         if (Status is InvoiceStatus.Draft or InvoiceStatus.Cancelled)
-            throw new DomainException("Operation is not allowed when invoice is in Draft or Cancelled state.");
+            throw new OperationNotAllowedException("Operation is not allowed when invoice is in Draft or Cancelled state.");
 
         if (Balance.Amount == 0)
-            throw new DomainException("Invoice is already fully paid.");
+            throw new OperationNotAllowedException("Invoice is already fully paid.");
     }
 
     private void EnsureCanApplyCredit()
     {
         if (Status is InvoiceStatus.Draft or InvoiceStatus.Cancelled)
-            throw new DomainException("Operation is not allowed when invoice is in Draft or Cancelled state.");
+            throw new OperationNotAllowedException("Operation is not allowed when invoice is in Draft or Cancelled state.");
         if (Balance.Amount == 0)
-            throw new DomainException("Invoice is already fully paid.");
+            throw new OperationNotAllowedException("Invoice is already fully paid.");
     }
 
 
@@ -88,7 +89,7 @@ public sealed class Invoice: AggregateRoot
     {
         EnsureIsDraft();
         if (_lines.Count == 0)
-            throw new DomainException("Cannot issue an invoice with no lines.");
+            throw new OperationNotAllowedException("Cannot issue an invoice with no lines.");
 
         Status = InvoiceStatus.Issued;
         IssuedOn = issuedOn;
@@ -160,7 +161,7 @@ public sealed class Invoice: AggregateRoot
             throw new DomainException("Payment exceeds remaining balance.");
 
         if (_allocations.Any(a => a.PaymentId == paymentId))
-            throw new DomainException("Payment has already been applied to this invoice.");
+            throw new OperationNotAllowedException("Payment has already been applied to this invoice.");
 
         var allocation = InvoiceAllocation.Create(InvoiceId, paymentId, amount, appliedOn);
 
@@ -194,7 +195,7 @@ public sealed class Invoice: AggregateRoot
             .ToList();
 
         if (allocationsToRemove.Count == 0)
-            throw new DomainException("No allocation exists for this payment.");
+            throw new OperationNotAllowedException("No allocation exists for this payment.");
 
         foreach (var allocation in allocationsToRemove)
         {
@@ -212,7 +213,7 @@ public sealed class Invoice: AggregateRoot
             .Where(c => c.CreditNoteId == creditNoteId)
             .ToList();
         if (allocationsToRemove.Count == 0)
-            throw new DomainException("No allocation exists for this credit note.");
+            throw new OperationNotAllowedException("No allocation exists for this credit note.");
         foreach (var allocation in allocationsToRemove)
         {
             _creditAllocations.Remove(allocation);
@@ -225,7 +226,7 @@ public sealed class Invoice: AggregateRoot
     public void Cancel()
     {
         if (AmountPaid.Amount > 0)
-            throw new DomainException("Cannot cancel an invoice that has been paid.");
+            throw new OperationNotAllowedException("Cannot cancel an invoice that has been paid.");
 
         Status = InvoiceStatus.Cancelled;
 

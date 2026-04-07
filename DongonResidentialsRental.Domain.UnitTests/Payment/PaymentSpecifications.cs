@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using DongonResidentialsRental.Domain.Payment.Events;
+using DongonResidentialsRental.Domain.Shared.Exceptions;
 
 namespace DongonResidentialsRental.Domain.UnitTests.Payment;
 
@@ -209,7 +210,7 @@ public class PaymentSpecifications
 
 
     [Fact]
-    public void Reverse_Should_Throw_DomainException_When_Already_Reversed()
+    public void Reverse_Should_Throw_OperationNotAllowedException_When_Already_Reversed()
     {
         // Arrange
         var payment = CreatePayment(100m);
@@ -219,7 +220,7 @@ public class PaymentSpecifications
         Action act = () => payment.Reverse(Today(), "Another reason");
 
         // Assert
-        act.Should().ThrowExactly<DomainException>()
+        act.Should().ThrowExactly<OperationNotAllowedException>()
             .WithMessage("Payment is already reversed.");
     }
 

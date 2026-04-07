@@ -1,5 +1,6 @@
 ﻿using AwesomeAssertions;
 using DongonResidentialsRental.Domain.Shared;
+using DongonResidentialsRental.Domain.Shared.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -34,28 +35,28 @@ public class MoneySpecifications
     [Theory]
     [InlineData("")]
     [InlineData(null)]
-    public void Create_Should_Throw_ArgumentException_When_Currency_Length_Is_Empty_Or_Null(string currency)
+    public void Create_Should_Throw_DomainException_When_Currency_Length_Is_Empty_Or_Null(string currency)
     {
         Action act = () => Money.Create(currency, 50.5m);
-        act.Should().ThrowExactly<ArgumentException>().WithMessage($"Currency cannot be null or empty*");
+        act.Should().ThrowExactly<DomainException>().WithMessage($"Currency cannot be null or empty*");
     }
 
     [Theory]
     [InlineData("USDD")]
     [InlineData("EU")]
     [InlineData("JPYYYYYY")]
-    public void Create_Should_Throw_ArgumentException_When_Currency_Length_Is_Invalid(string currency)
+    public void Create_Should_Throw_DomainException_When_Currency_Length_Is_Invalid(string currency)
     {
         Action act = () => Money.Create(currency, 1000);
-        act.Should().ThrowExactly<ArgumentException>().WithMessage($"Currency must be a 3-letter ISO code*");
+        act.Should().ThrowExactly<DomainException>().WithMessage($"Currency must be a 3-letter ISO code*");
     }
 
     [Theory]
     [InlineData(-1)]
-    public void Create_Should_Throw_ArgumentException_When_Amount_Is_Negative(decimal amount)
+    public void Create_Should_Throw_DomainException_When_Amount_Is_Negative(decimal amount)
     {
         Action act = () => Money.Create("USD", amount);
-        act.Should().ThrowExactly<ArgumentOutOfRangeException>().WithMessage($"Amount cannot be negative*");
+        act.Should().ThrowExactly<DomainException>().WithMessage($"Amount cannot be negative*");
     }
 
 
@@ -74,7 +75,7 @@ public class MoneySpecifications
     [InlineData("USD", "JPY")]
     [InlineData("EUR", "USD")]
     [InlineData("JPY", "PHP")]
-    public void Add_Should_Throw_ArgumentException_When_Other_Currency_Is_Different(string currency, string otherCurrency)
+    public void Add_Should_Throw_DomainException_When_Other_Currency_Is_Different(string currency, string otherCurrency)
     {
         var initialMoney = Money.Create(currency, 100);
         Action act = () => initialMoney.Add(Money.Create(otherCurrency, 100));
@@ -96,7 +97,7 @@ public class MoneySpecifications
     [InlineData("USD", "JPY")]
     [InlineData("EUR", "USD")]
     [InlineData("JPY", "PHP")]
-    public void Subtract_Should_Throw_ArgumentException_When_Other_Currency_Is_Different(string currency, string otherCurrency)
+    public void Subtract_Should_Throw_DomainException_When_Other_Currency_Is_Different(string currency, string otherCurrency)
     {
         var initialMoney = Money.Create(currency, 100);
         Action act = () => initialMoney.Subtract(Money.Create(otherCurrency, 100));

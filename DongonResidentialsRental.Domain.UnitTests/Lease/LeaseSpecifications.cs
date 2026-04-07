@@ -6,6 +6,7 @@ using DongonResidentialsRental.Domain.Tenant;
 using DongonResidentialsRental.Domain.Unit;
 using System;
 using DongonResidentialsRental.Domain.Lease;
+using DongonResidentialsRental.Domain.Shared.Exceptions;
 
 namespace DongonResidentialsRental.Domain.UnitTests.Lease;
 
@@ -98,7 +99,7 @@ public class LeaseSpecifications
     }
 
     [Fact]
-    public void Create_Should_Throw_ArgumentException_When_Occupancy_Is_Null()
+    public void Create_Should_Throw_DomainException_When_Occupancy_Is_Null()
     {
         // Arrange
         TenantId occupancy = null;
@@ -112,12 +113,12 @@ public class LeaseSpecifications
         Action act = () => DomainLease.Create(occupancy, unitId, term, rate, billingSettings, responsibility);
 
         // Assert
-        act.Should().ThrowExactly<ArgumentException>()
+        act.Should().ThrowExactly<DomainException>()
             .WithMessage("Occupancy cannot be null*");
     }
 
     [Fact]
-    public void Create_Should_Throw_ArgumentException_When_UnitId_Is_Null()
+    public void Create_Should_Throw_DomainException_When_UnitId_Is_Null()
     {
         // Arrange
         var occupancy = AnyTenantId();
@@ -131,12 +132,12 @@ public class LeaseSpecifications
         Action act = () => DomainLease.Create(occupancy, unitId, term, rate, billingSettings, responsibility);
 
         // Assert
-        act.Should().ThrowExactly<ArgumentException>()
+        act.Should().ThrowExactly<DomainException>()
             .WithMessage("Unit ID cannot be null*");
     }
 
     [Fact]
-    public void Create_Should_Throw_ArgumentException_When_LeaseTerm_Is_Null()
+    public void Create_Should_Throw_DomainException_When_LeaseTerm_Is_Null()
     {
         // Arrange
         var occupancy = AnyTenantId();
@@ -150,12 +151,12 @@ public class LeaseSpecifications
         Action act = () => DomainLease.Create(occupancy, unitId, term, rate, billingSettings, responsibility);
 
         // Assert
-        act.Should().ThrowExactly<ArgumentException>()
+        act.Should().ThrowExactly<DomainException>()
             .WithMessage("Lease term cannot be null*");
     }
 
     [Fact]
-    public void Create_Should_Throw_ArgumentException_When_MonthlyRate_Is_Null()
+    public void Create_Should_Throw_DomainException_When_MonthlyRate_Is_Null()
     {
         // Arrange
         var occupancy = AnyTenantId();
@@ -169,12 +170,12 @@ public class LeaseSpecifications
         Action act = () => DomainLease.Create(occupancy, unitId, term, rate, billingSettings, responsibility);
 
         // Assert
-        act.Should().ThrowExactly<ArgumentException>()
+        act.Should().ThrowExactly<DomainException>()
             .WithMessage("Monthly rate cannot be null*");
     }
 
     [Fact]
-    public void Create_Should_Throw_ArgumentException_When_MonthlyRate_Is_Zero()
+    public void Create_Should_Throw_DomainException_When_MonthlyRate_Is_Zero()
     {
         // Arrange
         var occupancy = AnyTenantId();
@@ -224,7 +225,7 @@ public class LeaseSpecifications
     }
 
     [Fact]
-    public void ChangeLeaseTerm_Should_Throw_DomainException_When_Changing_StartDate_While_Active()
+    public void ChangeLeaseTerm_Should_Throw_OperationNotAllowedException_When_Changing_StartDate_While_Active()
     {
         // Arrange
         var today = new DateOnly(2026, 01, 10);
@@ -242,12 +243,12 @@ public class LeaseSpecifications
         Action act = () => lease.ChangeLeaseTerm(changedStart, today);
 
         // Assert
-        act.Should().ThrowExactly<DomainException>()
+        act.Should().ThrowExactly<OperationNotAllowedException>()
             .WithMessage("Cannot change lease start date once the lease is active.");
     }
 
     [Fact]
-    public void ChangeLeaseTerm_Should_Throw_DomainException_When_Active_And_New_EndDate_Is_Past()
+    public void ChangeLeaseTerm_Should_Throw_OperationNotAllowedException_When_Active_And_New_EndDate_Is_Past()
     {
         // Arrange
         var today = new DateOnly(2026, 01, 10);
@@ -265,7 +266,7 @@ public class LeaseSpecifications
         Action act = () => lease.ChangeLeaseTerm(newTerm, today);
 
         // Assert
-        act.Should().ThrowExactly<DomainException>()
+        act.Should().ThrowExactly<OperationNotAllowedException>()
             .WithMessage("Cannot change lease end date to a past date for an active lease.");
     }
 
@@ -286,7 +287,7 @@ public class LeaseSpecifications
     }
 
     [Fact]
-    public void ChangeBillingSettings_Should_Throw_DomainException_When_Active_And_DueDay_Changes_After_DueDate_Reached()
+    public void ChangeBillingSettings_Should_Throw_OperationNotAllowedException_When_Active_And_DueDay_Changes_After_DueDate_Reached()
     {
         // Arrange
         // Existing due day = 5, and today is 5th => lock kicks in
@@ -306,7 +307,7 @@ public class LeaseSpecifications
         Action act = () => lease.ChangeBillingSettings(newSettings, today);
 
         // Assert
-        act.Should().ThrowExactly<DomainException>()
+        act.Should().ThrowExactly<OperationNotAllowedException>()
             .WithMessage("Cannot change the due day once the current billing due date has been reached.");
     }
 
@@ -381,7 +382,7 @@ public class LeaseSpecifications
     }
 
     [Fact]
-    public void ChangeUtilityResponsibility_Should_Throw_DomainException_When_Not_Draft()
+    public void ChangeUtilityResponsibility_Should_Throw_OperationNotAllowedException_When_Not_Draft()
     {
         // Arrange
         var today = new DateOnly(2026, 01, 10);
@@ -395,7 +396,7 @@ public class LeaseSpecifications
         Action act = () => lease.ChangeUtilityResponsibility(Responsibility(false, false));
 
         // Assert
-        act.Should().ThrowExactly<DomainException>()
+        act.Should().ThrowExactly<OperationNotAllowedException>()
             .WithMessage("Operation allowed only when lease is in Draft state.");
     }
 
@@ -426,7 +427,7 @@ public class LeaseSpecifications
     }
 
     [Fact]
-    public void Terminate_Should_Throw_DomainException_When_Lease_Is_Not_Active()
+    public void Terminate_Should_Throw_OperationNotAllowedException_When_Lease_Is_Not_Active()
     {
         // Arrange
         var today = new DateOnly(2026, 01, 10);
@@ -437,7 +438,7 @@ public class LeaseSpecifications
         Action act = () => lease.Terminate(terminationDate, today);
 
         // Assert
-        act.Should().ThrowExactly<DomainException>()
+        act.Should().ThrowExactly<OperationNotAllowedException>()
             .WithMessage("Cannot terminate a lease that is not active.");
     }
 

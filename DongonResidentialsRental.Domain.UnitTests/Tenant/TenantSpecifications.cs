@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Text;
 using AwesomeAssertions;
 using DongonResidentialsRental.Domain.Tenant;
+using DongonResidentialsRental.Domain.Shared.Exceptions;
 
 namespace DongonResidentialsRental.Domain.UnitTests.Tenant;
 
@@ -71,24 +72,24 @@ public class TenantSpecifications
     }
 
     [Fact]
-    public void Create_Should_Throw_ArgumentException_When_PersonalInfo_Is_Null()
+    public void Create_Should_Throw_DomainException_When_PersonalInfo_Is_Null()
     {
         // Arrange
         PersonalInfo personalInfo = null;
         var contactInfo = CreateContactInfo("jayson.santiago@sample.com", "09171234567");
         var act = () => CreateTenant(personalInfo, contactInfo);
-        act.Should().ThrowExactly<ArgumentException>()
+        act.Should().ThrowExactly<DomainException>()
             .WithMessage("Personal info cannot be null*");
     }
 
     [Fact]
-    public void Create_Should_Throw_ArgumentException_When_ContactInfo_Is_Null()
+    public void Create_Should_Throw_DomainException_When_ContactInfo_Is_Null()
     {
         // Arrange
         var personalInfo = CreatePersonalInfo("Jayson", "Santiago");
         ContactInfo contactInfo = null;
         var act = () => CreateTenant(personalInfo, contactInfo);
-        act.Should().ThrowExactly<ArgumentException>()
+        act.Should().ThrowExactly<DomainException>()
             .WithMessage("Contact info cannot be null*");
     }
 }

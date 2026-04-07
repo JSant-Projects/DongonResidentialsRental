@@ -9,6 +9,7 @@ using System;
 using DomainPayment = DongonResidentialsRental.Domain.Payment.Payment;
 using DomainInvoice = DongonResidentialsRental.Domain.Invoice.Invoice;
 using DomainCreditNote = DongonResidentialsRental.Domain.CreditNote.CreditNote;
+using DongonResidentialsRental.Domain.Shared.Exceptions;
 
 namespace DongonResidentialsRental.Domain.UnitTests.BillingFlow;
 

@@ -4,6 +4,7 @@ using DongonResidentialsRental.Domain.CreditNote.Events;
 using DongonResidentialsRental.Domain.Invoice;
 using DongonResidentialsRental.Domain.Lease;
 using DongonResidentialsRental.Domain.Shared;
+using DongonResidentialsRental.Domain.Shared.Exceptions;
 using DomainCreditNote = DongonResidentialsRental.Domain.CreditNote.CreditNote;
 
 namespace DongonResidentialsRental.Domain.UnitTests.CreditNote;
@@ -81,7 +82,7 @@ public sealed class CreditNoteSpecifications
     }
 
     [Fact]
-    public void Issue_Should_Throw_DomainException_When_CreditNote_Is_Not_Draft()
+    public void Issue_Should_Throw_OperationNotAllowedException_When_CreditNote_Is_Not_Draft()
     {
         // Arrange
         var creditNote = CreateIssuedCreditNote("CAD", 100m);
@@ -90,7 +91,7 @@ public sealed class CreditNoteSpecifications
         Action act = () => creditNote.Issue(Today());
 
         // Assert
-        act.Should().ThrowExactly<DomainException>()
+        act.Should().ThrowExactly<OperationNotAllowedException>()
             .WithMessage("Operation allowed only when credit note is in Draft state.");
     }
 
@@ -132,7 +133,7 @@ public sealed class CreditNoteSpecifications
     }
 
     [Fact]
-    public void Void_Should_Throw_DomainException_When_CreditNote_Is_Not_Issued()
+    public void Void_Should_Throw_OperationNotAllowedException_When_CreditNote_Is_Not_Issued()
     {
         // Arrange
         var creditNote = CreateDraftCreditNote("CAD", 100m);
@@ -141,12 +142,12 @@ public sealed class CreditNoteSpecifications
         Action act = () => creditNote.Void();
 
         // Assert
-        act.Should().ThrowExactly<DomainException>()
+        act.Should().ThrowExactly<OperationNotAllowedException>()
             .WithMessage("Operation allowed only when credit note is in Issued state.");
     }
 
     [Fact]
-    public void Void_Should_Throw_DomainException_When_CreditNote_Has_Allocations()
+    public void Void_Should_Throw_OperationNotAllowedException_When_CreditNote_Has_Allocations()
     {
         // Arrange
         var creditNote = CreateIssuedCreditNote("CAD", 100m);
@@ -156,7 +157,7 @@ public sealed class CreditNoteSpecifications
         Action act = () => creditNote.Void();
 
         // Assert
-        act.Should().ThrowExactly<DomainException>()
+        act.Should().ThrowExactly<OperationNotAllowedException>()
             .WithMessage("Cannot void a credit note that has been applied to invoices.");
     }
 
@@ -231,7 +232,7 @@ public sealed class CreditNoteSpecifications
             Today());
 
         // Assert
-        act.Should().ThrowExactly<DomainException>()
+        act.Should().ThrowExactly<OperationNotAllowedException>()
             .WithMessage("Operation allowed only when credit note is in Issued state.");
     }
 
@@ -362,7 +363,7 @@ public sealed class CreditNoteSpecifications
         Action act = () => creditNote.RemoveAllocation(NewInvoiceId());
 
         // Assert
-        act.Should().ThrowExactly<DomainException>()
+        act.Should().ThrowExactly<OperationNotAllowedException>()
             .WithMessage("No allocation exists for this payment.");
     }
 

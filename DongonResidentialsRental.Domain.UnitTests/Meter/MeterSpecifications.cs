@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using AwesomeAssertions;
-using DongonResidentialsRental.Domain.Shared;
+using DongonResidentialsRental.Domain.Shared.Exceptions;
 
 namespace DongonResidentialsRental.Domain.UnitTests.Meter;
 
@@ -30,14 +30,14 @@ public class MeterSpecifications
 
 
     [Fact]
-    public void Create_Should_Throw_ArgumentException_When_UnitId_Is_Null()
+    public void Create_Should_Throw_DomainException_When_UnitId_Is_Null()
     {
         // Arrange
         UnitId unitId = null;
         // Act
         Action act = () => DomainMeter.Create(unitId, MeterType.Electricity);
         // Assert
-        act.Should().ThrowExactly<ArgumentException>().WithMessage("Unit ID cannot be null*");
+        act.Should().ThrowExactly<DomainException>().WithMessage("Unit ID cannot be null*");
     }
 
     [Theory]
@@ -59,7 +59,7 @@ public class MeterSpecifications
     }
 
     [Fact]
-    public void AddReading_Should_Throw_DomainException_When_Meter_Is_Inactive()
+    public void AddReading_Should_Throw_OperationNotAllowedException_When_Meter_Is_Inactive()
     {
         // Arrange
         var unitId = new UnitId(Guid.NewGuid());
@@ -69,7 +69,7 @@ public class MeterSpecifications
         // Act
         Action act = () => meter.AddReading(date, 100);
         // Assert
-        act.Should().ThrowExactly<DomainException>().WithMessage("Meter is not active.");
+        act.Should().ThrowExactly<OperationNotAllowedException>().WithMessage("Meter is not active.");
     }
 
     [Fact]

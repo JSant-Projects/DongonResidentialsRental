@@ -5,6 +5,7 @@ using DongonResidentialsRental.Domain.Invoice.Events;
 using DongonResidentialsRental.Domain.Lease;
 using DongonResidentialsRental.Domain.Payment;
 using DongonResidentialsRental.Domain.Shared;
+using DongonResidentialsRental.Domain.Shared.Exceptions;
 using System;
 using Xunit;
 using DomainInvoice = DongonResidentialsRental.Domain.Invoice.Invoice;
@@ -63,7 +64,7 @@ public sealed class InvoiceTests
     }
 
     [Fact]
-    public void AddLine_Should_Throw_ArgumentException_When_Quantity_Is_Zero()
+    public void AddLine_Should_Throw_DomainException_When_Quantity_Is_Zero()
     {
         // Arrange
         var invoice = CreateDraftInvoice("CAD");
@@ -72,12 +73,12 @@ public sealed class InvoiceTests
         Action act = () => AddLine(invoice, "Rent", qty: 0, unitPrice: 100m, type: InvoiceLineType.Rent);
 
         // Assert
-        act.Should().ThrowExactly<ArgumentOutOfRangeException>()
+        act.Should().ThrowExactly<DomainException>()
             .WithMessage("Quantity must be at least 1.*");
     }
 
     [Fact]
-    public void AddLine_Should_Throw_ArgumentException_When_UnitPrice_Is_Null()
+    public void AddLine_Should_Throw_DomainException_When_UnitPrice_Is_Null()
     {
         // Arrange
         var invoice = CreateDraftInvoice("CAD");
@@ -86,12 +87,12 @@ public sealed class InvoiceTests
         Action act = () => invoice.AddLine("Rent", 1, null!, InvoiceLineType.Rent);
 
         // Assert
-        act.Should().ThrowExactly<ArgumentException>()
+        act.Should().ThrowExactly<DomainException>()
             .WithMessage("Unit price cannot be null*");
     }
 
     [Fact]
-    public void AddLine_Should_Throw_DomainException_When_Not_Draft()
+    public void AddLine_Should_Throw_OperationNotAllowedException_When_Not_Draft()
     {
         // Arrange
         var invoice = CreateIssuedInvoiceWithLine(currency: "CAD", lineTotal: 100m);
@@ -100,7 +101,7 @@ public sealed class InvoiceTests
         var act = () => AddLine(invoice, "Late penalty", qty: 1, unitPrice: 10m, type: InvoiceLineType.Penalty);
 
         // Assert
-        act.Should().Throw<DomainException>()
+        act.Should().Throw<OperationNotAllowedException>()
             .WithMessage("Operation allowed only when invoice is in Draft state.");
     }
 
@@ -209,7 +210,7 @@ public sealed class InvoiceTests
 
     // ---------- ApplyPayment ----------
     [Fact]
-    public void ApplyPayment_Should_Throw_DomainException_When_Not_Issued()
+    public void ApplyPayment_Should_Throw_OperationNotAllowedException_When_Not_Issued()
     {
         // Arrange
         var invoice = CreateDraftInvoice("CAD");
@@ -219,7 +220,7 @@ public sealed class InvoiceTests
         var act = () => ApplyPayment(invoice, amount: 50m);
 
         // Assert
-        act.Should().ThrowExactly<DomainException>()
+        act.Should().ThrowExactly<OperationNotAllowedException>()
             .WithMessage("Operation is not allowed when invoice is in Draft or Cancelled state.");
     }
 
@@ -266,7 +267,7 @@ public sealed class InvoiceTests
     }
 
     [Fact]
-    public void ApplyPayment_Should_Throw_DomainException_When_Same_PaymentId_Is_Applied_Twice()
+    public void ApplyPayment_Should_Throw_OperationNotAllowedException_When_Same_PaymentId_Is_Applied_Twice()
     {
         // Arrange
         var invoice = CreateIssuedInvoiceWithLine("CAD", 100m);
@@ -277,7 +278,7 @@ public sealed class InvoiceTests
         act += () => invoice.ApplyPayment(paymentId, CreateMoney("CAD", 30m), AppliedOn());
 
         // Assert
-        act.Should().Throw<DomainException>()
+        act.Should().Throw<OperationNotAllowedException>()
             .WithMessage("Payment has already been applied to this invoice.");
     }
 
@@ -348,7 +349,7 @@ public sealed class InvoiceTests
 
     // ---------- RemoveAllocation ----------
     [Fact]
-    public void RemoveAllocation_Should_Throw_DomainException_When_PaymentId_Does_Not_Exist()
+    public void RemoveAllocation_Should_Throw_OperationNotAllowedException_When_PaymentId_Does_Not_Exist()
     {
         // Arrange
         var invoice = CreateIssuedInvoiceWithLine("CAD", 100m);
@@ -360,7 +361,7 @@ public sealed class InvoiceTests
         Action act = () => invoice.RemoveAllocation(unknownPaymentId);
 
         // Assert
-        act.Should().ThrowExactly<DomainException>()
+        act.Should().ThrowExactly<OperationNotAllowedException>()
             .WithMessage("No allocation exists for this payment.");
     }
 
@@ -421,7 +422,7 @@ public sealed class InvoiceTests
     }
 
     [Fact]
-    public void RemoveAllocation_Should_Throw_DomainException_WhRemoveAllocation_Should_Throw_DomainException_When_PaymentId_Does_Not_Existen_Invoice_Is_Draft()
+    public void RemoveAllocation_Should_Throw_OperationNotAllowedException_WhRemoveAllocation_Should_Throw_DomainException_When_PaymentId_Does_Not_Existen_Invoice_Is_Draft()
     {
         // Arrange
         var invoice = CreateDraftInvoiceWithLine("CAD", 100m);
@@ -431,7 +432,7 @@ public sealed class InvoiceTests
         Action act = () => invoice.RemoveAllocation(paymentId);
 
         // Assert
-        act.Should().ThrowExactly<DomainException>()
+        act.Should().ThrowExactly<OperationNotAllowedException>()
             .WithMessage("No allocation exists for this payment.");
     }
 
@@ -456,7 +457,7 @@ public sealed class InvoiceTests
 
     // ---------- ApplyCredit ----------
     [Fact]
-    public void ApplyCredit_Should_Throw_DomainException_When_Not_Issued()
+    public void ApplyCredit_Should_Throw_OperationNotAllowedException_When_Not_Issued()
     {
         // Arrange
         var invoice = CreateDraftInvoice("CAD");
@@ -466,7 +467,7 @@ public sealed class InvoiceTests
         var act = () => ApplyCredit(invoice, amount: 50m);
 
         // Assert
-        act.Should().ThrowExactly<DomainException>()
+        act.Should().ThrowExactly<OperationNotAllowedException>()
             .WithMessage("Operation is not allowed when invoice is in Draft or Cancelled state.");
     }
 
@@ -551,7 +552,7 @@ public sealed class InvoiceTests
 
     // ---------- RemoveCreditAllocation ----------
     [Fact]
-    public void RemoveCreditAllocation_Should_Throw_DomainException_When_CreditNoteId_Does_Not_Exist()
+    public void RemoveCreditAllocation_Should_Throw_OperationNotAllowedException_When_CreditNoteId_Does_Not_Exist()
     {
         // Arrange
         var invoice = CreateIssuedInvoiceWithLine("CAD", 100m);
@@ -563,7 +564,7 @@ public sealed class InvoiceTests
         Action act = () => invoice.RemoveCreditAllocation(unknownCreditNoteId);
 
         // Assert
-        act.Should().ThrowExactly<DomainException>()
+        act.Should().ThrowExactly<OperationNotAllowedException>()
             .WithMessage("No allocation exists for this credit note.");
     }
 
@@ -658,7 +659,7 @@ public sealed class InvoiceTests
     }
 
     [Fact]
-    public void Cancel_Should_Throw_DomainException_When_Invoice_Has_Payments_Applied()
+    public void Cancel_Should_Throw_OperationNotAllowedException_When_Invoice_Has_Payments_Applied()
     {
         // Arrange
         var invoice = CreateIssuedInvoiceWithLine("CAD", 100m);
@@ -668,7 +669,7 @@ public sealed class InvoiceTests
         var act = () => invoice.Cancel();
 
         // Assert
-        act.Should().ThrowExactly<DomainException>()
+        act.Should().ThrowExactly<OperationNotAllowedException>()
             .WithMessage("Cannot cancel an invoice that has been paid.");
     }
 

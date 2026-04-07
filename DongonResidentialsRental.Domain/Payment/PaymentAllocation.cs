@@ -1,5 +1,6 @@
 ﻿using DongonResidentialsRental.Domain.Invoice;
 using DongonResidentialsRental.Domain.Shared;
+using DongonResidentialsRental.Domain.Shared.Exceptions;
 
 namespace DongonResidentialsRental.Domain.Payment;
 

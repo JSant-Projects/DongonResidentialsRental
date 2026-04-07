@@ -1,5 +1,6 @@
 ﻿using AwesomeAssertions;
 using DongonResidentialsRental.Domain.Shared;
+using DongonResidentialsRental.Domain.Shared.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -27,27 +28,27 @@ public class AddressSpecifications
     [Theory]
     [InlineData("", "Muntinlupa", "Manila", "1234")]
     [InlineData(null, "Paranaque", "Manila", "1235")]
-    public void Create_Should_Throw_ArgumentException_When_Street_Is_Empty_Or_Null(string street, string city, string province, string postalCode)
+    public void Create_Should_Throw_DomainException_When_Street_Is_Empty_Or_Null(string street, string city, string province, string postalCode)
     {
         Action act = () => Address.Create(street, city, province, postalCode);
-        act.Should().ThrowExactly<ArgumentException>().WithMessage("Street cannot be null or empty*");
+        act.Should().ThrowExactly<DomainException>().WithMessage("Street cannot be null or empty*");
     }
 
     [Theory]
     [InlineData("123 Main St", "", "Manila", "1234")]
     [InlineData("123 Main St", null, "Manila", "1235")]
-    public void Create_Should_Throw_ArgumentException_When_City_Is_Empty_Or_Null(string street, string city, string province, string postalCode)
+    public void Create_Should_Throw_DomainException_When_City_Is_Empty_Or_Null(string street, string city, string province, string postalCode)
     {
         Action act = () => Address.Create(street, city, province, postalCode);
-        act.Should().ThrowExactly<ArgumentException>().WithMessage("City cannot be null or empty*");
+        act.Should().ThrowExactly<DomainException>().WithMessage("City cannot be null or empty*");
     }
 
     [Theory]
     [InlineData("123 Main St", "Muntinlupa", "", "1234")]
     [InlineData("123 Main St", "Muntinlupa", null, "1235")]
-    public void Create_Should_Throw_ArgumentException_When_Province_Is_Empty_Or_Null(string street, string city, string province, string postalCode)
+    public void Create_Should_Throw_DomainException_When_Province_Is_Empty_Or_Null(string street, string city, string province, string postalCode)
     {
         Action act = () => Address.Create(street, city, province, postalCode);
-        act.Should().ThrowExactly<ArgumentException>().WithMessage("Province cannot be null or empty*");
+        act.Should().ThrowExactly<DomainException>().WithMessage("Province cannot be null or empty*");
     }
 }

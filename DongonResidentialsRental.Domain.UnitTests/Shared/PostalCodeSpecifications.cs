@@ -1,5 +1,6 @@
 ﻿using AwesomeAssertions;
 using DongonResidentialsRental.Domain.Shared;
+using DongonResidentialsRental.Domain.Shared.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -23,10 +24,10 @@ public class PostalCodeSpecifications
     [Theory]
     [InlineData("")]
     [InlineData(null)]
-    public void Create_Should_Throw_ArgumentException_When_PostalCode_Is_Empty_Or_Null(string postaCode)
+    public void Create_Should_Throw_DomainException_When_PostalCode_Is_Empty_Or_Null(string postaCode)
     {
         var act = () => PostalCode.Create(postaCode);
-        act.Should().ThrowExactly<ArgumentException>().WithMessage("Postal code cannot be null or empty*");
+        act.Should().ThrowExactly<DomainException>().WithMessage("Postal code cannot be null or empty*");
     }
 
     [Theory]

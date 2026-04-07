@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Text;
 using AwesomeAssertions;
 using DongonResidentialsRental.Domain.Unit;
-using DongonResidentialsRental.Domain.Shared;
+using DongonResidentialsRental.Domain.Shared.Exceptions;
 
 namespace DongonResidentialsRental.Domain.UnitTests.Unit;
 
@@ -36,27 +36,27 @@ public class UnitSpecifications
     }
 
     [Fact]
-    public void Create_Should_Throw_ArgumentException_When_BuildingId_Is_Null()
+    public void Create_Should_Throw_DomainException_When_BuildingId_Is_Null()
     {
         // Arrange
         BuildingId buildingId = NullBuildingId();
         // Act
         Action act = () => DomainUnit.Create(buildingId, "12B", 3);
         // Assert
-        act.Should().ThrowExactly<ArgumentException>().WithMessage("BuildingId cannot be null*");
+        act.Should().ThrowExactly<DomainException>().WithMessage("BuildingId cannot be null*");
     }
 
     [Theory]
     [InlineData("")]
     [InlineData(null)]
-    public void Create_Should_Throw_ArgumentException_When_UnitNumber_Is_Null_Or_Empty(string unitNumber)
+    public void Create_Should_Throw_DomainException_When_UnitNumber_Is_Null_Or_Empty(string unitNumber)
     {
         // Arrange
         var buildingId = new BuildingId(Guid.NewGuid());
         // Act
         Action act = () => DomainUnit.Create(buildingId, unitNumber, 3);
         // Assert
-        act.Should().ThrowExactly<ArgumentException>().WithMessage("Unit number cannot be null or empty*");
+        act.Should().ThrowExactly<DomainException>().WithMessage("Unit number cannot be null or empty*");
     }
 
     // ---------- SetMaintenance ----------
@@ -82,7 +82,7 @@ public class UnitSpecifications
         Action act = () => unit.Deactivate();
         act += () => unit.PutUnderMaintenance();
         // Assert
-        act.Should().ThrowExactly<DomainException>().WithMessage("Cannot put an inactive unit under maintenance.");
+        act.Should().ThrowExactly<OperationNotAllowedException>().WithMessage("Cannot put an inactive unit under maintenance.");
     }
 
     // ---------- SetAvailable ----------
