@@ -24,6 +24,8 @@ public sealed class ChangeBillingSettingsTests : IntegrationTestBase
 
         var building = await BuildingSeederHelper.SeedBuildingAsync(Factory);
 
+        Factory.Today = new DateOnly(2026, 4, 10);
+
         var unit = await UnitSeederHelper.SeedUnitAsync(
             Factory,
             buildingId: building.BuildingId);

@@ -59,6 +59,8 @@ public sealed class GetTenantsWithoutLeaseLookupTests : IntegrationTestBase
     {
         await ResetDatabaseAsync();
 
+        Factory.Today = new DateOnly(2024, 04, 10);
+
         var tenantWithLease = await TenantSeederHelper.SeedTenantAsync(
             Factory,
             tenantFirstName: "Jayson",
@@ -79,7 +81,7 @@ public sealed class GetTenantsWithoutLeaseLookupTests : IntegrationTestBase
             Factory,
             tenantWithLease.TenantId,
             unit.UnitId,
-            startDate: DateOnly.FromDateTime(DateTime.UtcNow).AddDays(-10),
+            startDate: new DateOnly(2024, 3, 20),
             endDate: null,
             status: Domain.Lease.LeaseStatus.Active);
 

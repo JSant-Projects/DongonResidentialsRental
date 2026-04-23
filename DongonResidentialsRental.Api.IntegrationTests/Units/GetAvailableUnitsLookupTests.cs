@@ -106,6 +106,8 @@ public sealed class GetAvailableUnitsLookupTests : IntegrationTestBase
         // Arrange
         await ResetDatabaseAsync();
 
+        Factory.Today = new DateOnly(2026, 4, 10);
+
         Unit unitWithoutLease;
         Unit unitWithActiveLease;
         Tenant tenant;
@@ -137,8 +139,8 @@ public sealed class GetAvailableUnitsLookupTests : IntegrationTestBase
             Factory,
             tenant.TenantId,
             unitWithActiveLease.UnitId,
-            DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(-5)),
-            DateOnly.FromDateTime(DateTime.UtcNow.Date.AddMonths(6)),
+            startDate: new DateOnly(2026, 1, 1),
+            endDate: new DateOnly(2026, 12, 31),
             status: LeaseStatus.Active);
 
         // Act

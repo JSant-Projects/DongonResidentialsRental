@@ -1,4 +1,5 @@
-﻿using DongonResidentialsRental.Persistence;
+﻿using DongonResidentialsRental.Application.Abstractions.Clock;
+using DongonResidentialsRental.Persistence;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +19,14 @@ public sealed class IntegrationTestWebAppFactory : WebApplicationFactory<Program
         .WithUsername("postgres")
         .WithPassword("postgres")
         .Build();
+
+    private readonly FakeDateTimeProvider _fakeDateTimeProvider = new();
+
+    public DateOnly Today
+    {
+        get => _fakeDateTimeProvider.Today;
+        set => _fakeDateTimeProvider.Today = value;
+    }
 
     public string ConnectionString => _postgresContainer.GetConnectionString();
 
@@ -44,6 +53,17 @@ public sealed class IntegrationTestWebAppFactory : WebApplicationFactory<Program
             {
                 services.Remove(dbContextDescriptor);
             }
+
+            var dateTimeProviderDescriptor = services
+                .SingleOrDefault(d => d.ServiceType == typeof(IDateTimeProvider));
+
+            if (dateTimeProviderDescriptor is not null)
+            {
+                services.Remove(dateTimeProviderDescriptor);
+            }
+
+            services.AddSingleton<IDateTimeProvider>(_fakeDateTimeProvider);
+
 
             services.AddDbContext<ApplicationDbContext>(options =>
             {

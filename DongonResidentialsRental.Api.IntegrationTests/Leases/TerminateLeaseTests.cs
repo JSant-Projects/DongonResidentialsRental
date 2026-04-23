@@ -22,6 +22,8 @@ public sealed class TerminateLeaseTests : IntegrationTestBase
     {
         await ResetDatabaseAsync();
 
+        Factory.Today = new DateOnly(2026, 4, 10);
+
         var building = await BuildingSeederHelper.SeedBuildingAsync(Factory);
 
         var unit = await UnitSeederHelper.SeedUnitAsync(
