@@ -5,6 +5,9 @@ using DongonResidentialsRental.Application.Buildings.Queries.GetAvailableBuildin
 using DongonResidentialsRental.Application.Buildings.Queries.GetBuildingById;
 using DongonResidentialsRental.Application.Buildings.Queries.GetBuildings;
 using DongonResidentialsRental.Domain.Invoice;
+using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 namespace DongonResidentialsRental.Api.Endpoints.Buildings;
 
@@ -55,8 +58,15 @@ public static class BuildingEndpoint
     private static async Task<IResult> GetBuildings(
         [AsParameters] GetBuildingsQueryParams queryParams,
         IQueryDispatcher dispatcher,
+        IValidator<GetBuildingsQueryParams> validator,
         CancellationToken cancellationToken)
     {
+        var validationResult = await validator.ValidateAsync(queryParams, cancellationToken);
+
+        if (!validationResult.IsValid)
+        {
+            throw new FluentValidation.ValidationException(validationResult.Errors);
+        }
 
         var result = await dispatcher.Send(
                             queryParams.ToQuery(), 

@@ -3,7 +3,7 @@
 namespace DongonResidentialsRental.Api.Contracts.Units;
 
 public sealed record GetUnitsQueryParams(
-    UnitStatus? Status,
+    string? Status,
     string? UnitNumber,
     Guid? BuildingId,
     int? Floor,

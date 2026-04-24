@@ -107,21 +107,16 @@ public static class UnitEndpoint
     private static async Task<IResult> GetUnits(
         [AsParameters] GetUnitsQueryParams queryParams,
         IQueryDispatcher dispatcher,
+        IValidator<GetUnitsQueryParams> validator,
         CancellationToken cancellationToken)
     {
-        var buildingId = queryParams.BuildingId.HasValue ? 
-                            new BuildingId(queryParams.BuildingId.Value) : 
-                            null;
+        var validationResult = await validator.ValidateAsync(queryParams, cancellationToken);
+        if (!validationResult.IsValid)
+        {
+            throw new FluentValidation.ValidationException(validationResult.Errors);
+        }
 
-        var getUnitsQuery = new GetUnitsQuery(
-            queryParams.Status,
-            queryParams.UnitNumber,
-            buildingId, 
-            queryParams.Floor, 
-            queryParams.Page, 
-            queryParams.PageSize);
-
-        var result = await dispatcher.Send(getUnitsQuery, cancellationToken);
+        var result = await dispatcher.Send(queryParams.ToQuery(), cancellationToken);
 
         return Results.Ok(result);
     }

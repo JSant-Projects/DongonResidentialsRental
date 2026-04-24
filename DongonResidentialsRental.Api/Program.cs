@@ -3,6 +3,7 @@ using DongonResidentialsRental.Api.Common.Middleware;
 using DongonResidentialsRental.Application;
 using DongonResidentialsRental.Infrastracture;
 using DongonResidentialsRental.Persistence;
+using FluentValidation;
 using Microsoft.AspNetCore.Http.Json;
 using Scalar.AspNetCore;
 using System.Text.Json;
@@ -27,6 +28,8 @@ builder.Services
     .AddApplication()
     .AddPersistence(config)
     .AddInfrastructure();
+
+builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();

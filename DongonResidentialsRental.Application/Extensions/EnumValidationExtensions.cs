@@ -22,7 +22,7 @@ public static class EnumValidationExtensions
             return Enum.TryParse<TEnum>(value, ignoreCase: true, out _);
         })
         .WithMessage(_ =>
-        {
+        { 
             var validValues = string.Join(", ",
                 Enum.GetNames(typeof(TEnum))
                     .Select(ToCamelCase));

@@ -9,6 +9,6 @@ public class GetBuildingsQueryParamsValidator : AbstractValidator<GetBuildingsQu
     public GetBuildingsQueryParamsValidator()
     {
         RuleFor(x => x.Status)
-            .MustBeEnumValue<GetBuildingsQueryParams, BuildingStatus>();
+            .MustBeEnumValue<GetBuildingsQueryParams, BuildingStatus>(allowEmpty: true);
     }
 }
