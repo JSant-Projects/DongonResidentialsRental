@@ -3,6 +3,7 @@ using DongonResidentialsRental.Application.Abstractions.Data;
 using DongonResidentialsRental.Application.Abstractions.Messaging;
 using DongonResidentialsRental.Application.Abstractions.Persistence;
 using DongonResidentialsRental.Application.Models;
+using DongonResidentialsRental.Domain.Building;
 using DongonResidentialsRental.Domain.Lease;
 using Microsoft.EntityFrameworkCore;
 
@@ -37,7 +38,7 @@ public sealed record GetLeasesQueryHandler : IQueryHandler<GetLeasesQuery, Paged
             .Skip((request.Page - 1) * request.PageSize)
             .Take(request.PageSize)
             .Select(x => new LeaseResponse(
-                x.LeaseId,
+                x.LeaseId.Id,
                 x.BuildingName,
                 x.UnitNumber,
                 x.TenantFullName,
@@ -52,9 +53,9 @@ public sealed record GetLeasesQueryHandler : IQueryHandler<GetLeasesQuery, Paged
 
         return new PagedResult<LeaseResponse>(
             items,
-            totalCount,
             request.Page,
-            request.PageSize);
+            request.PageSize,
+            totalCount);
     }
 
     private IQueryable<LeaseListRow> BuildLeaseListQuery()
@@ -69,11 +70,11 @@ public sealed record GetLeasesQueryHandler : IQueryHandler<GetLeasesQuery, Paged
                 on unit.BuildingId equals building.BuildingId
             select new LeaseListRow
             {
-                LeaseId = lease.LeaseId.Id,
+                LeaseId = lease.LeaseId,
                 TenantFullName = tenant.PersonalInfo.FirstName + " " + tenant.PersonalInfo.LastName,
                 UnitNumber = unit.UnitNumber,
                 BuildingName = building.Name,
-                BuildingId = building.BuildingId.Id,
+                BuildingId = building.BuildingId,
                 StartDate = lease.Term.StartDate,
                 EndDate = lease.Term.EndDate,
                 RentAmount = lease.MonthlyRate.Amount,
@@ -100,7 +101,9 @@ public sealed record GetLeasesQueryHandler : IQueryHandler<GetLeasesQuery, Paged
 
         if (request.BuildingId.HasValue)
         {
-            query = query.Where(x => x.BuildingId == request.BuildingId.Value);
+            var buildingId = new BuildingId(request.BuildingId.Value);
+
+            query = query.Where(x => x.BuildingId == buildingId);
         }
 
         if (request.IsActive.HasValue)
@@ -126,11 +129,11 @@ public sealed record GetLeasesQueryHandler : IQueryHandler<GetLeasesQuery, Paged
 
     private sealed class LeaseListRow
     {
-        public Guid LeaseId { get; init; }
+        public LeaseId LeaseId { get; init; }
         public string TenantFullName { get; init; } = string.Empty;
         public string UnitNumber { get; init; } = string.Empty;
         public string BuildingName { get; init; } = string.Empty;
-        public Guid BuildingId { get; init; }
+        public BuildingId BuildingId { get; init; }
         public DateOnly StartDate { get; init; }
         public DateOnly? EndDate { get; init; }
         public decimal RentAmount { get; init; }
