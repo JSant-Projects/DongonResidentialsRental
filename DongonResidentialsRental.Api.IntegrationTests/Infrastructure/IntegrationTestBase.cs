@@ -3,8 +3,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Net.Http.Json;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace DongonResidentialsRental.Api.IntegrationTests.Infrastructure;
 
@@ -31,4 +33,12 @@ public abstract class IntegrationTestBase
 
     protected static HttpContent CreateJsonContent<T>(T value) =>
         JsonContent.Create(value);
+
+    protected static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
+    {
+        Converters =
+    {
+        new JsonStringEnumConverter(JsonNamingPolicy.CamelCase, allowIntegerValues: false)
+    }
+    };
 }

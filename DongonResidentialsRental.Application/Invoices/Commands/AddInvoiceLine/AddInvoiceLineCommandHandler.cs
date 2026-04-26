@@ -15,7 +15,9 @@ public sealed class AddInvoiceLineCommandHandler : ICommandHandler<AddInvoiceLin
     }
     public async Task<Unit> Handle(AddInvoiceLineCommand request, CancellationToken cancellationToken)
     {
-        var invoice = await _invoiceRepository.GetByIdAsync(request.InvoiceId);
+        var invoice = await _invoiceRepository.GetWithLinesByIdAsync(
+            request.InvoiceId, 
+            cancellationToken);
 
         if (invoice is null)
         {

@@ -64,7 +64,9 @@ public sealed class AddInvoiceLineCommandHandlerTests
             InvoiceLineType.Electricity);
 
         _invoiceRepository
-            .GetByIdAsync(invoice.InvoiceId)
+            .GetWithLinesByIdAsync(
+                invoice.InvoiceId,
+                Arg.Any<CancellationToken>())
             .Returns(invoice);
 
         // Act
@@ -102,7 +104,9 @@ public sealed class AddInvoiceLineCommandHandlerTests
             InvoiceLineType.Electricity);
 
         _invoiceRepository
-            .GetByIdAsync(invoice.InvoiceId)
+            .GetWithLinesByIdAsync(
+                invoice.InvoiceId,
+                Arg.Any<CancellationToken>())
             .Returns(invoice);
 
         // Act

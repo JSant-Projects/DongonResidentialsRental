@@ -17,4 +17,7 @@ public interface IInvoiceRepository
         IReadOnlyCollection<LeaseId> leaseIds,
         CancellationToken cancellationToken = default);
     void Remove(Invoice invoice);
+    Task<Invoice?> GetWithLinesByIdAsync(
+        InvoiceId invoiceId,
+        CancellationToken cancellationToken = default);
 }

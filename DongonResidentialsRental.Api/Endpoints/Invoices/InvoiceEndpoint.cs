@@ -95,12 +95,11 @@ public static class InvoiceEndpoint
     }
 
     private static async Task<IResult> GetinvoiceDetails(
-        Guid invoiceId,
+        InvoiceId invoiceId,
         IQueryDispatcher dispatcher,
         CancellationToken cancellationToken)
     {
-        var query = new GetInvoiceDetailsQuery(new InvoiceId(invoiceId));
-
+        var query = new GetInvoiceDetailsQuery(invoiceId);
         var result = await dispatcher.Send(query, cancellationToken);
 
         return Results.Ok(result);
@@ -169,13 +168,13 @@ public static class InvoiceEndpoint
     }
 
     private static async Task<IResult> AddInvoiceLine(
-        Guid invoiceId,
+        InvoiceId invoiceId,
         AddInvoiceLineRequest request,
         ICommandDispatcher dispatcher,
         CancellationToken cancellationToken)
     {
         var command = new AddInvoiceLineCommand(
-            new InvoiceId(invoiceId),
+            invoiceId,
             request.Description,
             request.Quantity, 
             request.Price, 
@@ -187,12 +186,12 @@ public static class InvoiceEndpoint
     }
 
     private static async Task<IResult> CancelInvoice(
-        Guid invoiceId,
+        InvoiceId invoiceId,
         ICommandDispatcher dispatcher,
         CancellationToken cancellationToken)
     {
         var command = new CancelInvoiceCommand(
-            new InvoiceId(invoiceId));
+            invoiceId);
 
         await dispatcher.Send(command, cancellationToken);
 
@@ -200,12 +199,12 @@ public static class InvoiceEndpoint
     }
 
     private static async Task<IResult> IssueInvoice(
-        Guid invoiceId,
+        InvoiceId invoiceId,
         ICommandDispatcher dispatcher,
         CancellationToken cancellationToken)
     {
         var command = new IssueInvoiceCommand(
-            new InvoiceId(invoiceId));
+            invoiceId);
         
         await dispatcher.Send(command, cancellationToken);
 
