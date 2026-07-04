@@ -1,12 +1,8 @@
 ﻿using DongonResidentialsRental.Domain.Lease.Events;
-using DongonResidentialsRental.Domain.Meter;
 using DongonResidentialsRental.Domain.Shared;
 using DongonResidentialsRental.Domain.Shared.Exceptions;
 using DongonResidentialsRental.Domain.Tenant;
 using DongonResidentialsRental.Domain.Unit;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace DongonResidentialsRental.Domain.Lease;
 
@@ -184,6 +180,14 @@ public sealed class Lease: AggregateRoot
     private void EnsureIsActive(DateOnly dateNow)
     {
         if (IsActive(dateNow))
+            return;
+
+        throw new OperationNotAllowedException("Operation allowed only when lease is active.");
+    }
+
+    public void EnsureCanGenerateInvoice(DateOnly today)
+    {
+        if (IsActive(today))
             return;
 
         throw new OperationNotAllowedException("Operation allowed only when lease is active.");

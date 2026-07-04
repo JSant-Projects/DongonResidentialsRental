@@ -14,7 +14,7 @@ public sealed class CancelInvoiceCommandHandler : ICommandHandler<CancelInvoiceC
     }
     public async Task<Unit> Handle(CancelInvoiceCommand request, CancellationToken cancellationToken)
     {
-        var invoice = await _invoiceRepository.GetByIdAsync(request.InvoiceId);
+        var invoice = await _invoiceRepository.GetWithAllocationsByIdAsync(request.InvoiceId, cancellationToken);
         if (invoice is null)
         {
             throw new NotFoundException(nameof(Invoice), request.InvoiceId);

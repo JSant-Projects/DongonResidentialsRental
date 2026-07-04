@@ -20,4 +20,7 @@ public interface IInvoiceRepository
     Task<Invoice?> GetWithLinesByIdAsync(
         InvoiceId invoiceId,
         CancellationToken cancellationToken = default);
+    Task<Invoice?> GetWithAllocationsByIdAsync(
+        InvoiceId invoiceId, 
+        CancellationToken cancellationToken = default);
 }

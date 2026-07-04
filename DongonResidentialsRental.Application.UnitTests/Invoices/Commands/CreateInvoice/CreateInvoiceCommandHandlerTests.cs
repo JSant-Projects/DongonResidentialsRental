@@ -1,4 +1,5 @@
 ﻿using AwesomeAssertions;
+using DongonResidentialsRental.Application.Abstractions.Clock;
 using DongonResidentialsRental.Application.Abstractions.Persistence;
 using DongonResidentialsRental.Application.Exceptions;
 using DongonResidentialsRental.Application.Invoices.Commands.CreateInvoice;
@@ -23,6 +24,7 @@ public class CreateInvoiceCommandHandlerTests
     private readonly IInvoiceRepository _invoiceRepository = Substitute.For<IInvoiceRepository>();
     private readonly ILeaseRepository _leaseRepository = Substitute.For<ILeaseRepository>();
     private readonly IInvoiceNumberGenerator _invoiceNumberGenerator = Substitute.For<IInvoiceNumberGenerator>();
+    private readonly IDateTimeProvider _dateTimeProvider = Substitute.For<IDateTimeProvider>();
 
     private readonly CreateInvoiceCommandHandler _handler;
     public CreateInvoiceCommandHandlerTests()
@@ -30,7 +32,8 @@ public class CreateInvoiceCommandHandlerTests
         _handler = new CreateInvoiceCommandHandler(
             _invoiceRepository,
             _leaseRepository,
-            _invoiceNumberGenerator);
+            _invoiceNumberGenerator,
+            _dateTimeProvider);
     }
 
     [Fact]
@@ -44,6 +47,8 @@ public class CreateInvoiceCommandHandlerTests
         var command = new CreateInvoiceCommand(
             leaseId,
             period);
+
+        _dateTimeProvider.Today.Returns(new DateOnly(2026, 2, 1));
 
         _leaseRepository
             .GetByIdAsync(leaseId, Arg.Any<CancellationToken>())
@@ -81,10 +86,15 @@ public class CreateInvoiceCommandHandlerTests
             currency: "CAD",
             dueDayOfMonth: 5);
 
+        lease.Activate();
+
         var period = new DateRange(new DateOnly(2026, 3, 1), new DateOnly(2026, 3, 31));
         var command = new CreateInvoiceCommand(
             lease.LeaseId,
             period);
+
+
+        _dateTimeProvider.Today.Returns(new DateOnly(2026, 2, 1));
 
         _leaseRepository
             .GetByIdAsync(lease.LeaseId, Arg.Any<CancellationToken>())
@@ -123,11 +133,16 @@ public class CreateInvoiceCommandHandlerTests
             currency: "CAD",
             dueDayOfMonth: 5);
 
+        lease.Activate();
+
         var period = new DateRange(new DateOnly(2026, 3, 1), new DateOnly(2026, 3, 31));
 
         var command = new CreateInvoiceCommand(
             lease.LeaseId,
             period);
+
+
+        _dateTimeProvider.Today.Returns(new DateOnly(2026, 2, 1));
 
         _leaseRepository
             .GetByIdAsync(lease.LeaseId, Arg.Any<CancellationToken>())
@@ -177,6 +192,8 @@ public class CreateInvoiceCommandHandlerTests
             startDate: new DateOnly(2026, 1, 1),
             endDate: null);
 
+        lease.Activate();
+
         var period = new DateRange(new DateOnly(2026, 2, 1), new DateOnly(2026, 2, 28));
 
         var command = new CreateInvoiceCommand(
@@ -184,6 +201,9 @@ public class CreateInvoiceCommandHandlerTests
             period);
 
         BillingPeriod? capturedBillingPeriod = null;
+
+
+        _dateTimeProvider.Today.Returns(new DateOnly(2026, 2, 1));
 
         _leaseRepository
             .GetByIdAsync(lease.LeaseId, Arg.Any<CancellationToken>())

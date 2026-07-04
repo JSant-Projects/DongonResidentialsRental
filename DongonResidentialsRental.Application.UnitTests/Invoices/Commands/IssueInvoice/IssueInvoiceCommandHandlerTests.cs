@@ -84,7 +84,7 @@ public sealed class IssueInvoiceCommandHandlerTests
         _dateTimeProvider.Today.Returns(DateOnly.FromDateTime(today));
 
         _invoiceRepository
-            .GetByIdAsync(
+            .GetWithLinesByIdAsync(
                 invoice.InvoiceId, 
                 Arg.Any<CancellationToken>())
             .Returns(invoice);
@@ -125,7 +125,7 @@ public sealed class IssueInvoiceCommandHandlerTests
         _dateTimeProvider.Today.Returns(new DateOnly(2026, 3, 27));
 
         _invoiceRepository
-            .GetByIdAsync(
+            .GetWithLinesByIdAsync(
                 invoice.InvoiceId,
                 Arg.Any<CancellationToken>())
             .Returns(invoice);
@@ -164,7 +164,7 @@ public sealed class IssueInvoiceCommandHandlerTests
                 tenantPaysWater: false));
 
         _invoiceRepository
-            .GetByIdAsync(
+            .GetWithLinesByIdAsync(
                 invoice.InvoiceId,
                 Arg.Any<CancellationToken>())
             .Returns(invoice);

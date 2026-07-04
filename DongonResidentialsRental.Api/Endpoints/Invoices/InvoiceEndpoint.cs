@@ -59,12 +59,12 @@ public static class InvoiceEndpoint
             .WithDescription("Adds a new line item to a specific invoice.")
             .Produces(StatusCodes.Status204NoContent);
 
-        group.MapPut("/{invoiceId:guid}/cancel", CancelInvoice)
+        group.MapPost("/{invoiceId:guid}/cancel", CancelInvoice)
             .WithName("CancelInvoice")
             .WithDescription("Cancels a specific invoice.")
             .Produces(StatusCodes.Status204NoContent);
 
-        group.MapPut("/{invoiceId:guid}/issue", IssueInvoice)
+        group.MapPost("/{invoiceId:guid}/issue", IssueInvoice)
             .WithName("IssueInvoice")
             .WithDescription("Issues a specific invoice.")
             .Produces(StatusCodes.Status204NoContent);

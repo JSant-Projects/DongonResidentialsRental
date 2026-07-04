@@ -32,7 +32,7 @@ public sealed class CancelInvoiceCommandHandlerTests
         var command = new CancelInvoiceCommand(invoiceId);
 
         _invoiceRepository
-            .GetByIdAsync(invoiceId)
+            .GetWithAllocationsByIdAsync(invoiceId)
             .Returns((Invoice?)null);
 
         // Act
@@ -53,7 +53,7 @@ public sealed class CancelInvoiceCommandHandlerTests
         var command = new CancelInvoiceCommand(invoice.InvoiceId);
 
         _invoiceRepository
-            .GetByIdAsync(invoice.InvoiceId)
+            .GetWithAllocationsByIdAsync(invoice.InvoiceId)
             .Returns(invoice);
 
         // Act
@@ -73,7 +73,7 @@ public sealed class CancelInvoiceCommandHandlerTests
         var command = new CancelInvoiceCommand(invoice.InvoiceId);
 
         _invoiceRepository
-            .GetByIdAsync(invoice.InvoiceId)
+            .GetWithAllocationsByIdAsync(invoice.InvoiceId)
             .Returns(invoice);
 
         // Act

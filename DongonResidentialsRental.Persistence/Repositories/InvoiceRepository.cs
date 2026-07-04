@@ -94,4 +94,13 @@ internal sealed class InvoiceRepository : IInvoiceRepository
                             i.InvoiceId == invoiceId,
                             cancellationToken);
     }
+
+    public async Task<Invoice?> GetWithAllocationsByIdAsync(InvoiceId invoiceId, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.Invoices
+                        .Include(i => i.Allocations)
+                        .FirstOrDefaultAsync(i =>
+                            i.InvoiceId == invoiceId,
+                            cancellationToken);
+    }
 }

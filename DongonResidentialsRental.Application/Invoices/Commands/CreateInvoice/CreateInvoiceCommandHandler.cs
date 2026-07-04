@@ -1,4 +1,5 @@
-﻿using DongonResidentialsRental.Application.Abstractions.Messaging;
+﻿using DongonResidentialsRental.Application.Abstractions.Clock;
+using DongonResidentialsRental.Application.Abstractions.Messaging;
 using DongonResidentialsRental.Application.Abstractions.Persistence;
 using DongonResidentialsRental.Application.Exceptions;
 using DongonResidentialsRental.Application.Invoices.Services;
@@ -16,23 +17,29 @@ public sealed class CreateInvoiceCommandHandler : ICommandHandler<CreateInvoiceC
     private readonly IInvoiceRepository _invoiceRepository;
     private readonly ILeaseRepository _leaseRepository;
     private readonly IInvoiceNumberGenerator _invoiceNumberGenerator;
+    private readonly IDateTimeProvider _dateTimeProvider;
     public CreateInvoiceCommandHandler(
         IInvoiceRepository invoiceRepository, 
         ILeaseRepository leaseRepository,
-        IInvoiceNumberGenerator invoiceNumberGenerator)
+        IInvoiceNumberGenerator invoiceNumberGenerator,
+        IDateTimeProvider dateTimeProvider)
     {
         _invoiceRepository = invoiceRepository;
         _leaseRepository = leaseRepository;
         _invoiceNumberGenerator = invoiceNumberGenerator;
+        _dateTimeProvider = dateTimeProvider;
     }
     public async Task<InvoiceId> Handle(CreateInvoiceCommand request, CancellationToken cancellationToken)
     {
         var lease = await _leaseRepository.GetByIdAsync(request.LeaseId, cancellationToken);
+        var today = _dateTimeProvider.Today;
 
         if (lease is null)
         {
             throw new NotFoundException(nameof(Lease), request.LeaseId);
         }
+
+        lease.EnsureCanGenerateInvoice(today);
 
 
         var billingPeriod = BillingPeriod.Create(request.Period.From, request.Period.To);
