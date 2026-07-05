@@ -35,9 +35,9 @@ public sealed class GetOverdueInvoicesQueryHandler : IQueryHandler<GetOverdueInv
             .ThenByDescending(x => x.DueDate)
             .ApplyPaging(request.Page, request.PageSize)
             .Select(x => new InvoiceResponse(
-                x.InvoiceId,
+                x.InvoiceId.Id,
                 x.InvoiceNumber,
-                x.LeaseId,
+                x.LeaseId.Id,
                 x.TenantName,
                 x.BuildingName,
                 x.UnitNumber,

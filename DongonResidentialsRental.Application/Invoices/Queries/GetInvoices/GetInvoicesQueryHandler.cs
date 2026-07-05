@@ -29,9 +29,9 @@ public sealed partial class GetInvoicesQueryHandler : IQueryHandler<GetInvoicesQ
             .ThenByDescending(x => x.DueDate)
             .ApplyPaging(request.Page, request.PageSize)
             .Select(x => new InvoiceResponse(
-                x.InvoiceId,
+                x.InvoiceId.Id,
                 x.InvoiceNumber,
-                x.LeaseId,
+                x.LeaseId.Id,
                 x.TenantName,
                 x.BuildingName,
                 x.UnitNumber,
@@ -46,9 +46,9 @@ public sealed partial class GetInvoicesQueryHandler : IQueryHandler<GetInvoicesQ
 
         return new PagedResult<InvoiceResponse>(
             items,
-            totalCount,
             request.Page,
-            request.PageSize);
+            request.PageSize,
+            totalCount);
     }
 }
 

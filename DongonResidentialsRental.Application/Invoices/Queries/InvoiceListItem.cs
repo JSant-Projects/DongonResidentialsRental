@@ -1,4 +1,5 @@
 ﻿using DongonResidentialsRental.Domain.Invoice;
+using DongonResidentialsRental.Domain.Lease;
 
 namespace DongonResidentialsRental.Application.Invoices.Queries;
 
@@ -21,9 +22,9 @@ public sealed record InvoiceListItem(
 
 public sealed class InvoiceListRow
 {
-    public Guid InvoiceId{ get; init; }
+    public InvoiceId InvoiceId{ get; init; }
     public string InvoiceNumber { get; init; } = string.Empty;
-    public Guid LeaseId{ get; init; }
+    public LeaseId LeaseId{ get; init; }
     public string TenantName { get; init; } = string.Empty;
     public string BuildingName{ get; init; } = string.Empty;
     public string UnitNumber{ get; init; } = string.Empty;

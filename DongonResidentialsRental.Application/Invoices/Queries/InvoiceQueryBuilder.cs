@@ -26,9 +26,9 @@ public static class InvoiceQueryBuilder
             on unit.BuildingId equals building.BuildingId
          select new InvoiceListRow
          {
-             InvoiceId = invoice.InvoiceId.Id,
+             InvoiceId = invoice.InvoiceId,
              InvoiceNumber = invoice.InvoiceNumber,
-             LeaseId = lease.LeaseId.Id,
+             LeaseId = lease.LeaseId,
              TenantName = tenant.PersonalInfo.FirstName + " " + tenant.PersonalInfo.LastName,
              BuildingName = building.Name,
              UnitNumber = unit.UnitNumber,
@@ -51,7 +51,7 @@ public static class InvoiceQueryBuilder
         if (leaseId is null)
             return query;
 
-        return query.Where(i => i.LeaseId == leaseId.Id);
+        return query.Where(i => i.LeaseId == leaseId);
     }
 
     public static IQueryable<InvoiceListRow> WithOutstandingBalance(
