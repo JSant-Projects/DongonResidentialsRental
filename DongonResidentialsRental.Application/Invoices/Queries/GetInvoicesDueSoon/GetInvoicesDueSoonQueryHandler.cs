@@ -51,8 +51,8 @@ public sealed class GetInvoicesDueSoonQueryHandler : IQueryHandler<GetInvoicesDu
 
         return new PagedResult<InvoiceResponse>(
             items,
-            totalCount,
             request.Page,
-            request.PageSize);
+            request.PageSize, 
+            totalCount);
     }
 }
